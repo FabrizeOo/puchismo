@@ -77,17 +77,7 @@ const nextConfig = {
     ];
   },
 
-  // Rewrites
-  async rewrites() {
-    return {
-      beforeFiles: [
-        {
-          source: '/api/:path*',
-          destination: '/api/:path*',
-        },
-      ],
-    };
-  },
+
 
   // Configuración de módulos
   webpack: (config, { isServer }) => {

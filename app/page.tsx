@@ -4,7 +4,7 @@ import { Footer } from '@/components/footer';
 
 export const metadata = {
   title: 'Puchismo — Inicio',
-  description: '¿Quieres ser parte de la comunidad? Únete al Discord de Puchismo y ve el Mundial 2026 en vivo con Bepucho.',
+  description: '¿Quieres ser parte de la comunidad? Únete al Discord de Puchismo para ver partidos de Champions, Premier League, Liga Española, Liga Peruana, Libertadores y más en vivo con Bepucho.',
 };
 
 export default function HomePage() {
