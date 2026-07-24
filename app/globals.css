@@ -15,6 +15,9 @@
   ::-webkit-scrollbar-track { background: #030b04; }
   ::-webkit-scrollbar-thumb { background: rgba(83,252,24,0.4); border-radius: 9999px; }
   ::-webkit-scrollbar-thumb:hover { background: rgba(83,252,24,0.7); }
+
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
 @layer components {

@@ -20,31 +20,30 @@ export function Navbar() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
     <motion.nav
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        scrolled
-          ? 'bg-dark-950/95 backdrop-blur-xl border-b shadow-elevation-2'
-          : 'bg-transparent'
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        scrolled || menuOpen
+          ? 'bg-dark-950/95 backdrop-blur-xl border-b border-emerald-500/20 shadow-elevation-2'
+          : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent'
       }`}
-      style={scrolled ? { borderBottomColor: 'rgba(83,252,24,0.15)' } : {}}
       initial={{ y: -80 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-32">
-          {/* Logo — solo imagen, sin texto */}
+        <div className="flex justify-between items-center h-20 sm:h-24 md:h-28">
+          {/* Logo */}
           <Link href="/" className="flex items-center group">
             <motion.div
               whileHover={{ scale: 1.08, rotate: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="relative w-28 h-28 rounded-2xl overflow-hidden"
+              className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden"
               style={{
                 filter: 'drop-shadow(0 0 16px rgba(83,252,24,0.6))',
               }}
@@ -60,7 +59,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-2">
             {navItems.map((item) =>
               item.external ? (
                 <a
@@ -68,34 +67,31 @@ export function Navbar() {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="nav-link"
+                  className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
                 >
                   {item.label}
                 </a>
-              ) : item.label === 'Rewards' ? (
-                <Link key={item.label} href={item.href} className="nav-link">
-                  <span
-                    className={`flex items-center gap-1 ${pathname === item.href ? 'neon-text-sm font-bold' : ''}`}
-                  >
-                    <span className="text-xs">🎁</span>
-                    {item.label}
-                  </span>
-                </Link>
               ) : (
-                <Link key={item.label} href={item.href} className="nav-link">
-                  <span style={pathname === item.href ? { color: '#53fc18' } : {}}>
-                    {item.label}
-                  </span>
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all ${
+                    pathname === item.href
+                      ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/30'
+                      : 'text-gray-300 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {item.label === 'Rewards' ? `🎁 ${item.label}` : item.label}
                 </Link>
               )
             )}
           </div>
 
-          {/* CTA Button */}
+          {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <motion.a
               href="/rewards"
-              className="text-sm py-2 px-4 rounded-xl font-bold transition-all"
+              className="text-xs sm:text-sm py-2 px-4 rounded-xl font-bold transition-all"
               style={{
                 background: 'rgba(83,252,24,0.1)',
                 border: '1px solid rgba(83,252,24,0.3)',
@@ -114,7 +110,7 @@ export function Navbar() {
               href="https://kick.com/bepucho"
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-kick text-sm py-2 px-4"
+              className="btn-kick text-xs sm:text-sm py-2 px-4"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -124,8 +120,9 @@ export function Navbar() {
 
           {/* Mobile burger */}
           <button
-            className="md:hidden text-white p-2"
+            className="md:hidden text-white p-2.5 rounded-xl bg-white/5 border border-white/10"
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
           >
             {menuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
           </button>
@@ -136,17 +133,16 @@ export function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            className="md:hidden backdrop-blur-xl border-t"
+            className="md:hidden backdrop-blur-2xl border-b border-emerald-500/20"
             style={{
-              background: 'rgba(3,11,4,0.97)',
-              borderTopColor: 'rgba(83,252,24,0.15)',
+              background: 'rgba(3,11,4,0.98)',
             }}
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="px-4 py-4 flex flex-col gap-2">
+            <div className="px-4 py-5 flex flex-col gap-2">
               {navItems.map((item) =>
                 item.external ? (
                   <a
@@ -154,20 +150,20 @@ export function Navbar() {
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                    className="px-4 py-3 text-sm font-bold text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
                     onClick={() => setMenuOpen(false)}
                   >
-                    {item.label}
+                    {item.label} ↗
                   </a>
                 ) : (
                   <Link
                     key={item.label}
                     href={item.href}
-                    className="px-4 py-3 rounded-lg transition-all"
+                    className="px-4 py-3 rounded-xl font-bold text-sm transition-all"
                     style={
                       pathname === item.href
-                        ? { color: '#53fc18', background: 'rgba(83,252,24,0.1)' }
-                        : { color: '#9ca3af' }
+                        ? { color: '#53fc18', background: 'rgba(83,252,24,0.1)', border: '1px solid rgba(83,252,24,0.3)' }
+                        : { color: '#d1d5db' }
                     }
                     onClick={() => setMenuOpen(false)}
                   >
@@ -175,12 +171,24 @@ export function Navbar() {
                   </Link>
                 )
               )}
-              <div className="flex gap-3 pt-2">
-                <a href="https://kick.com/bepucho" target="_blank" rel="noopener noreferrer" className="btn-kick flex-1 text-center text-sm py-2">
-                  🔴 Kick
+              <div className="flex gap-3 pt-3 mt-2 border-t border-white/10">
+                <a
+                  href="https://kick.com/bepucho"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-kick flex-1 text-center text-xs py-3 rounded-xl font-bold"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  🔴 Stream en Kick
                 </a>
-                <a href="https://discord.gg/puchismo" target="_blank" rel="noopener noreferrer" className="btn-discord flex-1 text-center text-sm py-2">
-                  Discord
+                <a
+                  href="https://discord.gg/puchismo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-discord flex-1 text-center text-xs py-3 rounded-xl font-bold"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Discord Oficial
                 </a>
               </div>
             </div>

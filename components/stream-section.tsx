@@ -44,7 +44,6 @@ function LiveChat({
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const msgIdRef = useRef(0);
 
-  // Paso 1: Obtener chatroom ID via proxy Next.js (evita CORS)
   useEffect(() => {
     fetch(`/api/kick/${channelSlug}`)
       .then((r) => r.json())
@@ -58,7 +57,6 @@ function LiveChat({
       .catch(() => setError('no-id'));
   }, [channelSlug]);
 
-  // Paso 2: Conectar al WebSocket de Pusher (backend de Kick) con auto-reconexión
   useEffect(() => {
     if (!channelId) return;
 
@@ -93,14 +91,9 @@ function LiveChat({
       ws.onmessage = (evt) => {
         try {
           const parsed = JSON.parse(evt.data);
-          // DEBUG: log every event received from Kick WebSocket
-          if (parsed.event !== 'pusher:pong' && parsed.event !== 'pusher:connection_established') {
-            console.log('[Kick WS] Event received:', parsed.event, '| loggedInAs:', loggedInUsername);
-          }
           if (parsed.event === 'App\\Events\\ChatMessageEvent') {
             const d = typeof parsed.data === 'string' ? JSON.parse(parsed.data) : parsed.data;
             const msgUser = d.sender?.username || d.sender?.slug || 'Usuario';
-            console.log('[Kick Chat] Message from:', msgUser, '| loggedIn:', loggedInUsername, '| match:', loggedInUsername && msgUser.toLowerCase() === loggedInUsername.toLowerCase());
             
             const newMsg: ChatMessage = {
               id: `${++msgIdRef.current}`,
@@ -112,9 +105,7 @@ function LiveChat({
             };
             setMessages((prev) => [...prev.slice(-150), newMsg]);
 
-            // Si el mensaje es del usuario conectado, sumamos un punto por chatear de forma automática
             if (loggedInUsername && msgUser.toLowerCase() === loggedInUsername.toLowerCase()) {
-              console.log('[Kick Chat] Sending chat heartbeat for:', loggedInUsername);
               fetch('/api/kick/heartbeat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -122,12 +113,11 @@ function LiveChat({
               })
               .then((res) => res.json())
               .then((data) => {
-                console.log('[Kick Chat] Heartbeat response:', data);
                 if (data.success && onStatsUpdate) {
                   onStatsUpdate(data);
                 }
               })
-              .catch((e) => console.error("Error sending chat heartbeat:", e));
+              .catch(() => {});
             }
           }
         } catch {}
@@ -156,7 +146,6 @@ function LiveChat({
     };
   }, [channelId, loggedInUsername]);
 
-  // Auto-scroll al fondo localmente en el contenedor
   useEffect(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
@@ -206,22 +195,22 @@ function LiveChat({
       {/* Mensajes */}
       <div 
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto px-3 py-3 space-y-2 scrollbar-thin"
+        className="flex-1 overflow-y-auto px-3 py-3 space-y-2 scrollbar-thin max-h-[400px] xl:max-h-[550px]"
       >
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center gap-4 py-8">
+          <div className="flex flex-col items-center justify-center h-full text-center gap-3 py-8">
             <motion.div
-              className="text-4xl"
+              className="text-3xl"
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
               💬
             </motion.div>
             <div>
-              <p className="text-gray-400 text-sm font-semibold mb-1">
+              <p className="text-gray-400 text-xs sm:text-sm font-semibold mb-1">
                 {connected ? 'Esperando mensajes...' : 'Cargando chat...'}
               </p>
-              <p className="text-gray-600 text-xs">
+              <p className="text-gray-600 text-[11px]">
                 El chat aparece aquí en tiempo real
               </p>
             </div>
@@ -259,7 +248,6 @@ function LiveChat({
             </motion.div>
           ))}
         </AnimatePresence>
-
       </div>
 
       {/* Footer del chat */}
@@ -268,7 +256,7 @@ function LiveChat({
           href="https://kick.com/bepucho"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full block text-center py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-electric/30 text-sm text-gray-400 hover:text-white transition-all"
+          className="w-full block text-center py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-electric/30 text-xs sm:text-sm text-gray-400 hover:text-white transition-all"
         >
           Chatear en Kick.com ↗
         </a>
@@ -288,7 +276,6 @@ export function StreamSection() {
   useEffect(() => {
     setMounted(true);
     
-    // Obtener usuario conectado
     const getCookie = (name: string) => {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -308,11 +295,9 @@ export function StreamSection() {
     }
   }, []);
 
-  // Heartbeat para sumar puntos de visualización (+10 puntos por minuto)
   useEffect(() => {
     if (!kickUser) return;
 
-    // Ejecuta el latido cada 60 segundos
     const interval = setInterval(() => {
       fetch('/api/kick/heartbeat', {
         method: 'POST',
@@ -335,24 +320,24 @@ export function StreamSection() {
           } : null);
         }
       })
-      .catch((e) => console.error("Error sending watch heartbeat:", e));
+      .catch(() => {});
     }, 60000);
 
     return () => clearInterval(interval);
   }, [kickUser]);
 
   return (
-    <section className="pt-20 pb-12 px-4 min-h-screen">
+    <section className="pt-24 sm:pt-28 pb-12 px-3 sm:px-4 min-h-screen">
       <div className="max-w-[1700px] mx-auto">
 
         {/* Header */}
         <motion.div
-          className="text-center py-8"
+          className="text-center py-4 sm:py-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-600/20 border border-red-500/40 text-red-400 text-sm font-bold mb-4">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-red-600/20 border border-red-500/40 text-red-400 text-xs sm:text-sm font-bold mb-3">
             <motion.span
               className="w-2 h-2 rounded-full bg-red-500"
               animate={{ opacity: [1, 0.3, 1] }}
@@ -360,17 +345,17 @@ export function StreamSection() {
             />
             CANAL EN VIVO — KICK.COM/BEPUCHO
           </div>
-          <h1 className="text-4xl md:text-5xl font-poppins font-black mb-3">
+          <h1 className="text-3xl sm:text-5xl font-poppins font-black mb-2">
             <span className="text-white">Stream de </span>
             <span className="text-gradient">Bepucho</span>
           </h1>
-          <p className="text-gray-400 text-lg">Mundial 2026 con toda la comunidad Puchismo</p>
+          <p className="text-gray-400 text-xs sm:text-base">Fútbol en vivo (Champions, Premier, Liga 1, etc.) con la comunidad Puchismo</p>
         </motion.div>
 
         {/* Notificación de puntos activa */}
         {kickUser && (
           <motion.div 
-            className="max-w-md mx-auto mb-6 p-3 rounded-xl border border-green-500/20 bg-green-500/5 text-center text-xs font-bold text-green-400 flex items-center justify-center gap-2"
+            className="max-w-md mx-auto mb-4 p-3 rounded-xl border border-green-500/20 bg-green-500/5 text-center text-xs font-bold text-green-400 flex items-center justify-center gap-2"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
@@ -379,31 +364,30 @@ export function StreamSection() {
           </motion.div>
         )}
 
-        {/* Stream + Chat — layout lado a lado */}
+        {/* Stream + Chat */}
         <motion.div
           className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-4 mt-2"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
         >
-          {/* ── PLAYER ── */}
+          {/* PLAYER */}
           <div className="flex flex-col gap-4">
-            <div className="glass-card overflow-hidden">
-              {/* Barra decorativa */}
+            <div className="glass-card overflow-hidden rounded-2xl">
               <div className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-dark-900/50">
                 <div className="flex gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-red-500" />
                   <div className="w-3 h-3 rounded-full bg-yellow-500" />
                   <div className="w-3 h-3 rounded-full bg-green-500" />
                 </div>
-                <span className="text-sm text-gray-400 font-mono">kick.com/bepucho</span>
+                <span className="text-xs sm:text-sm text-gray-400 font-mono">kick.com/bepucho</span>
                 <div className="ml-auto flex items-center gap-2">
                   <motion.div
                     className="w-2 h-2 rounded-full bg-red-500"
                     animate={{ opacity: [1, 0.3, 1] }}
                     transition={{ duration: 1, repeat: Infinity }}
                   />
-                  <span className="text-xs text-red-400 font-semibold">EN VIVO</span>
+                  <span className="text-[10px] sm:text-xs text-red-400 font-semibold">EN VIVO</span>
                 </div>
               </div>
 
@@ -423,19 +407,19 @@ export function StreamSection() {
             </div>
 
             {/* Info bar */}
-            <div className="glass-card p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="glass-card p-4 rounded-2xl flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-white">Bepucho</h2>
-                <p className="text-sm text-gray-400">
-                  Transmisiones del Mundial 2026 🏆 Comunidad Puchismo
+                <h2 className="text-base sm:text-lg font-bold text-white">Bepucho</h2>
+                <p className="text-xs sm:text-sm text-gray-400">
+                  Transmisiones en vivo de partidos 🏆 Comunidad Puchismo
                 </p>
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-2.5 w-full sm:w-auto">
                 <a
                   href="https://kick.com/bepucho"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-kick text-sm py-2 px-5 whitespace-nowrap"
+                  className="btn-kick text-xs sm:text-sm py-2 px-4 flex-1 sm:flex-none text-center whitespace-nowrap"
                 >
                   Abrir en Kick ↗
                 </a>
@@ -443,37 +427,16 @@ export function StreamSection() {
                   href="https://discord.gg/puchismo"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-discord text-sm py-2 px-5 whitespace-nowrap"
+                  className="btn-discord text-xs sm:text-sm py-2 px-4 flex-1 sm:flex-none text-center whitespace-nowrap"
                 >
                   Discord
                 </a>
               </div>
             </div>
-
-            {/* Aviso offline */}
-            <div className="glass-card border-yellow-500/20 p-4 flex items-start gap-3">
-              <span className="text-xl flex-shrink-0">💡</span>
-              <p className="text-sm text-gray-400">
-                Si el stream aparece offline, Bepucho no está transmitiendo en este momento.
-                Únete al{' '}
-                <a
-                  href="https://discord.gg/puchismo"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-indigo-400 hover:text-indigo-300 font-semibold"
-                >
-                  Discord
-                </a>{' '}
-                para recibir avisos de inicio de stream.
-              </p>
-            </div>
           </div>
 
-          {/* ── CHAT ── */}
-          <div
-            className="glass-card overflow-hidden flex flex-col"
-            style={{ height: 'calc(56.25vw * 0.6 + 200px)', maxHeight: '85vh', minHeight: '600px' }}
-          >
+          {/* CHAT */}
+          <div className="glass-card overflow-hidden rounded-2xl flex flex-col h-[450px] xl:h-[650px]">
             {mounted && (
               <LiveChat 
                 channelSlug="bepucho" 
