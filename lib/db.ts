@@ -194,11 +194,7 @@ export async function getUser(username: string): Promise<UserRecord | null> {
   const db = readDb();
   const key = username.toLowerCase();
 
-  if (db.users[key]) {
-    return db.users[key];
-  }
-
-  // Restore from Supabase if missing from local /tmp
+  // Primary: Always fetch fresh data from Supabase if configured
   if (isSupabaseConfigured && supabase) {
     try {
       const { data, error } = await supabase
@@ -228,6 +224,11 @@ export async function getUser(username: string): Promise<UserRecord | null> {
     }
   }
 
+  // Fallback: Local memory / JSON cache
+  if (db.users[key]) {
+    return db.users[key];
+  }
+
   return null;
 }
 
@@ -240,8 +241,8 @@ export async function saveUser(user: { id: string; username: string; profilePic?
   const db = readDb();
   const key = user.username.toLowerCase();
 
-  let existing = db.users[key];
-  if (!existing && isSupabaseConfigured && supabase) {
+  let existing: UserRecord | null = null;
+  if (isSupabaseConfigured && supabase) {
     try {
       const { data } = await supabase.from('users').select('*').ilike('username', user.username).maybeSingle();
       if (data) {
@@ -258,6 +259,10 @@ export async function saveUser(user: { id: string; username: string; profilePic?
         };
       }
     } catch (e) {}
+  }
+
+  if (!existing && db.users[key]) {
+    existing = db.users[key];
   }
 
   if (!existing) {
@@ -308,20 +313,20 @@ export async function addWatchTime(username: string, minutes: number = 1): Promi
   const db = readDb();
   const key = username.toLowerCase();
 
-  if (!db.users[key]) {
-    await getUser(username);
+  // Always fetch latest record from Supabase first
+  let userRecord = await getUser(username);
+  if (!userRecord) {
+    userRecord = await saveUser({ id: key, username: username });
   }
 
-  if (!db.users[key]) {
-    await saveUser({ id: key, username: username });
-  }
-
-  if (db.users[key]) {
-    db.users[key].watchTimeMinutes += minutes;
-    // +1 pt per minute (60 pts/hr)
+  if (userRecord) {
+    userRecord.watchTimeMinutes += minutes;
+    // +1 pt per minute
     const pointsEarned = minutes * 1;
-    db.users[key].points = Number((db.users[key].points + pointsEarned).toFixed(2));
-    db.users[key].lastUpdated = new Date().toISOString();
+    userRecord.points = Number((userRecord.points + pointsEarned).toFixed(2));
+    userRecord.lastUpdated = new Date().toISOString();
+
+    db.users[key] = userRecord;
     writeDb(db);
 
     if (isSupabaseConfigured && supabase) {
@@ -329,17 +334,17 @@ export async function addWatchTime(username: string, minutes: number = 1): Promi
         await supabase
           .from('users')
           .update({
-            watch_time_minutes: db.users[key].watchTimeMinutes,
-            points: db.users[key].points,
-            last_updated: db.users[key].lastUpdated,
+            watch_time_minutes: userRecord.watchTimeMinutes,
+            points: userRecord.points,
+            last_updated: userRecord.lastUpdated,
           })
-          .ilike('username', db.users[key].username);
+          .ilike('username', userRecord.username);
       } catch (e) {
         console.error('Supabase addWatchTime error:', e);
       }
     }
 
-    return db.users[key];
+    return userRecord;
   }
   return null;
 }
@@ -348,27 +353,27 @@ export async function addChatMessage(username: string): Promise<UserRecord | nul
   const db = readDb();
   const key = username.toLowerCase();
 
-  if (!db.users[key]) {
-    await getUser(username);
+  // Always fetch latest record from Supabase first
+  let userRecord = await getUser(username);
+  if (!userRecord) {
+    userRecord = await saveUser({ id: key, username: username });
   }
 
-  if (!db.users[key]) {
-    await saveUser({ id: key, username: username });
-  }
-
-  if (db.users[key]) {
+  if (userRecord) {
     const now = Date.now();
-    const lastMsg = db.users[key].lastMessageTime || 0;
+    const lastMsg = userRecord.lastMessageTime || 0;
 
-    db.users[key].chatMessagesCount += 1;
+    userRecord.chatMessagesCount += 1;
 
     // +0.5 pts per chat message (cooldown 2 seconds)
     if (now - lastMsg >= 2000) {
-      db.users[key].points = Number((db.users[key].points + 0.5).toFixed(2));
-      db.users[key].lastMessageTime = now;
+      userRecord.points = Number((userRecord.points + 0.5).toFixed(2));
+      userRecord.lastMessageTime = now;
     }
 
-    db.users[key].lastUpdated = new Date().toISOString();
+    userRecord.lastUpdated = new Date().toISOString();
+
+    db.users[key] = userRecord;
     writeDb(db);
 
     if (isSupabaseConfigured && supabase) {
@@ -376,24 +381,23 @@ export async function addChatMessage(username: string): Promise<UserRecord | nul
         await supabase
           .from('users')
           .update({
-            chat_messages_count: db.users[key].chatMessagesCount,
-            points: db.users[key].points,
-            last_updated: db.users[key].lastUpdated,
+            chat_messages_count: userRecord.chatMessagesCount,
+            points: userRecord.points,
+            last_updated: userRecord.lastUpdated,
           })
-          .ilike('username', db.users[key].username);
+          .ilike('username', userRecord.username);
       } catch (e) {
         console.error('Supabase addChatMessage error:', e);
       }
     }
 
-    return db.users[key];
+    return userRecord;
   }
   return null;
 }
 
 export async function getLeaderboard(): Promise<UserRecord[]> {
   const db = readDb();
-  const localList = Object.values(db.users);
 
   if (isSupabaseConfigured && supabase) {
     try {
@@ -404,37 +408,32 @@ export async function getLeaderboard(): Promise<UserRecord[]> {
         .limit(100);
 
       if (data && !error && data.length > 0) {
-        const map = new Map<string, UserRecord>();
-        for (const u of localList) {
-          map.set(u.username.toLowerCase(), u);
+        const list: UserRecord[] = data.map((row) => ({
+          id: row.id || (row.username || '').toLowerCase(),
+          username: row.username,
+          profilePic: row.profile_pic || '',
+          slug: row.slug || row.username,
+          points: row.points !== undefined && row.points !== null ? Number(row.points) : 0,
+          watchTimeMinutes: Number(row.watch_time_minutes) || 0,
+          chatMessagesCount: Number(row.chat_messages_count) || 0,
+          lastUpdated: row.last_updated || new Date().toISOString(),
+          createdAt: row.created_at || new Date().toISOString(),
+        }));
+
+        // Sync local cache with Supabase data
+        for (const u of list) {
+          db.users[u.username.toLowerCase()] = u;
         }
-        for (const row of data) {
-          const key = (row.username || '').toLowerCase();
-          if (!key) continue;
-          const sUser: UserRecord = {
-            id: row.id || key,
-            username: row.username,
-            profilePic: row.profile_pic || '',
-            slug: row.slug || row.username,
-            points: Number(row.points) || 0,
-            watchTimeMinutes: Number(row.watch_time_minutes) || 0,
-            chatMessagesCount: Number(row.chat_messages_count) || 0,
-            lastUpdated: row.last_updated || new Date().toISOString(),
-            createdAt: row.created_at || new Date().toISOString(),
-          };
-          const existingLocal = map.get(key);
-          if (!existingLocal || sUser.points > existingLocal.points) {
-            map.set(key, sUser);
-          }
-        }
-        return Array.from(map.values()).sort((a, b) => b.points - a.points);
+        writeDb(db);
+
+        return list.sort((a, b) => b.points - a.points);
       }
     } catch (e) {
       console.error('Supabase getLeaderboard error:', e);
     }
   }
 
-  return localList.sort((a, b) => b.points - a.points);
+  return Object.values(db.users).sort((a, b) => b.points - a.points);
 }
 
 // --- MÉTODOS DE RECOMPENSAS Y RECLAMACIONES ---
