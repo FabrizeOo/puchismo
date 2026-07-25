@@ -3,12 +3,13 @@ import { getRewards, getUserClaims } from '@/lib/db';
 import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
-    const rewards = getRewards().filter((r) => r.active);
-    
-    // Leer cookie de usuario si está logueado para enviarle su historial de reclamaciones
+    const allRewards = await getRewards();
+    const rewards = allRewards.filter((r) => r.active);
+
     const cookieStore = cookies();
     const userCookie = cookieStore.get('kick_user_profile');
     let userClaims: any[] = [];
@@ -22,11 +23,20 @@ export async function GET() {
       } catch (e) {}
     }
 
-    return NextResponse.json({
-      success: true,
-      rewards,
-      userClaims,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        rewards,
+        userClaims,
+      },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error fetching rewards:', error);
     return NextResponse.json({ error: 'Error al obtener las recompensas' }, { status: 500 });

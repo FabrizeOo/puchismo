@@ -16,15 +16,6 @@ interface KickUser {
   chatMessagesCount: number;
 }
 
-interface LeaderboardUser {
-  id: string;
-  username: string;
-  profilePic: string;
-  points: number;
-  watchTimeMinutes: number;
-  chatMessagesCount: number;
-}
-
 interface RewardItem {
   id: string;
   title: string;
@@ -45,6 +36,15 @@ interface RewardClaim {
   createdAt: string;
 }
 
+interface ProofItem {
+  id: string;
+  imageUrl: string;
+  notes?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  pointsAwarded: number;
+  createdAt: string;
+}
+
 // ─── CONSTANTES ──────────────────────────────────────────────────────────────
 const TIERS = [
   { name: 'Rookie', min: 0, max: 499, color: '#9ca3af', emoji: '🌱', perks: ['Acceso al chat', 'Emotes básicos'] },
@@ -55,6 +55,17 @@ const TIERS = [
 ];
 
 const WAYS_TO_EARN = [
+  {
+    id: 'bet365',
+    icon: '🎲',
+    title: 'Registro en Bet365',
+    subtitle: '50 puntos gratis de regalo',
+    points: '+50 pts',
+    description: 'Regístrate en Bet365 con el código/enlace de Bepucho y sube la captura de pantalla comprobante.',
+    color: '#fbbf24',
+    glow: 'rgba(251,191,36,0.4)',
+    steps: ['Haz clic en ingresar a bit.ly/BEPUCHO', 'Regístrate con código de creador', 'Adjunta la captura aquí abajo'],
+  },
   {
     id: 'watch',
     icon: '📺',
@@ -70,7 +81,7 @@ const WAYS_TO_EARN = [
     id: 'chat',
     icon: '💬',
     title: 'Participar en Chat',
-    subtitle: '0.1 puntos por mensaje (Anti-Spam)',
+    subtitle: '0.1 puntos por mensaje',
     points: '+0.1 pt / msg',
     description: 'Sé parte del chat en vivo de Bepucho. Cuenta con protección Anti-Spam (5 segundos de cooldown entre mensajes).',
     color: '#7fff00',
@@ -83,10 +94,17 @@ export default function RewardsPage() {
   const [kickUser, setKickUser] = useState<KickUser | null>(null);
   const [rewardsCatalog, setRewardsCatalog] = useState<RewardItem[]>([]);
   const [userClaims, setUserClaims] = useState<RewardClaim[]>([]);
+  const [userProofs, setUserProofs] = useState<ProofItem[]>([]);
   const [loadingRewards, setLoadingRewards] = useState(false);
   
   const [activeTab, setActiveTab] = useState<'store' | 'my-claims' | 'earn' | 'tiers'>('store');
   const [authError, setAuthError] = useState<string | null>(null);
+
+  // Formulario subir prueba Bet365
+  const [proofImageBase64, setProofImageBase64] = useState<string | null>(null);
+  const [proofNotesInput, setProofNotesInput] = useState('');
+  const [submittingProof, setSubmittingProof] = useState(false);
+  const [proofMessage, setProofMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -105,7 +123,6 @@ export default function RewardsPage() {
   const [claimMessage, setClaimMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const headerRef = useRef(null);
-  const inView = useInView(headerRef, { once: true });
 
   // Cargar datos de usuario
   const fetchUserData = async () => {
@@ -152,7 +169,7 @@ export default function RewardsPage() {
   const fetchRewardsData = async () => {
     setLoadingRewards(true);
     try {
-      const res = await fetch('/api/rewards');
+      const res = await fetch('/api/rewards', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
@@ -169,9 +186,23 @@ export default function RewardsPage() {
     }
   };
 
+  // Cargar pruebas del usuario
+  const fetchProofsData = async () => {
+    try {
+      const res = await fetch('/api/proofs', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.proofs)) {
+          setUserProofs(data.proofs);
+        }
+      }
+    } catch (e) {}
+  };
+
   useEffect(() => {
     fetchUserData();
     fetchRewardsData();
+    fetchProofsData();
 
     const interval = setInterval(() => {
       fetchUserData();
@@ -180,35 +211,12 @@ export default function RewardsPage() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    if (activeTab === 'store' || activeTab === 'my-claims') fetchRewardsData();
-  }, [activeTab]);
-
-  const currentPoints = kickUser && typeof kickUser.points === 'number' ? kickUser.points : 0;
-  const userTier = TIERS.find((t) => currentPoints >= t.min && currentPoints <= t.max) ?? TIERS[0];
-
-  const handleLoginClick = () => {
-    window.location.href = '/api/kick/auth';
-  };
-
-  const handleLogoutClick = () => {
-    window.location.href = '/api/kick/logout';
-  };
-
-  const handleOpenClaimModal = (reward: RewardItem) => {
-    if (!kickUser) {
-      handleLoginClick();
-      return;
-    }
-    setSelectedReward(reward);
-    setContactInput('');
-    setClaimMessage(null);
-  };
-
-  const handleConfirmClaim = async () => {
+  const handleClaimReward = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!selectedReward) return;
-    if (!contactInput || contactInput.trim().length < 3) {
-      setClaimMessage({ type: 'error', text: 'Ingresa tu usuario de Discord, WhatsApp o Nickname para contactarte.' });
+
+    if (!contactInput.trim()) {
+      setClaimMessage({ type: 'error', text: 'Por favor ingresa tu dato de contacto.' });
       return;
     }
 
@@ -227,15 +235,21 @@ export default function RewardsPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setClaimMessage({ type: 'success', text: data.message });
-        setKickUser((prev) => (prev ? { ...prev, points: data.remainingPoints } : null));
-        fetchRewardsData();
+        setClaimMessage({
+          type: 'success',
+          text: `¡Felicidades! Reclamaste "${selectedReward.title}". Quedó registrado para entrega.`,
+        });
+        if (kickUser && data.remainingPoints !== undefined) {
+          setKickUser({ ...kickUser, points: data.remainingPoints });
+        }
         setTimeout(() => {
           setSelectedReward(null);
-          setActiveTab('my-claims');
-        }, 2000);
+          setContactInput('');
+          setClaimMessage(null);
+          fetchRewardsData();
+        }, 3000);
       } else {
-        setClaimMessage({ type: 'error', text: data.error || 'No se pudo reclamar la recompensa.' });
+        setClaimMessage({ type: 'error', text: data.error || 'No se pudo procesar la reclamación.' });
       }
     } catch (e) {
       setClaimMessage({ type: 'error', text: 'Error de red al procesar el reclamo.' });
@@ -244,366 +258,496 @@ export default function RewardsPage() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) {
+      setProofMessage({ type: 'error', text: 'La imagen es muy pesada. Debe pesar menos de 8MB.' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setProofImageBase64(reader.result as string);
+      setProofMessage(null);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmitProof = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!proofImageBase64) {
+      setProofMessage({ type: 'error', text: 'Por favor adjunta la captura de pantalla comprobante.' });
+      return;
+    }
+
+    setSubmittingProof(true);
+    setProofMessage(null);
+
+    try {
+      const res = await fetch('/api/proofs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: proofImageBase64, notes: proofNotesInput }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setProofMessage({ type: 'success', text: data.message });
+        setProofImageBase64(null);
+        setProofNotesInput('');
+        fetchProofsData();
+      } else {
+        setProofMessage({ type: 'error', text: data.error || 'Error al enviar la prueba.' });
+      }
+    } catch (e) {
+      setProofMessage({ type: 'error', text: 'Error de conexión al enviar la prueba.' });
+    } finally {
+      setSubmittingProof(false);
+    }
+  };
+
+  const currentPoints = kickUser?.points || 0;
+  const userTier = TIERS.slice().reverse().find((t) => currentPoints >= t.min) || TIERS[0];
+
   return (
     <main className="min-h-screen text-white overflow-x-hidden" style={{ background: '#030b04' }}>
       <Navbar />
 
-      {/* ── HERO ── */}
-      <section ref={headerRef} className="relative pt-28 sm:pt-32 pb-8 overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 z-0">
-          <div
-            className="absolute inset-0"
-            style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 30%, rgba(83,252,24,0.12) 0%, transparent 70%)' }}
-          />
-        </div>
-
-        <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
+      {/* ── HEADER & USER STATUS ── */}
+      <section ref={headerRef} className="pt-24 pb-12 px-4 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-4"
           >
-            <span
-              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold mb-4 sm:mb-6"
-              style={{ border: '1px solid rgba(83,252,24,0.4)', background: 'rgba(83,252,24,0.1)', color: '#53fc18' }}
-            >
-              🎁 TIENDA DE RECOMPENSAS Y PUNTOS
-            </span>
+            <span>🎁 Tienda & Recompensas Puchismo</span>
           </motion.div>
 
           <motion.h1
-            className="text-3xl sm:text-5xl md:text-6xl font-poppins font-black mb-3 sm:mb-4 leading-tight"
-            initial={{ opacity: 0, y: 30 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.1 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight mb-4"
           >
-            Canjea tus Puntos por{' '}
-            <span style={{ color: '#53fc18', textShadow: '0 0 30px rgba(83,252,24,0.7)' }}>
-              Premios Reales
-            </span>
+            Canjea tus Puntos por <span className="text-emerald-400">Premios Exclusivos</span>
           </motion.h1>
 
           <motion.p
-            className="text-gray-400 text-xs sm:text-base md:text-lg max-w-2xl mx-auto px-2"
-            initial={{ opacity: 0 }}
-            animate={inView ? { opacity: 1 } : {}}
-            transition={{ delay: 0.25 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto mb-8"
           >
-            Suma puntos viendo el stream (10 pts/hora) y participando en el chat (0.1 pt/msg). ¡Conecta tu cuenta de Kick y reclama tus recompensas favoritas!
+            Gana puntos viendo el stream de Bepucho, participando en el chat o completando misiones especiales como registrarte en Bet365.
           </motion.p>
-        </div>
-      </section>
 
-      {/* ── ALERTA DE ERROR SI FALLA LOGIN ── */}
-      {authError && (
-        <div className="max-w-xl mx-auto px-4 mb-4">
-          <div className="p-3.5 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs font-bold flex items-center justify-between">
-            <span>⚠️ {authError}</span>
-            <button onClick={() => setAuthError(null)} className="text-red-400 hover:text-white ml-2">✕</button>
-          </div>
-        </div>
-      )}
-
-      {/* ── CARD PERFIL USUARIO ── */}
-      <section className="py-4 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <AnimatePresence mode="wait">
-            {!kickUser ? (
-              <motion.div
-                key="logged-out-card"
-                className="relative overflow-hidden rounded-3xl p-6 sm:p-8 max-w-xl mx-auto border"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(83,252,24,0.05) 0%, rgba(3,11,4,0.98) 100%)',
-                  borderColor: 'rgba(83,252,24,0.18)',
-                }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-4 flex items-center justify-center rounded-2xl overflow-hidden border border-emerald-500/30">
-                  <img src="/kick.jpg" alt="Kick" className="w-full h-full object-cover" />
-                </div>
-                <h2 className="text-lg sm:text-xl font-black mb-2">Conecta tu cuenta de Kick</h2>
-                <p className="text-gray-400 text-xs mb-6 px-2">
-                  Inicia sesión para consultar tus puntos acumulados en tiempo real y reclamar tus premios.
-                </p>
-                <button
-                  onClick={handleLoginClick}
-                  className="w-full py-3.5 rounded-xl font-black text-black text-xs sm:text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-400 to-green-500 hover:scale-[1.02] transition-all"
-                >
-                  💚 Iniciar sesión con Kick
-                </button>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="logged-in-card"
-                className="relative overflow-hidden rounded-3xl p-5 sm:p-8 text-left border border-emerald-500/30 bg-neutral-950/90"
-              >
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 relative z-10">
-                  <div className="text-center sm:text-left flex flex-col items-center sm:items-start">
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden mb-2 border-2 border-emerald-400 bg-neutral-900">
-                      {kickUser.profilePic ? (
-                        <img src={kickUser.profilePic} alt={kickUser.username} className="object-cover w-full h-full" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center font-black text-lg text-emerald-400 bg-emerald-950">
-                          {kickUser.username.substring(0, 2).toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-gray-400 text-[10px] uppercase tracking-widest">Cuenta Vinculada</span>
-                    <h3 className="text-base sm:text-lg font-black text-white">@{kickUser.username}</h3>
-                    <button onClick={handleLogoutClick} className="text-xs text-red-400 hover:underline mt-1">
-                      Desconectar
-                    </button>
+          {/* Banner de Usuario Conectado / Estado */}
+          <div className="max-w-xl mx-auto p-4 sm:p-6 rounded-3xl bg-neutral-950/90 border border-emerald-500/30 shadow-2xl relative overflow-hidden">
+            {kickUser ? (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3 text-left">
+                  <div className="w-12 h-12 rounded-2xl overflow-hidden border border-emerald-400 bg-neutral-800 flex-shrink-0">
+                    {kickUser.profilePic ? (
+                      <img src={kickUser.profilePic} alt={kickUser.username} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center font-black text-emerald-400 bg-emerald-950">
+                        {kickUser.username.substring(0, 2).toUpperCase()}
+                      </div>
+                    )}
                   </div>
-
-                  <div className="flex-1 w-full">
-                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-3">
-                      <div>
-                        <span className="text-gray-400 text-xs block">Saldo de Puntos Disponible</span>
-                        <span className="text-3xl sm:text-4xl font-black text-emerald-400">
-                          {currentPoints.toLocaleString()} <span className="text-xs text-gray-400">pts</span>
-                        </span>
-                      </div>
-                      <div className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 self-start sm:self-end">
-                        {userTier.emoji} Rango: {userTier.name}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-black/50 border border-white/5 text-xs">
-                      <div>
-                        <span className="text-gray-500 text-[10px] block">Tiempo Visto</span>
-                        <strong className="text-white">⏱️ {kickUser.watchTimeMinutes || 0} min</strong>
-                      </div>
-                      <div>
-                        <span className="text-gray-500 text-[10px] block">Mensajes Chat</span>
-                        <strong className="text-white">💬 {kickUser.chatMessagesCount || 0} msgs</strong>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </section>
-
-      {/* ── TABS RESPONSIVAS ── */}
-      <section className="py-6 px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-wrap items-center justify-between gap-2 p-1.5 mb-8 bg-neutral-900/90 border border-white/10 rounded-2xl">
-            <div className="flex overflow-x-auto gap-2 scrollbar-none">
-              {([
-                { id: 'store', label: '🛍️ Recompensas' },
-                { id: 'my-claims', label: `📦 Reclamaciones (${userClaims.length})` },
-                { id: 'earn', label: '⚡ Ganar Puntos' },
-                { id: 'tiers', label: '🎖️ Rangos' },
-              ] as const).map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex-shrink-0 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
-                    activeTab === tab.id
-                      ? 'bg-gradient-to-r from-emerald-400 to-green-500 text-black shadow-lg'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            <a
-              href="/leaderboard"
-              className="flex-shrink-0 px-4 py-2.5 rounded-xl font-bold text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 transition-all flex items-center gap-1.5"
-            >
-              🏆 Ver Leaderboard Completo ↗
-            </a>
-          </div>
-
-          <AnimatePresence mode="wait">
-            {/* TAB 1: TIENDA DE RECOMPENSAS */}
-            {activeTab === 'store' && (
-              <motion.div
-                key="store"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
-              >
-                {rewardsCatalog.map((reward, i) => {
-                  const canAfford = currentPoints >= reward.pointsCost;
-                  return (
-                    <motion.div
-                      key={reward.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className="relative overflow-hidden rounded-2xl p-5 sm:p-6 bg-neutral-900/90 border border-white/10 flex flex-col justify-between hover:border-emerald-500/40 transition-all"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-3xl sm:text-4xl">{reward.image}</span>
-                          <span className="text-[11px] px-2.5 py-1 rounded-full font-bold bg-white/5 border border-white/10 text-gray-300">
-                            {reward.category}
-                          </span>
-                        </div>
-
-                        <h3 className="text-lg sm:text-xl font-black text-white mb-1">{reward.title}</h3>
-                        <p className="text-gray-400 text-xs leading-relaxed mb-4">{reward.description}</p>
-                      </div>
-
-                      <div>
-                        <div className="flex items-baseline justify-between pt-3 border-t border-white/10 mb-4">
-                          <span className="text-xs text-gray-400">Puntos Necesarios</span>
-                          <span className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">
-                            {reward.pointsCost.toLocaleString()} <span className="text-xs">pts</span>
-                          </span>
-                        </div>
-
-                        <button
-                          onClick={() => handleOpenClaimModal(reward)}
-                          className={`w-full py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all ${
-                            canAfford
-                              ? 'bg-emerald-400 text-black hover:bg-emerald-300 shadow-lg shadow-emerald-500/20'
-                              : 'bg-neutral-800 text-gray-400 hover:bg-neutral-700'
-                          }`}
-                        >
-                          {canAfford ? '✨ Reclamar Recompensa' : `Faltan ${reward.pointsCost - Math.floor(currentPoints)} pts`}
-                        </button>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </motion.div>
-            )}
-
-            {/* TAB 2: MIS RECLAMACIONES */}
-            {activeTab === 'my-claims' && (
-              <motion.div
-                key="my-claims"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
-              >
-                {!kickUser ? (
-                  <div className="text-center py-12 text-gray-500 text-xs sm:text-sm">
-                    Inicia sesión para ver el historial de tus premios reclamados.
-                  </div>
-                ) : userClaims.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500 text-xs sm:text-sm">
-                    Aún no has reclamado ninguna recompensa. ¡Suma puntos y canjea tu primer premio!
-                  </div>
-                ) : (
-                  userClaims.map((claim) => (
-                    <div
-                      key={claim.id}
-                      className="p-4 sm:p-5 rounded-2xl bg-neutral-900 border border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4"
-                    >
-                      <div>
-                        <span className="text-[10px] text-gray-500 font-mono block">ID: {claim.id}</span>
-                        <h4 className="text-base sm:text-lg font-black text-white">{claim.rewardTitle}</h4>
-                        <p className="text-xs text-gray-400 mt-1">
-                          Puntos canjeados: <strong className="text-emerald-400 font-mono">{claim.pointsSpent} pts</strong> | Contacto: <span className="text-gray-300 font-mono">{claim.contactInfo}</span>
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            claim.status === 'PENDING'
-                              ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'
-                              : claim.status === 'COMPLETED'
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                              : 'bg-red-500/10 text-red-400 border border-red-500/30'
-                          }`}
-                        >
-                          {claim.status === 'PENDING'
-                            ? '⏳ Pendiente'
-                            : claim.status === 'COMPLETED'
-                            ? '✅ Entregado'
-                            : '❌ Cancelado'}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </motion.div>
-            )}
-
-            {/* TAB 3: CÓMO GANAR PUNTOS */}
-            {activeTab === 'earn' && (
-              <motion.div
-                key="earn"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"
-              >
-                {WAYS_TO_EARN.map((way) => (
-                  <div
-                    key={way.id}
-                    className="p-5 sm:p-6 rounded-2xl bg-neutral-900/90 border border-emerald-500/20 relative overflow-hidden"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <span className="text-3xl sm:text-4xl">{way.icon}</span>
-                      <span className="font-black text-emerald-400 text-xs px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-                        {way.points}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-black text-white text-base">@{kickUser.username}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-white/10 text-emerald-400">
+                        {userTier.emoji} {userTier.name}
                       </span>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-black mb-1">{way.title}</h3>
-                    <p className="text-xs text-gray-400 mb-3">{way.subtitle}</p>
-                    <p className="text-gray-300 text-xs sm:text-sm leading-relaxed mb-4">{way.description}</p>
-                    <div className="space-y-2">
-                      {way.steps.map((st, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs text-gray-400">
-                          <span className="w-4 h-4 rounded-full bg-emerald-400 text-black font-black flex items-center justify-center text-[10px]">
-                            {i + 1}
+                    <span className="text-xs text-gray-400">
+                      ⏱️ {kickUser.watchTimeMinutes} min | 💬 {kickUser.chatMessagesCount} msgs
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-center sm:text-right bg-emerald-500/10 px-4 py-2 rounded-2xl border border-emerald-500/30 w-full sm:w-auto">
+                  <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block">Tu Saldo</span>
+                  <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
+                    {Math.floor(currentPoints)} <span className="text-xs text-white">pts</span>
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-2 space-y-3">
+                <p className="text-xs text-gray-400">Inicia sesión con Kick para ver tus puntos y reclamar premios:</p>
+                <a
+                  href="/api/kick/login"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-black bg-emerald-400 hover:bg-emerald-300 transition-all text-sm"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
+                  </svg>
+                  Conectar con Kick
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── BANNER DESTACADO BET365 50 PTS ── */}
+      <section className="px-4 pb-8 max-w-7xl mx-auto">
+        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-amber-950/60 via-emerald-950/80 to-neutral-950 border border-amber-500/40 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center md:text-left">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs font-black">
+              <span>🔥 MISIÓN ESPECIAL</span>
+              <span>•</span>
+              <span>+50 PUNTOS DE REGALO</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-white">
+              Regístrate en <span className="text-amber-400">Bet365</span> y Gana 50 Puntos
+            </h2>
+            <p className="text-gray-300 text-xs sm:text-sm max-w-xl">
+              Crea tu cuenta en Bet365 usando el código de creador de Bepucho y sube tu comprobante para recibir 50 puntos al instante.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <a
+              href="https://bit.ly/BEPUCHO"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl font-black text-black bg-amber-400 hover:bg-amber-300 transition-all text-sm text-center shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
+            >
+              🚀 Registrarme en Bet365
+            </a>
+            <button
+              onClick={() => setActiveTab('earn')}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl font-bold text-white bg-white/10 hover:bg-white/20 transition-all text-sm text-center border border-white/10"
+            >
+              📤 Subir Captura
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TABS NAVEGACIÓN ── */}
+      <section className="px-4 pb-16 max-w-7xl mx-auto">
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex p-1.5 rounded-2xl bg-neutral-950 border border-white/10 flex-wrap justify-center gap-1">
+            <button
+              onClick={() => setActiveTab('store')}
+              className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                activeTab === 'store' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              🏬 Catálogo de Premios
+            </button>
+            <button
+              onClick={() => setActiveTab('earn')}
+              className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 ${
+                activeTab === 'earn' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-amber-400 hover:text-white'
+              }`}
+            >
+              <span>🎲 Gana 50 Pts (Bet365)</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('my-claims')}
+              className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                activeTab === 'my-claims' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              📋 Mis Canjes ({userClaims.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('tiers')}
+              className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                activeTab === 'tiers' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              🏆 Nivel & Rangos
+            </button>
+          </div>
+        </div>
+
+        {/* ── CONTENIDO TABS ── */}
+        <div>
+          {/* TAB 1: CATÁLOGO DE RECOMPENSAS */}
+          {activeTab === 'store' && (
+            <div>
+              {loadingRewards ? (
+                <div className="py-16 text-center text-gray-400 text-sm">Cargando premios...</div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {rewardsCatalog.map((reward) => {
+                    const canAfford = currentPoints >= reward.pointsCost;
+                    const outOfStock = reward.stock === 0;
+
+                    return (
+                      <div
+                        key={reward.id}
+                        className="p-6 rounded-3xl bg-neutral-900/90 border border-emerald-500/20 hover:border-emerald-500/50 transition-all flex flex-col justify-between relative overflow-hidden group shadow-xl"
+                      >
+                        <div>
+                          <div className="flex items-start justify-between mb-4">
+                            <span className="text-4xl">{reward.image}</span>
+                            <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-white/5 border border-white/10 text-emerald-400">
+                              {reward.category}
+                            </span>
+                          </div>
+
+                          <h3 className="text-xl font-black mb-2 text-white">{reward.title}</h3>
+                          <p className="text-gray-400 text-xs leading-relaxed mb-6">{reward.description}</p>
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-4 pt-4 border-t border-white/5">
+                            <span className="text-xs text-gray-400 font-medium">Puntos Necesarios</span>
+                            <span className="text-xl font-black text-emerald-400 font-mono">
+                              {reward.pointsCost.toLocaleString()} <span className="text-xs text-gray-300">pts</span>
+                            </span>
+                          </div>
+
+                          <button
+                            disabled={!kickUser || !canAfford || outOfStock}
+                            onClick={() => {
+                              setSelectedReward(reward);
+                              setClaimMessage(null);
+                            }}
+                            className={`w-full py-3.5 rounded-2xl font-black text-xs transition-all flex items-center justify-center gap-2 ${
+                              outOfStock
+                                ? 'bg-neutral-800 text-gray-500 cursor-not-allowed border border-white/5'
+                                : canAfford && kickUser
+                                ? 'bg-emerald-400 text-black hover:bg-emerald-300 shadow-lg shadow-emerald-500/20 cursor-pointer'
+                                : 'bg-white/5 text-gray-400 border border-white/10 cursor-not-allowed'
+                            }`}
+                          >
+                            {!kickUser
+                              ? 'Inicia sesión para canjear'
+                              : outOfStock
+                              ? 'Agotado temporalmente'
+                              : canAfford
+                              ? '🎁 CANJEAR AHORA'
+                              : `FALTAN ${Math.ceil(reward.pointsCost - currentPoints)} PTS`}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 2: GANAR 50 PTS (BET365 & ACTIVIDADES) */}
+          {activeTab === 'earn' && (
+            <div className="space-y-8">
+              {/* SECCIÓN ESPECIAL BET365 SUBIR PRUEBA */}
+              <div className="p-6 sm:p-8 rounded-3xl bg-neutral-900/90 border border-amber-500/30 relative overflow-hidden">
+                <div className="max-w-3xl">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-black mb-3">
+                    <span>🎲 PASO A PASO PARA GANAR +50 PUNTOS</span>
+                  </div>
+                  <h3 className="text-2xl font-black text-white mb-2">Comprobante de Registro en Bet365</h3>
+                  <p className="text-gray-300 text-xs sm:text-sm mb-6 leading-relaxed">
+                    1. Entra al enlace de creador <a href="https://bit.ly/BEPUCHO" target="_blank" rel="noopener noreferrer" className="text-amber-400 underline font-bold">bit.ly/BEPUCHO</a> y crea tu cuenta.<br />
+                    2. Toma una captura de pantalla donde se aprecie tu registro o pantalla de inicio en Bet365.<br />
+                    3. Adjunta la imagen aquí para que Bepucho apruebe tus +50 puntos.
+                  </p>
+
+                  {proofMessage && (
+                    <div
+                      className={`mb-6 p-4 rounded-2xl border text-xs font-bold flex items-center gap-3 ${
+                        proofMessage.type === 'success'
+                          ? 'bg-emerald-950 border-emerald-500 text-emerald-400'
+                          : 'bg-red-950 border-red-500 text-red-400'
+                      }`}
+                    >
+                      <span>{proofMessage.type === 'success' ? '✅' : '❌'}</span>
+                      <span>{proofMessage.text}</span>
+                    </div>
+                  )}
+
+                  {!kickUser ? (
+                    <div className="p-4 rounded-2xl bg-black/60 border border-white/10 text-center text-xs text-gray-400">
+                      Debes iniciar sesión con Kick para poder subir tu prueba de Bet365.
+                    </div>
+                  ) : (
+                    <form onSubmit={handleSubmitProof} className="space-y-4">
+                      <div>
+                        <label className="text-xs font-bold text-gray-300 block mb-2">
+                          1. Selecciona la captura de pantalla comprobante (JPG, PNG):
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="block w-full text-xs text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-amber-400 file:text-black hover:file:bg-amber-300 cursor-pointer"
+                        />
+                      </div>
+
+                      {proofImageBase64 && (
+                        <div className="p-3 rounded-2xl bg-black border border-amber-500/30 inline-block">
+                          <span className="text-[10px] text-amber-400 block mb-1 font-bold">Vista previa de tu imagen:</span>
+                          <img src={proofImageBase64} alt="Preview" className="h-32 rounded-xl object-contain" />
+                        </div>
+                      )}
+
+                      <div>
+                        <label className="text-xs font-bold text-gray-300 block mb-1">
+                          2. Nombre de usuario en Bet365 o Nota (opcional):
+                        </label>
+                        <input
+                          type="text"
+                          value={proofNotesInput}
+                          onChange={(e) => setProofNotesInput(e.target.value)}
+                          placeholder="Ej: Usuario Bet365: PuchismoUser12"
+                          className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs placeholder-gray-500 focus:outline-none focus:border-amber-500"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={submittingProof || !proofImageBase64}
+                        className={`px-8 py-3.5 rounded-2xl font-black text-xs transition-all ${
+                          submittingProof || !proofImageBase64
+                            ? 'bg-white/5 text-gray-500 cursor-not-allowed'
+                            : 'bg-amber-400 text-black hover:bg-amber-300 cursor-pointer shadow-lg shadow-amber-500/20'
+                        }`}
+                      >
+                        {submittingProof ? 'Enviando imagen...' : '📤 Enviar Comprobante (+50 pts)'}
+                      </button>
+                    </form>
+                  )}
+                </div>
+
+                {/* HISTORIAL DE PRUEBAS SUBIDAS POR EL USUARIO */}
+                {userProofs.length > 0 && (
+                  <div className="mt-8 pt-6 border-t border-white/10">
+                    <h4 className="text-sm font-black text-white mb-3">Tus Capturas Subidas:</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {userProofs.map((p) => (
+                        <div key={p.id} className="p-3 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <img src={p.imageUrl} alt="Proof" className="w-12 h-12 rounded-xl object-cover border border-white/10" />
+                            <div>
+                              <span className="text-[11px] font-bold text-white block">Bet365 (+50 pts)</span>
+                              <span className="text-[10px] text-gray-400 block">{new Date(p.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                              p.status === 'PENDING'
+                                ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'
+                                : p.status === 'APPROVED'
+                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                                : 'bg-red-500/10 text-red-400 border border-red-500/30'
+                            }`}
+                          >
+                            {p.status === 'PENDING' ? '⏳ En Revisión' : p.status === 'APPROVED' ? '✅ Aprobado (+50 pts)' : '❌ Rechazado'}
                           </span>
-                          <span>{st}</span>
                         </div>
                       ))}
                     </div>
                   </div>
-                ))}
-              </motion.div>
-            )}
+                )}
+              </div>
 
-            {/* TAB 5: RANGOS */}
-            {activeTab === 'tiers' && (
-              <motion.div
-                key="tiers"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-3"
-              >
-                {TIERS.map((tier) => (
+              {/* OTRAS FORMAS DE GANAR PUNTOS */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {WAYS_TO_EARN.map((way) => (
                   <div
-                    key={tier.name}
-                    className="p-4 sm:p-5 rounded-2xl bg-neutral-900 border border-white/5 flex items-center gap-4"
+                    key={way.id}
+                    className="p-6 rounded-3xl bg-neutral-900/90 border border-emerald-500/20 relative overflow-hidden"
                   >
-                    <div className="text-2xl sm:text-3xl">{tier.emoji}</div>
-                    <div className="flex-1">
-                      <div className="flex justify-between mb-1">
-                        <span className="font-black text-white text-sm sm:text-base">{tier.name}</span>
-                        <span className="text-[11px] sm:text-xs text-gray-400">
-                          {tier.max === Infinity ? `${tier.min}+ pts` : `${tier.min} - ${tier.max} pts`}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {tier.perks.map((p) => (
-                          <span key={p} className="text-[10px] sm:text-[11px] px-2 py-0.5 rounded bg-white/5 text-gray-400">
-                            {p}
-                          </span>
-                        ))}
-                      </div>
+                    <div className="flex items-start justify-between mb-3">
+                      <span className="text-4xl">{way.icon}</span>
+                      <span className="font-black text-emerald-400 text-xs px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+                        {way.points}
+                      </span>
                     </div>
+                    <h3 className="text-xl font-black mb-1 text-white">{way.title}</h3>
+                    <p className="text-xs text-gray-400 mb-3">{way.subtitle}</p>
+                    <p className="text-gray-300 text-xs leading-relaxed mb-4">{way.description}</p>
                   </div>
                 ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: MIS CANJES */}
+          {activeTab === 'my-claims' && (
+            <div className="space-y-4">
+              {userClaims.length === 0 ? (
+                <div className="p-12 text-center text-gray-500 bg-neutral-900/50 rounded-3xl border border-white/5 text-sm">
+                  Aún no has realizado ninguna reclamación de recompensas.
+                </div>
+              ) : (
+                userClaims.map((claim) => (
+                  <div
+                    key={claim.id}
+                    className="p-5 rounded-2xl bg-neutral-900/90 border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                  >
+                    <div>
+                      <h4 className="text-base font-black text-white">{claim.rewardTitle}</h4>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Puntos gastados: <strong className="text-emerald-400 font-mono">{claim.pointsSpent} pts</strong> | Contacto: <span className="text-gray-300 font-mono">{claim.contactInfo}</span>
+                      </p>
+                    </div>
+
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${
+                        claim.status === 'PENDING'
+                          ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'
+                          : claim.status === 'COMPLETED'
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                          : 'bg-red-500/10 text-red-400 border border-red-500/30'
+                      }`}
+                    >
+                      {claim.status === 'PENDING'
+                        ? '⏳ Pendiente de entrega'
+                        : claim.status === 'COMPLETED'
+                        ? '✅ Entregado'
+                        : '❌ Cancelado y reembolsado'}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* TAB 4: RANGOS */}
+          {activeTab === 'tiers' && (
+            <div className="space-y-3">
+              {TIERS.map((tier) => (
+                <div
+                  key={tier.name}
+                  className="p-5 rounded-2xl bg-neutral-900 border border-white/5 flex items-center gap-4"
+                >
+                  <div className="text-3xl">{tier.emoji}</div>
+                  <div className="flex-1">
+                    <div className="flex justify-between mb-1">
+                      <span className="font-black text-white text-base">{tier.name}</span>
+                      <span className="text-xs text-gray-400">
+                        {tier.max === Infinity ? `${tier.min}+ pts` : `${tier.min} - ${tier.max} pts`}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {tier.perks.map((p) => (
+                        <span key={p} className="text-[11px] px-2 py-0.5 rounded bg-white/5 text-gray-400">
+                          {p}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
-      {/* ── MODAL DE RECLAMO ── */}
+      {/* ── MODAL RECLAMAR PREMIO ── */}
       <AnimatePresence>
         {selectedReward && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
@@ -611,14 +755,14 @@ export default function RewardsPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="w-full max-w-md p-5 sm:p-6 rounded-3xl bg-neutral-950 border border-emerald-500/30 text-left relative overflow-hidden"
+              className="w-full max-w-md p-6 rounded-3xl bg-neutral-950 border border-emerald-500/30 text-left relative overflow-hidden"
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <span className="text-[10px] sm:text-xs text-emerald-400 font-bold uppercase tracking-wider block mb-1">
+                  <span className="text-xs text-emerald-400 font-bold uppercase tracking-wider block mb-1">
                     Confirmar Reclamación
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-black text-white">{selectedReward.title}</h3>
+                  <h3 className="text-2xl font-black text-white">{selectedReward.title}</h3>
                 </div>
                 <button
                   onClick={() => setSelectedReward(null)}
@@ -651,34 +795,38 @@ export default function RewardsPage() {
                 </div>
               )}
 
-              <div className="space-y-2 mb-6">
-                <label className="text-xs font-bold text-gray-300 block">
-                  Método de contacto (Discord / WhatsApp / Nick Kick):
-                </label>
-                <input
-                  type="text"
-                  value={contactInput}
-                  onChange={(e) => setContactInput(e.target.value)}
-                  placeholder="ej: mi_usuario#1234 o +51 987654321"
-                  className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs placeholder-gray-500 focus:outline-none focus:border-emerald-500"
-                />
-              </div>
+              <form onSubmit={handleClaimReward} className="space-y-4">
+                <div>
+                  <label className="text-xs text-gray-400 block mb-1 font-semibold">
+                    Dato de Contacto (Yape/Plin/Número o Discord):
+                  </label>
+                  <input
+                    type="text"
+                    value={contactInput}
+                    onChange={(e) => setContactInput(e.target.value)}
+                    placeholder="Ej: Yape 987654321 / Discord: user#1234"
+                    required
+                    className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs placeholder-gray-500 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
 
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setSelectedReward(null)}
-                  className="flex-1 py-3 rounded-xl font-bold text-xs bg-neutral-800 text-gray-300 hover:bg-neutral-700"
-                >
-                  Cancelar
-                </button>
-                <button
-                  disabled={claiming}
-                  onClick={handleConfirmClaim}
-                  className="flex-1 py-3 rounded-xl font-black text-xs text-black bg-emerald-400 hover:bg-emerald-300 transition-all flex items-center justify-center gap-1"
-                >
-                  {claiming ? 'Procesando...' : 'Confirmar y Canjear'}
-                </button>
-              </div>
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedReward(null)}
+                    className="flex-1 py-3.5 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/20 transition-all"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={claiming}
+                    className="flex-1 py-3.5 rounded-xl font-black text-xs text-black bg-emerald-400 hover:bg-emerald-300 transition-all"
+                  >
+                    {claiming ? 'Procesando...' : 'Confirmar Canje'}
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}

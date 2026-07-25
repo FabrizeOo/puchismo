@@ -45,6 +45,7 @@ export interface DatabaseSchema {
   users: Record<string, UserRecord>;
   rewards: RewardItem[];
   claims: RewardClaim[];
+  proofs?: ProofItem[];
 }
 
 const getDbFile = () => (process.env.VERCEL ? path.join('/tmp', 'proyecto_kick_database.json') : path.join(process.cwd(), 'proyecto_kick_database.json'));
@@ -155,6 +156,7 @@ export function readDb(): DatabaseSchema {
         users: initialUsers,
         rewards: INITIAL_REWARDS,
         claims: [],
+        proofs: [],
       };
       try {
         fs.writeFileSync(dbFile, JSON.stringify(initialDb, null, 2), 'utf-8');
@@ -168,10 +170,11 @@ export function readDb(): DatabaseSchema {
     if (!parsed.users) parsed.users = {};
     parsed.rewards = INITIAL_REWARDS;
     if (!parsed.claims) parsed.claims = [];
+    if (!parsed.proofs) parsed.proofs = [];
 
     return parsed;
   } catch (error) {
-    return { users: {}, rewards: INITIAL_REWARDS, claims: [] };
+    return { users: {}, rewards: INITIAL_REWARDS, claims: [], proofs: [] };
   }
 }
 
@@ -436,14 +439,73 @@ export async function getLeaderboard(): Promise<UserRecord[]> {
   return Object.values(db.users).sort((a, b) => b.points - a.points);
 }
 
+export interface ProofItem {
+  id: string;
+  userId: string;
+  username: string;
+  profilePic?: string;
+  imageUrl: string;
+  notes?: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  pointsAwarded: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+
 // --- MÉTODOS DE RECOMPENSAS Y RECLAMACIONES ---
 
-export function getRewards(): RewardItem[] {
+
+export async function getRewards(): Promise<RewardItem[]> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase.from('rewards').select('*');
+      if (data && !error && data.length > 0) {
+        return data.map((r) => ({
+          id: r.id,
+          title: r.title,
+          description: r.description || '',
+          pointsCost: Number(r.points_cost !== undefined ? r.points_cost : r.pointsCost || 0),
+          category: r.category || 'General',
+          image: r.image || '🎁',
+          stock: r.stock !== undefined && r.stock !== null ? Number(r.stock) : -1,
+          active: r.active !== undefined ? Boolean(r.active) : true,
+        }));
+      }
+    } catch (e) {
+      console.error('Supabase getRewards error:', e);
+    }
+  }
   return INITIAL_REWARDS;
 }
 
-export function getRewardById(id: string): RewardItem | null {
-  return INITIAL_REWARDS.find((r) => r.id === id) || null;
+export async function getRewardById(id: string): Promise<RewardItem | null> {
+  const rewards = await getRewards();
+  return rewards.find((r) => r.id === id) || null;
+}
+
+export async function updateUserPoints(username: string, newPoints: number): Promise<UserRecord | null> {
+  const db = readDb();
+  const key = username.toLowerCase();
+  let user = await getUser(username);
+  if (!user) return null;
+
+  user.points = Math.max(0, Number(newPoints.toFixed(2)));
+  user.lastUpdated = new Date().toISOString();
+  db.users[key] = user;
+  writeDb(db);
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      await supabase
+        .from('users')
+        .update({ points: user.points, last_updated: user.lastUpdated })
+        .ilike('username', username);
+    } catch (e) {
+      console.error('Supabase updateUserPoints error:', e);
+    }
+  }
+  return user;
 }
 
 export async function createClaim(claimData: {
@@ -458,7 +520,6 @@ export async function createClaim(claimData: {
   let user = db.users[userKey];
 
   if (!user) {
-    // Try restoring from Supabase
     const restored = await getUser(claimData.username);
     if (restored) {
       user = restored;
@@ -467,7 +528,7 @@ export async function createClaim(claimData: {
     }
   }
 
-  const reward = INITIAL_REWARDS.find((r) => r.id === claimData.rewardId);
+  const reward = await getRewardById(claimData.rewardId);
   if (!reward) {
     return { success: false, error: 'La recompensa seleccionada no existe.' };
   }
@@ -524,7 +585,6 @@ export async function createClaim(claimData: {
         status: newClaim.status,
         contact_info: newClaim.contactInfo,
       });
-      // Update user points in Supabase too
       await supabase
         .from('users')
         .update({ points: user.points, last_updated: user.lastUpdated })
@@ -594,6 +654,176 @@ export function updateClaimStatus(
   }
 
   return { success: true, claim };
+}
+
+// --- MÉTODOS DE PRUEBAS BET365 ---
+
+export async function createProof(proofData: {
+  userId: string;
+  username: string;
+  profilePic?: string;
+  imageUrl: string;
+  notes?: string;
+}): Promise<{ success: boolean; proof?: ProofItem; error?: string }> {
+  const db = readDb();
+  if (!db.proofs) db.proofs = [];
+
+  const newProof: ProofItem = {
+    id: `proof-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    userId: proofData.userId,
+    username: proofData.username,
+    profilePic: proofData.profilePic || '',
+    imageUrl: proofData.imageUrl,
+    notes: proofData.notes || '',
+    status: 'PENDING',
+    pointsAwarded: 50,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  db.proofs.unshift(newProof);
+  writeDb(db);
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      await supabase.from('proofs').insert({
+        id: newProof.id,
+        user_id: newProof.userId,
+        username: newProof.username,
+        profile_pic: newProof.profilePic,
+        image_url: newProof.imageUrl,
+        notes: newProof.notes,
+        status: newProof.status,
+        points_awarded: newProof.pointsAwarded,
+      });
+    } catch (e) {
+      console.error('Supabase createProof error:', e);
+    }
+  }
+
+  return { success: true, proof: newProof };
+}
+
+export async function getUserProofs(username: string): Promise<ProofItem[]> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('proofs')
+        .select('*')
+        .ilike('username', username)
+        .order('created_at', { ascending: false });
+
+      if (data && !error) {
+        return data.map((p) => ({
+          id: p.id,
+          userId: p.user_id || p.userId,
+          username: p.username,
+          profilePic: p.profile_pic || p.profilePic || '',
+          imageUrl: p.image_url || p.imageUrl,
+          notes: p.notes || '',
+          status: p.status,
+          pointsAwarded: Number(p.points_awarded || p.pointsAwarded || 50),
+          createdAt: p.created_at || p.createdAt,
+          updatedAt: p.updated_at || p.updatedAt,
+        }));
+      }
+    } catch (e) {}
+  }
+
+  const db = readDb();
+  return (db.proofs || []).filter((p) => p.username.toLowerCase() === username.toLowerCase());
+}
+
+export async function getAllProofs(): Promise<ProofItem[]> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('proofs')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (data && !error) {
+        return data.map((p) => ({
+          id: p.id,
+          userId: p.user_id || p.userId,
+          username: p.username,
+          profilePic: p.profile_pic || p.profilePic || '',
+          imageUrl: p.image_url || p.imageUrl,
+          notes: p.notes || '',
+          status: p.status,
+          pointsAwarded: Number(p.points_awarded || p.pointsAwarded || 50),
+          createdAt: p.created_at || p.createdAt,
+          updatedAt: p.updated_at || p.updatedAt,
+        }));
+      }
+    } catch (e) {}
+  }
+
+  const db = readDb();
+  return db.proofs || [];
+}
+
+export async function updateProofStatus(
+  proofId: string,
+  status: 'APPROVED' | 'REJECTED',
+  points: number = 50
+): Promise<{ success: boolean; proof?: ProofItem; error?: string }> {
+  const db = readDb();
+  if (!db.proofs) db.proofs = [];
+
+  let proof = db.proofs.find((p) => p.id === proofId);
+
+  if (!proof && isSupabaseConfigured && supabase) {
+    try {
+      const { data } = await supabase.from('proofs').select('*').eq('id', proofId).maybeSingle();
+      if (data) {
+        proof = {
+          id: data.id,
+          userId: data.user_id || data.userId,
+          username: data.username,
+          profilePic: data.profile_pic || data.profilePic || '',
+          imageUrl: data.image_url || data.imageUrl,
+          notes: data.notes || '',
+          status: data.status,
+          pointsAwarded: Number(data.points_awarded || 50),
+          createdAt: data.created_at || data.createdAt,
+          updatedAt: data.updated_at || data.updatedAt,
+        };
+        db.proofs.unshift(proof);
+      }
+    } catch (e) {}
+  }
+
+  if (!proof) {
+    return { success: false, error: 'Prueba no encontrada.' };
+  }
+
+  const prevStatus = proof.status;
+  proof.status = status;
+  proof.updatedAt = new Date().toISOString();
+
+  // Si fue aprobada y no lo estaba antes, sumarle los +50 puntos al usuario
+  if (status === 'APPROVED' && prevStatus !== 'APPROVED') {
+    const user = await getUser(proof.username);
+    if (user) {
+      await updateUserPoints(proof.username, user.points + points);
+    }
+  }
+
+  writeDb(db);
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      await supabase
+        .from('proofs')
+        .update({ status: proof.status, updated_at: proof.updatedAt })
+        .eq('id', proofId);
+    } catch (e) {
+      console.error('Supabase updateProofStatus error:', e);
+    }
+  }
+
+  return { success: true, proof };
 }
 
 export function getAdminMetrics() {
