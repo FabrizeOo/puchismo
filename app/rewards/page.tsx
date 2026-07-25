@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
+import Link from 'next/link';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 
@@ -36,15 +37,6 @@ interface RewardClaim {
   createdAt: string;
 }
 
-interface ProofItem {
-  id: string;
-  imageUrl: string;
-  notes?: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  pointsAwarded: number;
-  createdAt: string;
-}
-
 // ─── CONSTANTES ──────────────────────────────────────────────────────────────
 const TIERS = [
   { name: 'Rookie', min: 0, max: 499, color: '#9ca3af', emoji: '🌱', perks: ['Acceso al chat', 'Emotes básicos'] },
@@ -59,12 +51,12 @@ const WAYS_TO_EARN = [
     id: 'bet365',
     icon: '🎲',
     title: 'Registro en Bet365',
-    subtitle: '50 puntos gratis de regalo',
+    subtitle: '50 puntos de regalo',
     points: '+50 pts',
-    description: 'Regístrate en Bet365 con el código/enlace de Bepucho y sube la captura de pantalla comprobante.',
+    description: 'Regístrate en Bet365 mediante bit.ly/BEPUCHO y sube tu comprobante en la interfaz especial.',
     color: '#fbbf24',
     glow: 'rgba(251,191,36,0.4)',
-    steps: ['Haz clic en ingresar a bit.ly/BEPUCHO', 'Regístrate con código de creador', 'Adjunta la captura aquí abajo'],
+    link: '/bet365',
   },
   {
     id: 'watch',
@@ -75,7 +67,7 @@ const WAYS_TO_EARN = [
     description: 'Mantén la transmisión abierta en nuestra web. Sumas puntos de manera constante mientras disfrutas el directo.',
     color: '#53fc18',
     glow: 'rgba(83,252,24,0.4)',
-    steps: ['Inicia sesión con Kick', 'Abre el reproductor de Stream', 'Gana 10 pts acumulando cada hora'],
+    link: '/stream',
   },
   {
     id: 'chat',
@@ -86,7 +78,7 @@ const WAYS_TO_EARN = [
     description: 'Sé parte del chat en vivo de Bepucho. Cuenta con protección Anti-Spam (5 segundos de cooldown entre mensajes).',
     color: '#7fff00',
     glow: 'rgba(127,255,0,0.4)',
-    steps: ['Escribe en el Chat en vivo', 'Gana 0.1 pt por mensaje válido', 'Evita spamear mensajes repetidos'],
+    link: '/stream',
   },
 ];
 
@@ -94,17 +86,10 @@ export default function RewardsPage() {
   const [kickUser, setKickUser] = useState<KickUser | null>(null);
   const [rewardsCatalog, setRewardsCatalog] = useState<RewardItem[]>([]);
   const [userClaims, setUserClaims] = useState<RewardClaim[]>([]);
-  const [userProofs, setUserProofs] = useState<ProofItem[]>([]);
   const [loadingRewards, setLoadingRewards] = useState(false);
   
   const [activeTab, setActiveTab] = useState<'store' | 'my-claims' | 'earn' | 'tiers'>('store');
   const [authError, setAuthError] = useState<string | null>(null);
-
-  // Formulario subir prueba Bet365
-  const [proofImageBase64, setProofImageBase64] = useState<string | null>(null);
-  const [proofNotesInput, setProofNotesInput] = useState('');
-  const [submittingProof, setSubmittingProof] = useState(false);
-  const [proofMessage, setProofMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -186,23 +171,9 @@ export default function RewardsPage() {
     }
   };
 
-  // Cargar pruebas del usuario
-  const fetchProofsData = async () => {
-    try {
-      const res = await fetch('/api/proofs', { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && Array.isArray(data.proofs)) {
-          setUserProofs(data.proofs);
-        }
-      }
-    } catch (e) {}
-  };
-
   useEffect(() => {
     fetchUserData();
     fetchRewardsData();
-    fetchProofsData();
 
     const interval = setInterval(() => {
       fetchUserData();
@@ -210,6 +181,12 @@ export default function RewardsPage() {
 
     return () => clearInterval(interval);
   }, []);
+
+  const handleLogout = async () => {
+    await fetch('/api/kick/logout', { method: 'POST' });
+    setKickUser(null);
+    window.location.reload();
+  };
 
   const handleClaimReward = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,54 +235,6 @@ export default function RewardsPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 8 * 1024 * 1024) {
-      setProofMessage({ type: 'error', text: 'La imagen es muy pesada. Debe pesar menos de 8MB.' });
-      return;
-    }
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setProofImageBase64(reader.result as string);
-      setProofMessage(null);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleSubmitProof = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!proofImageBase64) {
-      setProofMessage({ type: 'error', text: 'Por favor adjunta la captura de pantalla comprobante.' });
-      return;
-    }
-
-    setSubmittingProof(true);
-    setProofMessage(null);
-
-    try {
-      const res = await fetch('/api/proofs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageUrl: proofImageBase64, notes: proofNotesInput }),
-      });
-
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setProofMessage({ type: 'success', text: data.message });
-        setProofImageBase64(null);
-        setProofNotesInput('');
-        fetchProofsData();
-      } else {
-        setProofMessage({ type: 'error', text: data.error || 'Error al enviar la prueba.' });
-      }
-    } catch (e) {
-      setProofMessage({ type: 'error', text: 'Error de conexión al enviar la prueba.' });
-    } finally {
-      setSubmittingProof(false);
-    }
-  };
-
   const currentPoints = kickUser?.points || 0;
   const userTier = TIERS.slice().reverse().find((t) => currentPoints >= t.min) || TIERS[0];
 
@@ -339,7 +268,7 @@ export default function RewardsPage() {
             transition={{ delay: 0.2 }}
             className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto mb-8"
           >
-            Gana puntos viendo el stream de Bepucho, participando en el chat o completando misiones especiales como registrarte en Bet365.
+            Gana puntos viendo el stream de Bepucho, participando en el chat o completando la misión especial de registrarte en Bet365.
           </motion.p>
 
           {/* Banner de Usuario Conectado / Estado */}
@@ -369,11 +298,19 @@ export default function RewardsPage() {
                   </div>
                 </div>
 
-                <div className="text-center sm:text-right bg-emerald-500/10 px-4 py-2 rounded-2xl border border-emerald-500/30 w-full sm:w-auto">
-                  <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block">Tu Saldo</span>
-                  <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
-                    {Math.floor(currentPoints)} <span className="text-xs text-white">pts</span>
-                  </span>
+                <div className="flex flex-col items-center sm:items-end gap-2 w-full sm:w-auto">
+                  <div className="text-center sm:text-right bg-emerald-500/10 px-4 py-1.5 rounded-2xl border border-emerald-500/30 w-full sm:w-auto">
+                    <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block">Tu Saldo</span>
+                    <span className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">
+                      {Math.floor(currentPoints)} <span className="text-xs text-white">pts</span>
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="text-[11px] font-bold text-red-400 hover:text-red-300 hover:underline flex items-center gap-1 transition-all"
+                  >
+                    🚪 Cerrar Sesión
+                  </button>
                 </div>
               </div>
             ) : (
@@ -381,12 +318,12 @@ export default function RewardsPage() {
                 <p className="text-xs text-gray-400">Inicia sesión con Kick para ver tus puntos y reclamar premios:</p>
                 <a
                   href="/api/kick/login"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-black bg-emerald-400 hover:bg-emerald-300 transition-all text-sm"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-black bg-emerald-400 hover:bg-emerald-300 transition-all text-sm shadow-lg shadow-emerald-500/20"
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
                   </svg>
-                  Conectar con Kick
+                  🟢 Iniciar Sesión con Kick
                 </a>
               </div>
             )}
@@ -407,7 +344,7 @@ export default function RewardsPage() {
               Regístrate en <span className="text-amber-400">Bet365</span> y Gana 50 Puntos
             </h2>
             <p className="text-gray-300 text-xs sm:text-sm max-w-xl">
-              Crea tu cuenta en Bet365 usando el código de creador de Bepucho y sube tu comprobante para recibir 50 puntos al instante.
+              Crea tu cuenta en Bet365 usando el enlace oficial de Bepucho y sube tu comprobante en la interfaz dedicada para recibir +50 puntos.
             </p>
           </div>
 
@@ -418,14 +355,14 @@ export default function RewardsPage() {
               rel="noopener noreferrer"
               className="w-full sm:w-auto px-6 py-3.5 rounded-2xl font-black text-black bg-amber-400 hover:bg-amber-300 transition-all text-sm text-center shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
             >
-              🚀 Registrarme en Bet365
+              🚀 Registrarme en Bet365 ↗
             </a>
-            <button
-              onClick={() => setActiveTab('earn')}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl font-bold text-white bg-white/10 hover:bg-white/20 transition-all text-sm text-center border border-white/10"
+            <Link
+              href="/bet365"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl font-bold text-white bg-white/10 hover:bg-white/20 transition-all text-sm text-center border border-white/10 flex items-center justify-center gap-1.5"
             >
-              📤 Subir Captura
-            </button>
+              📤 Subir Capturas & Datos
+            </Link>
           </div>
         </div>
       </section>
@@ -442,14 +379,12 @@ export default function RewardsPage() {
             >
               🏬 Catálogo de Premios
             </button>
-            <button
-              onClick={() => setActiveTab('earn')}
-              className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 ${
-                activeTab === 'earn' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-amber-400 hover:text-white'
-              }`}
+            <Link
+              href="/bet365"
+              className="px-5 py-2.5 rounded-xl font-bold text-xs transition-all text-amber-400 hover:bg-amber-500/10 flex items-center gap-1.5 border border-amber-500/30"
             >
-              <span>🎲 Gana 50 Pts (Bet365)</span>
-            </button>
+              <span>🎲 Misión Bet365 (+50 Pts) ↗</span>
+            </Link>
             <button
               onClick={() => setActiveTab('my-claims')}
               className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${
@@ -538,128 +473,15 @@ export default function RewardsPage() {
             </div>
           )}
 
-          {/* TAB 2: GANAR 50 PTS (BET365 & ACTIVIDADES) */}
+          {/* TAB 2: CÓMO GANAR PUNTOS */}
           {activeTab === 'earn' && (
-            <div className="space-y-8">
-              {/* SECCIÓN ESPECIAL BET365 SUBIR PRUEBA */}
-              <div className="p-6 sm:p-8 rounded-3xl bg-neutral-900/90 border border-amber-500/30 relative overflow-hidden">
-                <div className="max-w-3xl">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-black mb-3">
-                    <span>🎲 PASO A PASO PARA GANAR +50 PUNTOS</span>
-                  </div>
-                  <h3 className="text-2xl font-black text-white mb-2">Comprobante de Registro en Bet365</h3>
-                  <p className="text-gray-300 text-xs sm:text-sm mb-6 leading-relaxed">
-                    1. Entra al enlace de creador <a href="https://bit.ly/BEPUCHO" target="_blank" rel="noopener noreferrer" className="text-amber-400 underline font-bold">bit.ly/BEPUCHO</a> y crea tu cuenta.<br />
-                    2. Toma una captura de pantalla donde se aprecie tu registro o pantalla de inicio en Bet365.<br />
-                    3. Adjunta la imagen aquí para que Bepucho apruebe tus +50 puntos.
-                  </p>
-
-                  {proofMessage && (
-                    <div
-                      className={`mb-6 p-4 rounded-2xl border text-xs font-bold flex items-center gap-3 ${
-                        proofMessage.type === 'success'
-                          ? 'bg-emerald-950 border-emerald-500 text-emerald-400'
-                          : 'bg-red-950 border-red-500 text-red-400'
-                      }`}
-                    >
-                      <span>{proofMessage.type === 'success' ? '✅' : '❌'}</span>
-                      <span>{proofMessage.text}</span>
-                    </div>
-                  )}
-
-                  {!kickUser ? (
-                    <div className="p-4 rounded-2xl bg-black/60 border border-white/10 text-center text-xs text-gray-400">
-                      Debes iniciar sesión con Kick para poder subir tu prueba de Bet365.
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmitProof} className="space-y-4">
-                      <div>
-                        <label className="text-xs font-bold text-gray-300 block mb-2">
-                          1. Selecciona la captura de pantalla comprobante (JPG, PNG):
-                        </label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                          className="block w-full text-xs text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-amber-400 file:text-black hover:file:bg-amber-300 cursor-pointer"
-                        />
-                      </div>
-
-                      {proofImageBase64 && (
-                        <div className="p-3 rounded-2xl bg-black border border-amber-500/30 inline-block">
-                          <span className="text-[10px] text-amber-400 block mb-1 font-bold">Vista previa de tu imagen:</span>
-                          <img src={proofImageBase64} alt="Preview" className="h-32 rounded-xl object-contain" />
-                        </div>
-                      )}
-
-                      <div>
-                        <label className="text-xs font-bold text-gray-300 block mb-1">
-                          2. Nombre de usuario en Bet365 o Nota (opcional):
-                        </label>
-                        <input
-                          type="text"
-                          value={proofNotesInput}
-                          onChange={(e) => setProofNotesInput(e.target.value)}
-                          placeholder="Ej: Usuario Bet365: PuchismoUser12"
-                          className="w-full px-4 py-3 rounded-xl bg-black/60 border border-white/10 text-white text-xs placeholder-gray-500 focus:outline-none focus:border-amber-500"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={submittingProof || !proofImageBase64}
-                        className={`px-8 py-3.5 rounded-2xl font-black text-xs transition-all ${
-                          submittingProof || !proofImageBase64
-                            ? 'bg-white/5 text-gray-500 cursor-not-allowed'
-                            : 'bg-amber-400 text-black hover:bg-amber-300 cursor-pointer shadow-lg shadow-amber-500/20'
-                        }`}
-                      >
-                        {submittingProof ? 'Enviando imagen...' : '📤 Enviar Comprobante (+50 pts)'}
-                      </button>
-                    </form>
-                  )}
-                </div>
-
-                {/* HISTORIAL DE PRUEBAS SUBIDAS POR EL USUARIO */}
-                {userProofs.length > 0 && (
-                  <div className="mt-8 pt-6 border-t border-white/10">
-                    <h4 className="text-sm font-black text-white mb-3">Tus Capturas Subidas:</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {userProofs.map((p) => (
-                        <div key={p.id} className="p-3 rounded-2xl bg-black/60 border border-white/10 flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-3">
-                            <img src={p.imageUrl} alt="Proof" className="w-12 h-12 rounded-xl object-cover border border-white/10" />
-                            <div>
-                              <span className="text-[11px] font-bold text-white block">Bet365 (+50 pts)</span>
-                              <span className="text-[10px] text-gray-400 block">{new Date(p.createdAt).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                              p.status === 'PENDING'
-                                ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'
-                                : p.status === 'APPROVED'
-                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                                : 'bg-red-500/10 text-red-400 border border-red-500/30'
-                            }`}
-                          >
-                            {p.status === 'PENDING' ? '⏳ En Revisión' : p.status === 'APPROVED' ? '✅ Aprobado (+50 pts)' : '❌ Rechazado'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* OTRAS FORMAS DE GANAR PUNTOS */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {WAYS_TO_EARN.map((way) => (
-                  <div
-                    key={way.id}
-                    className="p-6 rounded-3xl bg-neutral-900/90 border border-emerald-500/20 relative overflow-hidden"
-                  >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {WAYS_TO_EARN.map((way) => (
+                <div
+                  key={way.id}
+                  className="p-6 rounded-3xl bg-neutral-900/90 border border-emerald-500/20 relative overflow-hidden flex flex-col justify-between"
+                >
+                  <div>
                     <div className="flex items-start justify-between mb-3">
                       <span className="text-4xl">{way.icon}</span>
                       <span className="font-black text-emerald-400 text-xs px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
@@ -670,8 +492,15 @@ export default function RewardsPage() {
                     <p className="text-xs text-gray-400 mb-3">{way.subtitle}</p>
                     <p className="text-gray-300 text-xs leading-relaxed mb-4">{way.description}</p>
                   </div>
-                ))}
-              </div>
+
+                  <Link
+                    href={way.link}
+                    className="w-full py-3 rounded-xl font-bold text-xs text-center bg-white/5 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all block"
+                  >
+                    Ir a Misión →
+                  </Link>
+                </div>
+              ))}
             </div>
           )}
 

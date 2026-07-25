@@ -10,6 +10,7 @@ import { FaBars, FaTimes } from 'react-icons/fa';
 const navItems = [
   { label: 'Inicio', href: '/' },
   { label: 'Stream', href: '/stream' },
+  { label: 'Bet365 (+50 Pts)', href: '/bet365', highlight: true },
   { label: 'Rewards', href: '/rewards' },
   { label: 'Leaderboard', href: '/leaderboard' },
   { label: 'Discord', href: 'https://discord.gg/puchismo', external: true },
@@ -68,7 +69,7 @@ export function Navbar() {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                  className="px-3.5 py-2 text-xs lg:text-sm font-semibold text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
                 >
                   {item.label}
                 </a>
@@ -76,9 +77,11 @@ export function Navbar() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all ${
+                  className={`px-3.5 py-2 text-xs lg:text-sm font-semibold rounded-xl transition-all ${
                     pathname === item.href
                       ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/30'
+                      : item.highlight
+                      ? 'text-amber-400 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20'
                       : 'text-gray-300 hover:text-white hover:bg-white/5'
                   }`}
                 >
@@ -91,21 +94,17 @@ export function Navbar() {
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <motion.a
-              href="/rewards"
-              className="text-xs sm:text-sm py-2 px-4 rounded-xl font-bold transition-all"
+              href="/bet365"
+              className="text-xs sm:text-sm py-2 px-3.5 rounded-xl font-bold transition-all"
               style={{
-                background: 'rgba(83,252,24,0.1)',
-                border: '1px solid rgba(83,252,24,0.3)',
-                color: '#53fc18',
+                background: 'rgba(251,191,36,0.15)',
+                border: '1px solid rgba(251,191,36,0.4)',
+                color: '#fbbf24',
               }}
-              whileHover={{
-                scale: 1.05,
-                background: 'rgba(83,252,24,0.2)',
-                boxShadow: '0 0 20px rgba(83,252,24,0.4)',
-              }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              🎁 Rewards
+              🎲 Bet365 +50 Pts
             </motion.a>
             <motion.a
               href="https://kick.com/bepucho"
@@ -164,6 +163,8 @@ export function Navbar() {
                     style={
                       pathname === item.href
                         ? { color: '#53fc18', background: 'rgba(83,252,24,0.1)', border: '1px solid rgba(83,252,24,0.3)' }
+                        : item.highlight
+                        ? { color: '#fbbf24', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)' }
                         : { color: '#d1d5db' }
                     }
                     onClick={() => setMenuOpen(false)}
