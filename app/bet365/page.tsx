@@ -259,7 +259,7 @@ export default function Bet365Page() {
             rel="noopener noreferrer"
             className="px-8 py-4 rounded-2xl font-black text-black bg-amber-400 hover:bg-amber-300 transition-all text-sm text-center shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 flex-shrink-0"
           >
-            🚀 Ir a Bet365 (bit.ly/BEPUCHO) ↗
+            🚀 Ir a Bet365 ↗
           </a>
         </div>
 

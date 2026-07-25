@@ -94,17 +94,21 @@ export function Navbar() {
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
             <motion.a
-              href="/bet365"
-              className="text-xs sm:text-sm py-2 px-3.5 rounded-xl font-bold transition-all"
+              href="/rewards"
+              className="text-xs sm:text-sm py-2 px-4 rounded-xl font-bold transition-all"
               style={{
-                background: 'rgba(251,191,36,0.15)',
-                border: '1px solid rgba(251,191,36,0.4)',
-                color: '#fbbf24',
+                background: 'rgba(83,252,24,0.1)',
+                border: '1px solid rgba(83,252,24,0.3)',
+                color: '#53fc18',
               }}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{
+                scale: 1.05,
+                background: 'rgba(83,252,24,0.2)',
+                boxShadow: '0 0 20px rgba(83,252,24,0.4)',
+              }}
               whileTap={{ scale: 0.95 }}
             >
-              🎲 Bet365 +50 Pts
+              🎁 Rewards
             </motion.a>
             <motion.a
               href="https://kick.com/bepucho"

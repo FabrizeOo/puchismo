@@ -331,42 +331,6 @@ export default function RewardsPage() {
         </div>
       </section>
 
-      {/* ── BANNER DESTACADO BET365 50 PTS ── */}
-      <section className="px-4 pb-8 max-w-7xl mx-auto">
-        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-amber-950/60 via-emerald-950/80 to-neutral-950 border border-amber-500/40 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center md:text-left">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs font-black">
-              <span>🔥 MISIÓN ESPECIAL</span>
-              <span>•</span>
-              <span>+50 PUNTOS DE REGALO</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white">
-              Regístrate en <span className="text-amber-400">Bet365</span> y Gana 50 Puntos
-            </h2>
-            <p className="text-gray-300 text-xs sm:text-sm max-w-xl">
-              Crea tu cuenta en Bet365 usando el enlace oficial de Bepucho y sube tu comprobante en la interfaz dedicada para recibir +50 puntos.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-            <a
-              href="https://bit.ly/BEPUCHO"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl font-black text-black bg-amber-400 hover:bg-amber-300 transition-all text-sm text-center shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
-            >
-              🚀 Registrarme en Bet365 ↗
-            </a>
-            <Link
-              href="/bet365"
-              className="w-full sm:w-auto px-6 py-3.5 rounded-2xl font-bold text-white bg-white/10 hover:bg-white/20 transition-all text-sm text-center border border-white/10 flex items-center justify-center gap-1.5"
-            >
-              📤 Subir Capturas & Datos
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* ── TABS NAVEGACIÓN ── */}
       <section className="px-4 pb-16 max-w-7xl mx-auto">
         <div className="flex justify-center mb-8">
@@ -379,12 +343,6 @@ export default function RewardsPage() {
             >
               🏬 Catálogo de Premios
             </button>
-            <Link
-              href="/bet365"
-              className="px-5 py-2.5 rounded-xl font-bold text-xs transition-all text-amber-400 hover:bg-amber-500/10 flex items-center gap-1.5 border border-amber-500/30"
-            >
-              <span>🎲 Misión Bet365 (+50 Pts) ↗</span>
-            </Link>
             <button
               onClick={() => setActiveTab('my-claims')}
               className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${
