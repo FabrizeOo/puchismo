@@ -128,7 +128,7 @@ export default function RewardsPage() {
     }
 
     try {
-      const res = await fetch('/api/kick/user-stats');
+      const res = await fetch('/api/kick/user-stats', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.user) {

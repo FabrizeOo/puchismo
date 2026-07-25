@@ -48,7 +48,7 @@ export default function LeaderboardPage() {
   const headerRef = useRef(null);
   const inView = useInView(headerRef, { once: true });
 
-  const fetchUserData = () => {
+  const fetchUserData = async () => {
     const getCookie = (name: string) => {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -66,11 +66,29 @@ export default function LeaderboardPage() {
     if (cookieUser) {
       setKickUser(cookieUser);
     }
+
+    try {
+      const res = await fetch('/api/kick/user-stats', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.user) {
+          setKickUser({
+            id: data.user.id,
+            username: data.user.username,
+            profilePic: data.user.profilePic,
+            slug: data.user.username,
+            points: data.user.points,
+            watchTimeMinutes: data.user.watchTimeMinutes,
+            chatMessagesCount: data.user.chatMessagesCount,
+          });
+        }
+      }
+    } catch (e) {}
   };
 
   const fetchLeaderboard = async () => {
     try {
-      const res = await fetch('/api/kick/leaderboard');
+      const res = await fetch('/api/kick/leaderboard', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.leaderboard)) {

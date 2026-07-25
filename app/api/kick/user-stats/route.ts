@@ -3,6 +3,7 @@ import { getUserPoints } from '@/lib/points-db';
 import { cookies } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
@@ -38,10 +39,19 @@ export async function GET() {
       chatMessagesCount: dbUser.chatMessagesCount,
     };
 
-    const response = NextResponse.json({
-      success: true,
-      user: dbUser,
-    });
+    const response = NextResponse.json(
+      {
+        success: true,
+        user: dbUser,
+      },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+      }
+    );
 
     // Update cookie so the client UI always sees the fresh value
     response.cookies.set('kick_user_profile', JSON.stringify(updatedProfile), {
