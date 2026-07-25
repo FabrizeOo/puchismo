@@ -36,7 +36,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const result = createClaim({
+    const result = await createClaim({
       userId: storedProfile.id,
       username: username,
       profilePic: storedProfile.profilePic,
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     }
 
     // Actualizar la cookie del perfil con el nuevo saldo de puntos
-    const dbUser = getUser(username);
+    const dbUser = await getUser(username);
     const updatedClientProfile = {
       ...storedProfile,
       points: dbUser ? dbUser.points : result.remainingPoints,

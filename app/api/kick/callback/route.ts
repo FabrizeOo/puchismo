@@ -127,7 +127,7 @@ Users Endpoint Response: ${debugUsersText}
     };
 
     // Save/Register user in the local database to start tracking real points!
-    const dbUser = saveUserPoints(userData);
+    const dbUser = await saveUserPoints(userData);
 
     // Combine profile data with database points for the frontend cookie
     const clientUserData = {

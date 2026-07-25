@@ -21,10 +21,13 @@ export const metadata: Metadata = {
   keywords: 'puchismo, bepucho, fútbol, champions league, premier league, liga1, libertadores, streaming, kick, discord',
 };
 
+import { GlobalPointsTracker } from '@/components/global-points-tracker';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className="dark">
       <body className={`${poppins.variable} ${inter.variable} font-inter antialiased text-white`} style={{ backgroundColor: '#030b04' }}>
+        <GlobalPointsTracker />
         {children}
       </body>
     </html>

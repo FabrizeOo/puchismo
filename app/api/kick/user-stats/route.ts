@@ -17,11 +17,15 @@ export async function GET() {
     try {
       storedProfile = JSON.parse(decodeURIComponent(profileCookie.value));
     } catch {
-      return NextResponse.json({ error: 'Cookie inválida' }, { status: 400 });
+      try {
+        storedProfile = JSON.parse(profileCookie.value);
+      } catch {
+        return NextResponse.json({ error: 'Cookie inválida' }, { status: 400 });
+      }
     }
 
     const username = storedProfile.username;
-    const dbUser = getUserPoints(username);
+    const dbUser = await getUserPoints(username);
 
     if (!dbUser) {
       return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
@@ -39,7 +43,7 @@ export async function GET() {
       user: dbUser,
     });
 
-    // Update cookie so the client UI and any other page loads always see the fresh value
+    // Update cookie so the client UI always sees the fresh value
     response.cookies.set('kick_user_profile', JSON.stringify(updatedProfile), {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',

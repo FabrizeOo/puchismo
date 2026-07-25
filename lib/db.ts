@@ -190,9 +190,45 @@ export function writeDb(data: DatabaseSchema) {
 
 // --- MÉTODOS DE USUARIO ---
 
-export function getUser(username: string): UserRecord | null {
+export async function getUser(username: string): Promise<UserRecord | null> {
   const db = readDb();
-  return db.users[username.toLowerCase()] || null;
+  const key = username.toLowerCase();
+
+  if (db.users[key]) {
+    return db.users[key];
+  }
+
+  // Restore from Supabase if missing from local /tmp
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .ilike('username', username)
+        .maybeSingle();
+
+      if (data && !error) {
+        const restoredUser: UserRecord = {
+          id: data.id || key,
+          username: data.username || username,
+          profilePic: data.profile_pic || '',
+          slug: data.slug || username,
+          points: Number(data.points) || 200,
+          watchTimeMinutes: Number(data.watch_time_minutes) || 0,
+          chatMessagesCount: Number(data.chat_messages_count) || 0,
+          lastUpdated: data.last_updated || new Date().toISOString(),
+          createdAt: data.created_at || new Date().toISOString(),
+        };
+        db.users[key] = restoredUser;
+        writeDb(db);
+        return restoredUser;
+      }
+    } catch (e) {
+      console.error('Supabase getUser error:', e);
+    }
+  }
+
+  return null;
 }
 
 export function getUserById(id: string): UserRecord | null {
@@ -200,13 +236,33 @@ export function getUserById(id: string): UserRecord | null {
   return Object.values(db.users).find((u) => u.id === id) || null;
 }
 
-export function saveUser(user: { id: string; username: string; profilePic?: string; slug?: string }): UserRecord {
+export async function saveUser(user: { id: string; username: string; profilePic?: string; slug?: string }): Promise<UserRecord> {
   const db = readDb();
   const key = user.username.toLowerCase();
 
-  if (!db.users[key]) {
+  let existing = db.users[key];
+  if (!existing && isSupabaseConfigured && supabase) {
+    try {
+      const { data } = await supabase.from('users').select('*').ilike('username', user.username).maybeSingle();
+      if (data) {
+        existing = {
+          id: data.id || key,
+          username: data.username || user.username,
+          profilePic: data.profile_pic || user.profilePic || '',
+          slug: data.slug || user.slug || user.username,
+          points: Number(data.points) || 200,
+          watchTimeMinutes: Number(data.watch_time_minutes) || 0,
+          chatMessagesCount: Number(data.chat_messages_count) || 0,
+          lastUpdated: data.last_updated || new Date().toISOString(),
+          createdAt: data.created_at || new Date().toISOString(),
+        };
+      }
+    } catch (e) {}
+  }
+
+  if (!existing) {
     db.users[key] = {
-      id: user.id,
+      id: user.id || key,
       username: user.username,
       profilePic: user.profilePic || '',
       slug: user.slug || user.username,
@@ -217,57 +273,70 @@ export function saveUser(user: { id: string; username: string; profilePic?: stri
       createdAt: new Date().toISOString(),
     };
   } else {
-    db.users[key].profilePic = user.profilePic || db.users[key].profilePic;
-    if (user.id) db.users[key].id = user.id;
-    if (user.slug) db.users[key].slug = user.slug;
-    db.users[key].lastUpdated = new Date().toISOString();
+    db.users[key] = {
+      ...existing,
+      profilePic: user.profilePic || existing.profilePic,
+      id: user.id || existing.id,
+      slug: user.slug || existing.slug,
+      lastUpdated: new Date().toISOString(),
+    };
   }
 
   writeDb(db);
 
   if (isSupabaseConfigured && supabase) {
-    (async () => {
-      try {
-        await supabase.from('users').upsert({
-          id: db.users[key].id,
-          username: db.users[key].username,
-          profile_pic: db.users[key].profilePic,
-          slug: db.users[key].slug,
-          points: db.users[key].points,
-          watch_time_minutes: db.users[key].watchTimeMinutes,
-          chat_messages_count: db.users[key].chatMessagesCount,
-          last_updated: db.users[key].lastUpdated,
-        });
-      } catch (e) {}
-    })();
+    try {
+      await supabase.from('users').upsert({
+        id: db.users[key].id,
+        username: db.users[key].username,
+        profile_pic: db.users[key].profilePic,
+        slug: db.users[key].slug,
+        points: db.users[key].points,
+        watch_time_minutes: db.users[key].watchTimeMinutes,
+        chat_messages_count: db.users[key].chatMessagesCount,
+        last_updated: db.users[key].lastUpdated,
+      });
+    } catch (e) {
+      console.error('Supabase saveUser error:', e);
+    }
   }
 
   return db.users[key];
 }
 
-export function addWatchTime(username: string, minutes: number = 1): UserRecord | null {
+export async function addWatchTime(username: string, minutes: number = 1): Promise<UserRecord | null> {
   const db = readDb();
   const key = username.toLowerCase();
+
+  if (!db.users[key]) {
+    await getUser(username);
+  }
+
+  if (!db.users[key]) {
+    await saveUser({ id: key, username: username });
+  }
+
   if (db.users[key]) {
     db.users[key].watchTimeMinutes += minutes;
-    const pointsEarned = minutes * (10 / 60);
+    // +1 pt per minute (60 pts/hr)
+    const pointsEarned = minutes * 1;
     db.users[key].points = Number((db.users[key].points + pointsEarned).toFixed(2));
     db.users[key].lastUpdated = new Date().toISOString();
     writeDb(db);
 
     if (isSupabaseConfigured && supabase) {
-      (async () => {
-        try {
-          await supabase
-            .from('users')
-            .update({
-              watch_time_minutes: db.users[key].watchTimeMinutes,
-              points: db.users[key].points,
-              last_updated: db.users[key].lastUpdated,
-            })
-            .eq('id', db.users[key].id);
-        } catch (e) {}
-      })();
+      try {
+        await supabase
+          .from('users')
+          .update({
+            watch_time_minutes: db.users[key].watchTimeMinutes,
+            points: db.users[key].points,
+            last_updated: db.users[key].lastUpdated,
+          })
+          .ilike('username', db.users[key].username);
+      } catch (e) {
+        console.error('Supabase addWatchTime error:', e);
+      }
     }
 
     return db.users[key];
@@ -275,17 +344,27 @@ export function addWatchTime(username: string, minutes: number = 1): UserRecord 
   return null;
 }
 
-export function addChatMessage(username: string): UserRecord | null {
+export async function addChatMessage(username: string): Promise<UserRecord | null> {
   const db = readDb();
   const key = username.toLowerCase();
+
+  if (!db.users[key]) {
+    await getUser(username);
+  }
+
+  if (!db.users[key]) {
+    await saveUser({ id: key, username: username });
+  }
+
   if (db.users[key]) {
     const now = Date.now();
     const lastMsg = db.users[key].lastMessageTime || 0;
 
     db.users[key].chatMessagesCount += 1;
 
-    if (now - lastMsg >= 5000) {
-      db.users[key].points = Number((db.users[key].points + 0.1).toFixed(2));
+    // +0.5 pts per chat message (cooldown 2 seconds)
+    if (now - lastMsg >= 2000) {
+      db.users[key].points = Number((db.users[key].points + 0.5).toFixed(2));
       db.users[key].lastMessageTime = now;
     }
 
@@ -293,18 +372,18 @@ export function addChatMessage(username: string): UserRecord | null {
     writeDb(db);
 
     if (isSupabaseConfigured && supabase) {
-      (async () => {
-        try {
-          await supabase
-            .from('users')
-            .update({
-              chat_messages_count: db.users[key].chatMessagesCount,
-              points: db.users[key].points,
-              last_updated: db.users[key].lastUpdated,
-            })
-            .eq('id', db.users[key].id);
-        } catch (e) {}
-      })();
+      try {
+        await supabase
+          .from('users')
+          .update({
+            chat_messages_count: db.users[key].chatMessagesCount,
+            points: db.users[key].points,
+            last_updated: db.users[key].lastUpdated,
+          })
+          .ilike('username', db.users[key].username);
+      } catch (e) {
+        console.error('Supabase addChatMessage error:', e);
+      }
     }
 
     return db.users[key];
@@ -312,9 +391,50 @@ export function addChatMessage(username: string): UserRecord | null {
   return null;
 }
 
-export function getLeaderboard(): UserRecord[] {
+export async function getLeaderboard(): Promise<UserRecord[]> {
   const db = readDb();
-  return Object.values(db.users).sort((a, b) => b.points - a.points);
+  const localList = Object.values(db.users);
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('points', { ascending: false })
+        .limit(100);
+
+      if (data && !error && data.length > 0) {
+        const map = new Map<string, UserRecord>();
+        for (const u of localList) {
+          map.set(u.username.toLowerCase(), u);
+        }
+        for (const row of data) {
+          const key = (row.username || '').toLowerCase();
+          if (!key) continue;
+          const sUser: UserRecord = {
+            id: row.id || key,
+            username: row.username,
+            profilePic: row.profile_pic || '',
+            slug: row.slug || row.username,
+            points: Number(row.points) || 0,
+            watchTimeMinutes: Number(row.watch_time_minutes) || 0,
+            chatMessagesCount: Number(row.chat_messages_count) || 0,
+            lastUpdated: row.last_updated || new Date().toISOString(),
+            createdAt: row.created_at || new Date().toISOString(),
+          };
+          const existingLocal = map.get(key);
+          if (!existingLocal || sUser.points > existingLocal.points) {
+            map.set(key, sUser);
+          }
+        }
+        return Array.from(map.values()).sort((a, b) => b.points - a.points);
+      }
+    } catch (e) {
+      console.error('Supabase getLeaderboard error:', e);
+    }
+  }
+
+  return localList.sort((a, b) => b.points - a.points);
 }
 
 // --- MÉTODOS DE RECOMPENSAS Y RECLAMACIONES ---
@@ -327,19 +447,25 @@ export function getRewardById(id: string): RewardItem | null {
   return INITIAL_REWARDS.find((r) => r.id === id) || null;
 }
 
-export function createClaim(claimData: {
+export async function createClaim(claimData: {
   userId: string;
   username: string;
   profilePic?: string;
   rewardId: string;
   contactInfo: string;
-}): { success: boolean; claim?: RewardClaim; error?: string; remainingPoints?: number } {
+}): Promise<{ success: boolean; claim?: RewardClaim; error?: string; remainingPoints?: number }> {
   const db = readDb();
   const userKey = claimData.username.toLowerCase();
-  const user = db.users[userKey];
+  let user = db.users[userKey];
 
   if (!user) {
-    return { success: false, error: 'Usuario no encontrado en la base de datos.' };
+    // Try restoring from Supabase
+    const restored = await getUser(claimData.username);
+    if (restored) {
+      user = restored;
+    } else {
+      return { success: false, error: 'Usuario no encontrado en la base de datos.' };
+    }
   }
 
   const reward = INITIAL_REWARDS.find((r) => r.id === claimData.rewardId);
@@ -387,21 +513,26 @@ export function createClaim(claimData: {
   writeDb(db);
 
   if (isSupabaseConfigured && supabase) {
-    (async () => {
-      try {
-        await supabase.from('claims').insert({
-          id: newClaim.id,
-          user_id: newClaim.userId,
-          username: newClaim.username,
-          profile_pic: newClaim.profilePic,
-          reward_id: newClaim.rewardId,
-          reward_title: newClaim.rewardTitle,
-          points_spent: newClaim.pointsSpent,
-          status: newClaim.status,
-          contact_info: newClaim.contactInfo,
-        });
-      } catch (e) {}
-    })();
+    try {
+      await supabase.from('claims').insert({
+        id: newClaim.id,
+        user_id: newClaim.userId,
+        username: newClaim.username,
+        profile_pic: newClaim.profilePic,
+        reward_id: newClaim.rewardId,
+        reward_title: newClaim.rewardTitle,
+        points_spent: newClaim.pointsSpent,
+        status: newClaim.status,
+        contact_info: newClaim.contactInfo,
+      });
+      // Update user points in Supabase too
+      await supabase
+        .from('users')
+        .update({ points: user.points, last_updated: user.lastUpdated })
+        .ilike('username', user.username);
+    } catch (e) {
+      console.error('Supabase createClaim error:', e);
+    }
   }
 
   return {

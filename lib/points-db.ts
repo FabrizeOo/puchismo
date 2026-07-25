@@ -17,8 +17,8 @@ export interface UserPoints {
   lastUpdated: string;
 }
 
-export function getUserPoints(username: string): UserPoints | null {
-  const u = getUser(username);
+export async function getUserPoints(username: string): Promise<UserPoints | null> {
+  const u = await getUser(username);
   if (!u) return null;
   return {
     id: u.id,
@@ -31,8 +31,8 @@ export function getUserPoints(username: string): UserPoints | null {
   };
 }
 
-export function saveUserPoints(user: { id: string; username: string; profilePic?: string; slug?: string }) {
-  const u = saveUser(user);
+export async function saveUserPoints(user: { id: string; username: string; profilePic?: string; slug?: string }): Promise<UserPoints> {
+  const u = await saveUser(user);
   return {
     id: u.id,
     username: u.username,
@@ -44,8 +44,8 @@ export function saveUserPoints(user: { id: string; username: string; profilePic?
   };
 }
 
-export function addWatchTime(username: string, minutes: number = 1) {
-  const u = dbAddWatchTime(username, minutes);
+export async function addWatchTime(username: string, minutes: number = 1): Promise<UserPoints | null> {
+  const u = await dbAddWatchTime(username, minutes);
   if (!u) return null;
   return {
     id: u.id,
@@ -58,8 +58,8 @@ export function addWatchTime(username: string, minutes: number = 1) {
   };
 }
 
-export function addChatMessage(username: string) {
-  const u = dbAddChatMessage(username);
+export async function addChatMessage(username: string): Promise<UserPoints | null> {
+  const u = await dbAddChatMessage(username);
   if (!u) return null;
   return {
     id: u.id,
@@ -72,8 +72,9 @@ export function addChatMessage(username: string) {
   };
 }
 
-export function getLeaderboard(): UserPoints[] {
-  return dbGetLeaderboard().map((u) => ({
+export async function getLeaderboard(): Promise<UserPoints[]> {
+  const list = await dbGetLeaderboard();
+  return list.map((u) => ({
     id: u.id,
     username: u.username,
     profilePic: u.profilePic,

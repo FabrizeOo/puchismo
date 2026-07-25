@@ -11,33 +11,45 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Faltan parámetros requeridos' }, { status: 400 });
     }
 
-    // Auth verification: Read cookie using Next.js cookies() helper
+    // Auth verification: Read cookie using Next.js cookies() helper & raw header fallback
     const cookieStore = cookies();
-    const profileCookie = cookieStore.get('kick_user_profile');
+    let cookieVal = cookieStore.get('kick_user_profile')?.value;
 
-    if (!profileCookie?.value) {
+    if (!cookieVal) {
+      const rawCookies = req.headers.get('cookie') || '';
+      const match = rawCookies.match(/(?:^|; )kick_user_profile=([^;]*)/);
+      if (match) {
+        cookieVal = match[1];
+      }
+    }
+
+    if (!cookieVal) {
       return NextResponse.json({ error: 'Usuario no autenticado' }, { status: 401 });
     }
 
     let storedProfile: any;
     try {
-      storedProfile = JSON.parse(decodeURIComponent(profileCookie.value));
+      storedProfile = JSON.parse(decodeURIComponent(cookieVal));
     } catch {
-      return NextResponse.json({ error: 'Cookie de perfil inválida' }, { status: 401 });
+      try {
+        storedProfile = JSON.parse(cookieVal);
+      } catch {
+        return NextResponse.json({ error: 'Cookie de perfil inválida' }, { status: 401 });
+      }
     }
 
-    // Ensure the requested username matches the authenticated username to prevent hacking
-    if (storedProfile.username.toLowerCase() !== username.toLowerCase()) {
+    // Ensure the requested username matches the authenticated username
+    if (!storedProfile?.username || storedProfile.username.toLowerCase() !== username.toLowerCase()) {
       return NextResponse.json({ error: 'Acción no autorizada para este usuario' }, { status: 403 });
     }
 
     let updatedUser = null;
     if (action === 'watch') {
-      // Award points for 1 minute of watch time (+10 points)
-      updatedUser = addWatchTime(username, 1);
+      // Award points for 1 minute of watch time (+1 point)
+      updatedUser = await addWatchTime(username, 1);
     } else if (action === 'chat') {
-      // Award points for 1 chat message (+1 point)
-      updatedUser = addChatMessage(username);
+      // Award points for 1 chat message (+0.5 point)
+      updatedUser = await addChatMessage(username);
     } else {
       return NextResponse.json({ error: 'Acción no soportada' }, { status: 400 });
     }
@@ -54,7 +66,7 @@ export async function POST(req: Request) {
       chatMessagesCount: updatedUser.chatMessagesCount,
     });
 
-    // Update the cookie as well so the client receives the updated stats immediately
+    // Update cookie so client UI receives updated stats immediately
     const updatedClientProfile = {
       ...storedProfile,
       points: updatedUser.points,
