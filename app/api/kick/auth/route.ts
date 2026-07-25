@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import crypto from 'crypto';
+import { getAppUrl } from '@/lib/url-utils';
 
 function base64url(buffer: Buffer) {
   return buffer.toString('base64')
@@ -8,9 +10,9 @@ function base64url(buffer: Buffer) {
     .replace(/\//g, '_');
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   const clientId = process.env.KICK_CLIENT_ID || '01KTM0Z2YWRQC5TTW3B398FDTF';
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const appUrl = getAppUrl(req);
   const redirectUri = `${appUrl}/api/kick/callback`;
 
   // PKCE: Generate Code Verifier and Code Challenge
@@ -34,12 +36,14 @@ export async function GET() {
   authUrl.searchParams.append('code_challenge', codeChallenge);
   authUrl.searchParams.append('code_challenge_method', 'S256');
 
+  const isSecure = appUrl.startsWith('https://');
+
   const response = NextResponse.redirect(authUrl.toString());
 
-  // Store PKCE verifier and state in secure, temporary cookies
+  // Store PKCE verifier and state on the returned response cookies for Vercel Serverless Functions
   response.cookies.set('kick_oauth_verifier', codeVerifier, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isSecure,
     sameSite: 'lax',
     maxAge: 60 * 10, // 10 minutes
     path: '/',
@@ -47,11 +51,30 @@ export async function GET() {
 
   response.cookies.set('kick_oauth_state', state, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isSecure,
     sameSite: 'lax',
     maxAge: 60 * 10, // 10 minutes
     path: '/',
   });
+
+  // Also set on next/headers cookieStore for compatibility
+  try {
+    const cookieStore = cookies();
+    cookieStore.set('kick_oauth_verifier', codeVerifier, {
+      httpOnly: true,
+      secure: isSecure,
+      sameSite: 'lax',
+      maxAge: 60 * 10,
+      path: '/',
+    });
+    cookieStore.set('kick_oauth_state', state, {
+      httpOnly: true,
+      secure: isSecure,
+      sameSite: 'lax',
+      maxAge: 60 * 10,
+      path: '/',
+    });
+  } catch (e) {}
 
   return response;
 }

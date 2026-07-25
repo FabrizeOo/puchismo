@@ -11,6 +11,7 @@ const navItems = [
   { label: 'Inicio', href: '/' },
   { label: 'Stream', href: '/stream' },
   { label: 'Rewards', href: '/rewards' },
+  { label: 'Leaderboard', href: '/leaderboard' },
   { label: 'Discord', href: 'https://discord.gg/puchismo', external: true },
 ];
 

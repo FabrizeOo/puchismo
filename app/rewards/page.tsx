@@ -81,13 +81,22 @@ const WAYS_TO_EARN = [
 
 export default function RewardsPage() {
   const [kickUser, setKickUser] = useState<KickUser | null>(null);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [rewardsCatalog, setRewardsCatalog] = useState<RewardItem[]>([]);
   const [userClaims, setUserClaims] = useState<RewardClaim[]>([]);
-  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [loadingRewards, setLoadingRewards] = useState(false);
   
-  const [activeTab, setActiveTab] = useState<'store' | 'my-claims' | 'earn' | 'leaderboard' | 'tiers'>('store');
+  const [activeTab, setActiveTab] = useState<'store' | 'my-claims' | 'earn' | 'tiers'>('store');
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const err = params.get('error') || params.get('auth_error');
+      if (err) {
+        setAuthError('No se pudo completar el inicio de sesión con Kick. Por favor, intenta de nuevo.');
+      }
+    }
+  }, []);
 
   // Modal para reclamar premio
   const [selectedReward, setSelectedReward] = useState<RewardItem | null>(null);
@@ -160,24 +169,6 @@ export default function RewardsPage() {
     }
   };
 
-  // Cargar Leaderboard
-  const fetchLeaderboardData = async () => {
-    setLoadingLeaderboard(true);
-    try {
-      const res = await fetch('/api/kick/leaderboard');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success) {
-          setLeaderboard(data.leaderboard);
-        }
-      }
-    } catch (e) {
-      console.error('Error cargando leaderboard:', e);
-    } finally {
-      setLoadingLeaderboard(false);
-    }
-  };
-
   useEffect(() => {
     fetchUserData();
     fetchRewardsData();
@@ -190,7 +181,6 @@ export default function RewardsPage() {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'leaderboard') fetchLeaderboardData();
     if (activeTab === 'store' || activeTab === 'my-claims') fetchRewardsData();
   }, [activeTab]);
 
@@ -304,6 +294,16 @@ export default function RewardsPage() {
         </div>
       </section>
 
+      {/* ── ALERTA DE ERROR SI FALLA LOGIN ── */}
+      {authError && (
+        <div className="max-w-xl mx-auto px-4 mb-4">
+          <div className="p-3.5 rounded-2xl bg-red-950/80 border border-red-500/40 text-red-300 text-xs font-bold flex items-center justify-between">
+            <span>⚠️ {authError}</span>
+            <button onClick={() => setAuthError(null)} className="text-red-400 hover:text-white ml-2">✕</button>
+          </div>
+        </div>
+      )}
+
       {/* ── CARD PERFIL USUARIO ── */}
       <section className="py-4 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -390,26 +390,34 @@ export default function RewardsPage() {
       {/* ── TABS RESPONSIVAS ── */}
       <section className="py-6 px-4">
         <div className="max-w-5xl mx-auto">
-          <div className="flex overflow-x-auto gap-2 p-1.5 mb-8 bg-neutral-900/90 border border-white/10 rounded-2xl scrollbar-none">
-            {([
-              { id: 'store', label: '🛍️ Recompensas' },
-              { id: 'my-claims', label: `📦 Reclamaciones (${userClaims.length})` },
-              { id: 'earn', label: '⚡ Ganar Puntos' },
-              { id: 'leaderboard', label: '🏆 Leaderboard' },
-              { id: 'tiers', label: '🎖️ Rangos' },
-            ] as const).map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-shrink-0 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-gradient-to-r from-emerald-400 to-green-500 text-black shadow-lg'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center justify-between gap-2 p-1.5 mb-8 bg-neutral-900/90 border border-white/10 rounded-2xl">
+            <div className="flex overflow-x-auto gap-2 scrollbar-none">
+              {([
+                { id: 'store', label: '🛍️ Recompensas' },
+                { id: 'my-claims', label: `📦 Reclamaciones (${userClaims.length})` },
+                { id: 'earn', label: '⚡ Ganar Puntos' },
+                { id: 'tiers', label: '🎖️ Rangos' },
+              ] as const).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-shrink-0 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all ${
+                    activeTab === tab.id
+                      ? 'bg-gradient-to-r from-emerald-400 to-green-500 text-black shadow-lg'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <a
+              href="/leaderboard"
+              className="flex-shrink-0 px-4 py-2.5 rounded-xl font-bold text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 transition-all flex items-center gap-1.5"
+            >
+              🏆 Ver Leaderboard Completo ↗
+            </a>
           </div>
 
           <AnimatePresence mode="wait">
@@ -555,42 +563,6 @@ export default function RewardsPage() {
                     </div>
                   </div>
                 ))}
-              </motion.div>
-            )}
-
-            {/* TAB 4: LEADERBOARD */}
-            {activeTab === 'leaderboard' && (
-              <motion.div
-                key="leaderboard"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-2.5"
-              >
-                {loadingLeaderboard ? (
-                  <div className="text-center py-12 text-gray-500 text-xs sm:text-sm">Cargando ranking...</div>
-                ) : (
-                  leaderboard.map((user, i) => (
-                    <div
-                      key={user.username}
-                      className="p-3 sm:p-4 rounded-2xl bg-neutral-900/80 border border-white/5 flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="font-mono text-xs font-bold text-gray-500 w-5">#{i + 1}</span>
-                        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden border border-white/10 bg-neutral-800 flex-shrink-0">
-                          {user.profilePic ? (
-                            <img src={user.profilePic} alt={user.username} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center font-black text-xs text-emerald-400 bg-emerald-950">
-                              {user.username.substring(0, 2).toUpperCase()}
-                            </div>
-                          )}
-                        </div>
-                        <span className="font-bold text-white text-xs sm:text-sm">@{user.username}</span>
-                      </div>
-                      <span className="font-black text-emerald-400 font-mono text-xs sm:text-sm">{user.points} pts</span>
-                    </div>
-                  ))
-                )}
               </motion.div>
             )}
 

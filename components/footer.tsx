@@ -50,6 +50,7 @@ export function Footer() {
                 { label: 'Inicio', href: '/' },
                 { label: 'Stream en Vivo', href: '/stream' },
                 { label: 'Recompensas', href: '/rewards' },
+                { label: 'Leaderboard', href: '/leaderboard' },
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-gray-400 hover:text-electric transition-colors text-sm">

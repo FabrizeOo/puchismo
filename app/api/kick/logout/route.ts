@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
+import { getAppUrl } from '@/lib/url-utils';
 
-export async function GET() {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+export async function GET(req: Request) {
+  const appUrl = getAppUrl(req);
   const response = NextResponse.redirect(new URL('/rewards', appUrl).toString());
 
   // Clear session cookies

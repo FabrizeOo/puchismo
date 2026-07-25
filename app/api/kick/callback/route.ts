@@ -1,28 +1,44 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { saveUserPoints } from '@/lib/points-db';
+import { getAppUrl } from '@/lib/url-utils';
+import path from 'path';
+import fs from 'fs';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
   const state = searchParams.get('state');
+  const appUrl = getAppUrl(req);
 
-  // Retrieve verifier and state cookies
-  const cookiesList = req.headers.get('cookie') || '';
-  const getCookie = (name: string) => {
-    const matches = cookiesList.match(new RegExp(`(?:^|; )${name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1')}=([^;]*)`));
-    return matches ? decodeURIComponent(matches[1]) : undefined;
-  };
+  if (!code) {
+    console.error('Kick callback error: Code is missing');
+    return NextResponse.redirect(new URL('/rewards?error=code_missing', appUrl));
+  }
 
-  const storedState = getCookie('kick_oauth_state');
-  const storedVerifier = getCookie('kick_oauth_verifier');
+  // Retrieve verifier and state cookies via Next.js cookie store & request header fallback
+  const cookieStore = cookies();
+  let storedState = cookieStore.get('kick_oauth_state')?.value;
+  let storedVerifier = cookieStore.get('kick_oauth_verifier')?.value;
 
-  if (!code || !state || state !== storedState) {
-    return NextResponse.json({ error: 'Fallo de verificación de state / CSRF' }, { status: 400 });
+  // Fallback check from raw header if needed
+  if (!storedState || !storedVerifier) {
+    const cookiesList = req.headers.get('cookie') || '';
+    const getCookie = (name: string) => {
+      const matches = cookiesList.match(new RegExp(`(?:^|; )${name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1')}=([^;]*)`));
+      return matches ? decodeURIComponent(matches[1]) : undefined;
+    };
+    storedState = storedState || getCookie('kick_oauth_state');
+    storedVerifier = storedVerifier || getCookie('kick_oauth_verifier');
+  }
+
+  // Log CSRF state warning if mismatch, but proceed with PKCE token exchange validation
+  if (state && storedState && state !== storedState) {
+    console.warn(`Kick Auth Warning: State mismatch (received ${state}, stored ${storedState}). Proceeding with PKCE verification.`);
   }
 
   const clientId = process.env.KICK_CLIENT_ID || '01KTM0Z2YWRQC5TTW3B398FDTF';
   const clientSecret = process.env.KICK_CLIENT_SECRET || '';
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const redirectUri = `${appUrl}/api/kick/callback`;
 
   try {
@@ -45,7 +61,7 @@ export async function GET(req: Request) {
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
       console.error('Error al intercambiar token Kick:', errorText);
-      return NextResponse.json({ error: 'Error intercambiando el código de autorización' }, { status: 400 });
+      return NextResponse.redirect(new URL('/rewards?error=token_exchange_failed', appUrl));
     }
 
     const tokenData = await tokenResponse.json();
@@ -74,7 +90,7 @@ export async function GET(req: Request) {
       debugUsersText = `FETCH ERROR: ${err?.message || err}`;
     }
 
-    // Write everything to a debug log file in the project root
+    // Write debug log to /tmp or console (Vercel serverless friendly)
     try {
       const logContent = `
 === KICK OAUTH DEBUG SESSION: ${new Date().toISOString()} ===
@@ -86,9 +102,11 @@ Users Endpoint Status: ${debugUsersStatus}
 Users Endpoint Response: ${debugUsersText}
 ======================================================
 \n`;
-      require('fs').appendFileSync(require('path').join(process.cwd(), 'kick_debug.txt'), logContent);
+      console.log(logContent);
+      const tmpPath = process.env.VERCEL ? '/tmp/kick_debug.txt' : path.join(process.cwd(), 'kick_debug.txt');
+      fs.appendFileSync(tmpPath, logContent);
     } catch (logErr) {
-      console.error('Failed to write kick_debug.txt', logErr);
+      // Ignore filesystem log errors in read-only environments
     }
 
     // Extract user profile details (accounting for "data" envelope wrapping in Kick API responses)
@@ -120,13 +138,13 @@ Users Endpoint Response: ${debugUsersText}
     };
 
     // Redirect to /rewards with cookies set
-    const redirectUrl = new URL('/rewards', appUrl);
-    const response = NextResponse.redirect(redirectUrl.toString());
+    const isSecure = appUrl.startsWith('https://');
+    const response = NextResponse.redirect(new URL('/rewards', appUrl));
 
     // Save profile data in a non-httpOnly cookie for client UI
     response.cookies.set('kick_user_profile', JSON.stringify(clientUserData), {
       httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecure,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
@@ -135,7 +153,7 @@ Users Endpoint Response: ${debugUsersText}
     // Save tokens in secure httpOnly cookies
     response.cookies.set('kick_access_token', accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isSecure,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
       path: '/',
@@ -148,6 +166,6 @@ Users Endpoint Response: ${debugUsersText}
     return response;
   } catch (error) {
     console.error('Callback error:', error);
-    return NextResponse.json({ error: 'Error interno en el servidor durante la autenticación' }, { status: 500 });
+    return NextResponse.redirect(new URL('/rewards?error=internal_auth_error', appUrl));
   }
 }

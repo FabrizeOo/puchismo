@@ -47,8 +47,8 @@ export interface DatabaseSchema {
   claims: RewardClaim[];
 }
 
-const DB_FILE = path.join(process.cwd(), 'proyecto_kick_database.json');
-const LEGACY_DB_FILE = path.join(process.cwd(), 'points_database.json');
+const getDbFile = () => (process.env.VERCEL ? path.join('/tmp', 'proyecto_kick_database.json') : path.join(process.cwd(), 'proyecto_kick_database.json'));
+const getLegacyDbFile = () => (process.env.VERCEL ? path.join('/tmp', 'points_database.json') : path.join(process.cwd(), 'points_database.json'));
 
 // Catálogo actualizado con costos incrementados y descripciones corregidas
 export const INITIAL_REWARDS: RewardItem[] = [
@@ -126,12 +126,14 @@ export const INITIAL_REWARDS: RewardItem[] = [
 
 // Helper local DB
 export function readDb(): DatabaseSchema {
+  const dbFile = getDbFile();
+  const legacyFile = getLegacyDbFile();
   try {
-    if (!fs.existsSync(DB_FILE)) {
+    if (!fs.existsSync(dbFile)) {
       let initialUsers: Record<string, UserRecord> = {};
-      if (fs.existsSync(LEGACY_DB_FILE)) {
+      if (fs.existsSync(legacyFile)) {
         try {
-          const legacyData = JSON.parse(fs.readFileSync(LEGACY_DB_FILE, 'utf-8'));
+          const legacyData = JSON.parse(fs.readFileSync(legacyFile, 'utf-8'));
           for (const key in legacyData) {
             const u = legacyData[key];
             initialUsers[key.toLowerCase()] = {
@@ -154,11 +156,13 @@ export function readDb(): DatabaseSchema {
         rewards: INITIAL_REWARDS,
         claims: [],
       };
-      fs.writeFileSync(DB_FILE, JSON.stringify(initialDb, null, 2), 'utf-8');
+      try {
+        fs.writeFileSync(dbFile, JSON.stringify(initialDb, null, 2), 'utf-8');
+      } catch (wErr) {}
       return initialDb;
     }
 
-    const content = fs.readFileSync(DB_FILE, 'utf-8');
+    const content = fs.readFileSync(dbFile, 'utf-8');
     const parsed: DatabaseSchema = JSON.parse(content);
 
     if (!parsed.users) parsed.users = {};
@@ -172,12 +176,14 @@ export function readDb(): DatabaseSchema {
 }
 
 export function writeDb(data: DatabaseSchema) {
+  const dbFile = getDbFile();
+  const legacyFile = getLegacyDbFile();
   try {
-    const tempFile = `${DB_FILE}.tmp`;
+    const tempFile = `${dbFile}.tmp`;
     fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf-8');
-    fs.renameSync(tempFile, DB_FILE);
+    fs.renameSync(tempFile, dbFile);
     try {
-      fs.writeFileSync(LEGACY_DB_FILE, JSON.stringify(data.users, null, 2), 'utf-8');
+      fs.writeFileSync(legacyFile, JSON.stringify(data.users, null, 2), 'utf-8');
     } catch {}
   } catch (error) {}
 }
