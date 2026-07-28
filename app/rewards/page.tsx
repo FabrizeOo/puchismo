@@ -317,7 +317,7 @@ export default function RewardsPage() {
               <div className="text-center py-2 space-y-3">
                 <p className="text-xs text-gray-400">Inicia sesión con Kick para ver tus puntos y reclamar premios:</p>
                 <a
-                  href="/api/kick/login"
+                  href="/api/kick/auth"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-black bg-emerald-400 hover:bg-emerald-300 transition-all text-sm shadow-lg shadow-emerald-500/20"
                 >
                   <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">

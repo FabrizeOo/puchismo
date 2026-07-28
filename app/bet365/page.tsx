@@ -230,7 +230,7 @@ export default function Bet365Page() {
                 </span>
               </div>
               <a
-                href="/api/kick/login"
+                href="/api/kick/auth"
                 className="w-full sm:w-auto px-6 py-3 rounded-2xl font-black text-black bg-emerald-400 hover:bg-emerald-300 transition-all text-xs text-center flex items-center justify-center gap-2"
               >
                 🟩 Iniciar Sesión con KICK
@@ -292,7 +292,7 @@ export default function Bet365Page() {
             <div className="p-6 rounded-2xl bg-black/60 border border-white/10 text-center space-y-3">
               <p className="text-xs text-gray-400">Debes iniciar sesión con Kick para poder subir tus pruebas.</p>
               <a
-                href="/api/kick/login"
+                href="/api/kick/auth"
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs text-black bg-emerald-400 hover:bg-emerald-300 transition-all"
               >
                 🟩 Conectar Cuenta de Kick

@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server';
 import { getAllClaims, updateClaimStatus } from '@/lib/db';
 import { cookies } from 'next/headers';
 
-function checkAdminAuth() {
+function checkAdminAuth(): boolean {
   const cookieStore = cookies();
   const session = cookieStore.get('admin_session');
-  return session?.value === 'authenticated_admin_puchismo_2026';
+  return session?.value === 'authenticated_admin_puchismo_2026' || session?.value === 'authenticated';
 }
 
 export async function GET() {

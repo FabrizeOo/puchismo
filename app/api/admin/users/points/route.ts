@@ -8,7 +8,7 @@ export const revalidate = 0;
 function checkAdminAuth(): boolean {
   const cookieStore = cookies();
   const session = cookieStore.get('admin_session');
-  return session?.value === 'authenticated';
+  return session?.value === 'authenticated_admin_puchismo_2026' || session?.value === 'authenticated';
 }
 
 export async function POST(req: Request) {
