@@ -5,6 +5,8 @@ import { motion, AnimatePresence, useInView } from 'framer-motion';
 import Link from 'next/link';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
+import { KickLoginCard } from '@/components/kick-login-card';
+import { KickLogo } from '@/components/kick-logo';
 
 // ─── TIPOS ───────────────────────────────────────────────────────────────────
 interface KickUser {
@@ -272,23 +274,29 @@ export default function RewardsPage() {
           </motion.p>
 
           {/* Banner de Usuario Conectado / Estado */}
-          <div className="max-w-xl mx-auto p-4 sm:p-6 rounded-3xl bg-neutral-950/90 border border-emerald-500/30 shadow-2xl relative overflow-hidden">
-            {kickUser ? (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3 text-left">
-                  <div className="w-12 h-12 rounded-2xl overflow-hidden border border-emerald-400 bg-neutral-800 flex-shrink-0">
-                    {kickUser.profilePic ? (
-                      <img src={kickUser.profilePic} alt={kickUser.username} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center font-black text-emerald-400 bg-emerald-950">
-                        {kickUser.username.substring(0, 2).toUpperCase()}
-                      </div>
-                    )}
+          {kickUser ? (
+            <div className="max-w-xl mx-auto relative overflow-hidden p-4 sm:p-6 rounded-3xl bg-gradient-to-r from-neutral-950 via-neutral-900 to-neutral-950 border border-[#53fc18]/30 shadow-[0_0_30px_rgba(83,252,24,0.1)]">
+              <div className="absolute -top-8 -right-8 w-32 h-32 bg-[#53fc18]/15 rounded-full blur-2xl pointer-events-none" />
+              <div className="relative flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-4 text-left">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-[#53fc18]/60 bg-neutral-800 shadow-[0_0_15px_rgba(83,252,24,0.25)]">
+                      {kickUser.profilePic ? (
+                        <img src={kickUser.profilePic} alt={kickUser.username} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center font-black text-[#53fc18] bg-black/80 text-lg">
+                          {kickUser.username.substring(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-md bg-black border border-[#53fc18]/60 flex items-center justify-center shadow">
+                      <KickLogo className="w-3 h-3" color="#53FC18" />
+                    </div>
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-black text-white text-base">@{kickUser.username}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-white/10 text-emerald-400">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-black text-white text-base tracking-tight">@{kickUser.username}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-black bg-[#53fc18]/15 text-[#53fc18] border border-[#53fc18]/30 uppercase tracking-wider">
                         {userTier.emoji} {userTier.name}
                       </span>
                     </div>
@@ -299,9 +307,9 @@ export default function RewardsPage() {
                 </div>
 
                 <div className="flex flex-col items-center sm:items-end gap-2 w-full sm:w-auto">
-                  <div className="text-center sm:text-right bg-emerald-500/10 px-4 py-1.5 rounded-2xl border border-emerald-500/30 w-full sm:w-auto">
+                  <div className="text-center sm:text-right bg-[#53fc18]/10 px-4 py-1.5 rounded-2xl border border-[#53fc18]/30 w-full sm:w-auto shadow-[0_0_12px_rgba(83,252,24,0.15)]">
                     <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider block">Tu Saldo</span>
-                    <span className="text-xl sm:text-2xl font-black text-emerald-400 font-mono">
+                    <span className="text-xl sm:text-2xl font-black text-[#53fc18] font-mono">
                       {Math.floor(currentPoints)} <span className="text-xs text-white">pts</span>
                     </span>
                   </div>
@@ -313,21 +321,12 @@ export default function RewardsPage() {
                   </button>
                 </div>
               </div>
-            ) : (
-              <div className="text-center py-2 space-y-3">
-                <p className="text-xs text-gray-400">Inicia sesión con Kick para ver tus puntos y reclamar premios:</p>
-                <a
-                  href="/api/kick/auth"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-black bg-emerald-400 hover:bg-emerald-300 transition-all text-sm shadow-lg shadow-emerald-500/20"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
-                  </svg>
-                  🟢 Iniciar Sesión con Kick
-                </a>
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="max-w-xl mx-auto">
+              <KickLoginCard />
+            </div>
+          )}
         </div>
       </section>
 

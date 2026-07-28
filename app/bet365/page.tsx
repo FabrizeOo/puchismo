@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
+import { KickLoginCard } from '@/components/kick-login-card';
+import { KickLogo } from '@/components/kick-logo';
 
 interface KickUser {
   id: string;
@@ -185,59 +187,50 @@ export default function Bet365Page() {
           </p>
         </div>
 
-        {/* User Card Bar (con Iniciar Sesión y Cerrar Sesión) */}
-        <div className="p-4 sm:p-6 rounded-3xl bg-neutral-950/90 border border-emerald-500/30 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          {kickUser ? (
-            <>
-              <div className="flex items-center gap-3 text-left">
-                <div className="w-12 h-12 rounded-2xl overflow-hidden border border-emerald-400 bg-neutral-800 flex-shrink-0">
+        {/* User Card Bar */}
+        {kickUser ? (
+          <div className="relative overflow-hidden p-4 sm:p-6 rounded-3xl bg-gradient-to-r from-neutral-950 via-neutral-900 to-neutral-950 border border-[#53fc18]/30 shadow-[0_0_30px_rgba(83,252,24,0.1)] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="absolute -top-8 -right-8 w-32 h-32 bg-[#53fc18]/15 rounded-full blur-2xl pointer-events-none" />
+            <div className="relative flex items-center gap-4 text-left">
+              <div className="relative flex-shrink-0">
+                <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-[#53fc18]/60 bg-neutral-800 shadow-[0_0_15px_rgba(83,252,24,0.25)]">
                   {kickUser.profilePic ? (
                     <img src={kickUser.profilePic} alt={kickUser.username} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center font-black text-emerald-400 bg-emerald-950">
+                    <div className="w-full h-full flex items-center justify-center font-black text-[#53fc18] bg-black/80 text-lg">
                       {kickUser.username.substring(0, 2).toUpperCase()}
                     </div>
                   )}
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-black text-white text-base">@{kickUser.username}</span>
-                    <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      Conectado
-                    </span>
-                  </div>
-                  <span className="text-xs text-gray-400">
-                    Saldo: <strong className="text-emerald-400 font-mono">{Math.floor(kickUser.points)} pts</strong>
-                  </span>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-md bg-black border border-[#53fc18]/60 flex items-center justify-center shadow">
+                  <KickLogo className="w-3 h-3" color="#53FC18" />
                 </div>
               </div>
-
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <button
-                  onClick={handleLogout}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 transition-all flex items-center justify-center gap-1.5"
-                >
-                  🚪 Cerrar Sesión
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
-              <div className="text-center sm:text-left">
-                <span className="text-white font-bold text-sm block">¿Aún no te has conectado?</span>
-                <span className="text-gray-400 text-xs block">
-                  Debes iniciar sesión con tu cuenta de Kick para asignar los 50 puntos a tu perfil.
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-black text-white text-base tracking-tight">@{kickUser.username}</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full font-black bg-[#53fc18]/15 text-[#53fc18] border border-[#53fc18]/30 uppercase tracking-wider">
+                    ✓ Conectado
+                  </span>
+                </div>
+                <span className="text-xs text-gray-400">
+                  Saldo: <strong className="text-[#53fc18] font-mono">{Math.floor(kickUser.points)} pts</strong>
                 </span>
               </div>
-              <a
-                href="/api/kick/auth"
-                className="w-full sm:w-auto px-6 py-3 rounded-2xl font-black text-black bg-emerald-400 hover:bg-emerald-300 transition-all text-xs text-center flex items-center justify-center gap-2"
-              >
-                🟩 Iniciar Sesión con KICK
-              </a>
             </div>
-          )}
-        </div>
+
+            <div className="relative flex items-center gap-3 w-full sm:w-auto">
+              <button
+                onClick={handleLogout}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 transition-all flex items-center justify-center gap-1.5"
+              >
+                🚪 Cerrar Sesión
+              </button>
+            </div>
+          </div>
+        ) : (
+          <KickLoginCard compact title="¿Aún no te has conectado?" subtitle="Inicia sesión con Kick para que los 50 puntos se asignen a tu perfil." />
+        )}
 
         {/* Paso 1: Redirección Bet365 */}
         <div className="p-6 sm:p-8 rounded-3xl bg-neutral-900/90 border border-amber-500/30 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -289,14 +282,24 @@ export default function Bet365Page() {
           )}
 
           {!kickUser ? (
-            <div className="p-6 rounded-2xl bg-black/60 border border-white/10 text-center space-y-3">
-              <p className="text-xs text-gray-400">Debes iniciar sesión con Kick para poder subir tus pruebas.</p>
-              <a
-                href="/api/kick/auth"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-xs text-black bg-emerald-400 hover:bg-emerald-300 transition-all"
-              >
-                🟩 Conectar Cuenta de Kick
-              </a>
+            <div className="relative overflow-hidden p-5 rounded-2xl bg-black border border-[#53fc18]/20 text-center space-y-4">
+              <div className="absolute inset-0 bg-gradient-to-b from-[#53fc18]/5 to-transparent pointer-events-none" />
+              <div className="relative flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-black border border-[#53fc18]/40 flex items-center justify-center shadow-[0_0_15px_rgba(83,252,24,0.2)]">
+                  <KickLogo className="w-6 h-6" color="#53FC18" />
+                </div>
+                <p className="text-sm font-bold text-white">Conecta tu cuenta de Kick</p>
+                <p className="text-xs text-gray-400 max-w-xs">Debes iniciar sesión con Kick para poder subir tu comprobante.</p>
+                <motion.a
+                  href="/api/kick/auth"
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl font-black text-xs text-black bg-[#53fc18] hover:bg-[#45dc10] transition-all shadow-[0_0_20px_rgba(83,252,24,0.3)] uppercase tracking-wider"
+                >
+                  <KickLogo className="w-4 h-4" color="#000" />
+                  <span>CONECTAR KICK</span>
+                </motion.a>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmitProof} className="space-y-5">
