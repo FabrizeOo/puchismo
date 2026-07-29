@@ -22,9 +22,9 @@ export const metadata: Metadata = {
   description: 'Comunidad de fútbol en vivo. Únete al Discord de Puchismo para ver los partidos de Champions League, Premier League, Liga Española, Liga Peruana, Libertadores y más.',
   keywords: 'puchismo, bepucho, fútbol, champions league, premier league, liga1, libertadores, streaming, kick, discord',
   icons: {
-    icon: '/logo.png',
-    shortcut: '/logo.png',
-    apple: '/logo.png',
+    icon: '/logo-pestana.png',
+    shortcut: '/logo-pestana.png',
+    apple: '/logo-pestana.png',
   },
   other: {
     'google-adsense-account': 'ca-pub-5107361201305664',
