@@ -3,7 +3,7 @@ import { StreamSection } from '@/components/stream-section';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Puchismo — Stream en Vivo',
+  title: 'Puchismo',
   description: 'Ve el stream en vivo de Bepucho en Kick.com. Mundial 2026 con la comunidad Puchismo.',
 };
 

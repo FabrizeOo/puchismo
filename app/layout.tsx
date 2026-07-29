@@ -18,9 +18,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Puchismo — Fútbol en Vivo con Bepucho',
+  title: 'Puchismo',
   description: 'Comunidad de fútbol en vivo. Únete al Discord de Puchismo para ver los partidos de Champions League, Premier League, Liga Española, Liga Peruana, Libertadores y más.',
   keywords: 'puchismo, bepucho, fútbol, champions league, premier league, liga1, libertadores, streaming, kick, discord',
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
   other: {
     'google-adsense-account': 'ca-pub-5107361201305664',
   },

@@ -3,7 +3,7 @@ import { HeroSection, SocialSection, DiscordSection } from '@/components/home-se
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Puchismo — Inicio',
+  title: 'Puchismo',
   description: '¿Quieres ser parte de la comunidad? Únete al Discord de Puchismo para ver partidos de Champions, Premier League, Liga Española, Liga Peruana, Libertadores y más en vivo con Bepucho.',
 };
 
