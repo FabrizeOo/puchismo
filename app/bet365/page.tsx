@@ -176,15 +176,33 @@ export default function Bet365Page() {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider"
           >
-            <span>🎲 Misión Especial Promocional</span>
+            <span>🎲 Misión Especial — Bet365</span>
           </motion.div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-white">
             Gana <span className="text-amber-400">+50 Puntos</span> Registrándote en Bet365
           </h1>
           <p className="text-gray-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-            Regístrate en Bet365 mediante el código de creador de Bepucho, sube la captura comprobante y recibe 50 puntos acumulables para canjear por premios reales.
+            Regístrate en Bet365 mediante el enlace oficial de Bepucho, sube tu captura comprobante y recibe 50 puntos acumulables para canjear por premios reales.
           </p>
+
+          {/* Steps indicator */}
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+              <span className="w-5 h-5 rounded-full bg-amber-400 text-black flex items-center justify-center font-black text-[10px]">1</span>
+              Elige tu bono
+            </div>
+            <div className="w-6 h-px bg-white/20" />
+            <div className="flex items-center gap-1.5 text-xs font-bold text-gray-400">
+              <span className="w-5 h-5 rounded-full bg-white/10 text-gray-400 flex items-center justify-center font-black text-[10px]">2</span>
+              Sube el comprobante
+            </div>
+            <div className="w-6 h-px bg-white/20" />
+            <div className="flex items-center gap-1.5 text-xs font-bold text-gray-400">
+              <span className="w-5 h-5 rounded-full bg-white/10 text-gray-400 flex items-center justify-center font-black text-[10px]">3</span>
+              Recibe tus puntos
+            </div>
+          </div>
         </div>
 
         {/* User Card Bar */}
@@ -232,35 +250,77 @@ export default function Bet365Page() {
           <KickLoginCard compact title="¿Aún no te has conectado?" subtitle="Inicia sesión con Kick para que los 50 puntos se asignen a tu perfil." />
         )}
 
-        {/* Paso 1: Redirección Bet365 */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-neutral-900/90 border border-amber-500/30 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center md:text-left">
-            <span className="text-xs font-bold text-amber-400 uppercase tracking-wider block">
-              Paso 1: Registro en Bet365
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black text-white">
-              Crea tu cuenta con el enlace oficial de Bepucho
+        {/* ── SECCIÓN BONOS EXCLUSIVOS BET365 ── */}
+        <div className="space-y-6">
+          {/* Header de sección */}
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+              DISFRUTA BONOS <span className="text-amber-400">EXCLUSIVOS</span>
             </h2>
-            <p className="text-gray-300 text-xs sm:text-sm max-w-lg">
-              Presiona el botón de abajo para ir directamente al sitio de registro de Bet365 con el código de creador habilitado.
+            <p className="text-gray-400 text-xs sm:text-sm">
+              Regístrate usando el enlace de Bepucho y accede a las mejores promociones de Bet365
             </p>
           </div>
 
-          <a
-            href="https://bit.ly/BEPUCHO"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-8 py-4 rounded-2xl font-black text-black bg-amber-400 hover:bg-amber-300 transition-all text-sm text-center shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 flex-shrink-0"
-          >
-            🚀 Ir a Bet365 ↗
-          </a>
+          {/* Cards de promo */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+            {[
+              { img: '/PROMO1.png', alt: 'Promoción Bet365 #1' },
+              { img: '/PROMO2.png', alt: 'Promoción Bet365 #2' },
+              { img: '/PROMO3.png', alt: 'Promoción Bet365 #3' },
+            ].map((promo, i) => (
+              <motion.a
+                key={i}
+                href="https://bit.ly/BEPUCHO"
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1, duration: 0.4, ease: 'easeOut' }}
+                whileHover={{ scale: 1.03, y: -4 }}
+                whileTap={{ scale: 0.98 }}
+                className="group relative rounded-3xl overflow-hidden cursor-pointer block"
+                style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.6)' }}
+              >
+                {/* Imagen de fondo completa */}
+                <div className="relative aspect-[3/4] w-full">
+                  <img
+                    src={promo.img}
+                    alt={promo.alt}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    draggable={false}
+                  />
+
+                  {/* Overlay degradado inferior */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                  {/* Botón RECLAMAR */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)]">
+                    <div className="w-full py-3 rounded-2xl font-black text-white text-sm text-center uppercase tracking-wider bg-amber-500 group-hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/40 flex items-center justify-center gap-2">
+                      🎁 RECLAMAR
+                    </div>
+                  </div>
+                </div>
+              </motion.a>
+            ))}
+          </div>
+
+          {/* Aviso +18 y disclaimer */}
+          <div className="text-center space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-900 border border-white/10 text-xs font-bold text-white uppercase tracking-wider">
+              🔞 SOLO PARA NUEVOS USUARIOS BET365 — UNA RECLAMACIÓN POR HOGAR
+            </div>
+            <p className="text-gray-500 text-[11px]">
+              +18 · Juega con Responsabilidad · BeGambleAware.org · El juego puede crear adicción
+            </p>
+          </div>
         </div>
 
         {/* Paso 2: Formulario de comprobante */}
         <div className="p-6 sm:p-8 rounded-3xl bg-neutral-900/90 border border-white/10 space-y-6">
           <div>
             <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-1">
-              Paso 2: Subir Captura & Usuario
+              Paso 2: Sube tu Comprobante de Registro
             </span>
             <h3 className="text-xl sm:text-2xl font-black text-white">Enviar Comprobante de Registro</h3>
             <p className="text-gray-400 text-xs mt-1">
