@@ -263,7 +263,7 @@ export default function Bet365Page() {
           </div>
 
           {/* Cards de promo */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
             {[
               { img: '/PROMO1.png', alt: 'Promoción Bet365 #1' },
               { img: '/PROMO2.png', alt: 'Promoción Bet365 #2' },
@@ -277,40 +277,26 @@ export default function Bet365Page() {
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1, duration: 0.4, ease: 'easeOut' }}
-                whileHover={{ scale: 1.03, y: -4 }}
+                whileHover={{ scale: 1.03, y: -5 }}
                 whileTap={{ scale: 0.98 }}
-                className="group relative rounded-3xl overflow-hidden cursor-pointer block"
-                style={{ boxShadow: '0 8px 40px rgba(0,0,0,0.6)' }}
+                className="group relative rounded-3xl overflow-hidden cursor-pointer block border border-amber-500/20 shadow-[0_10px_30px_rgba(0,0,0,0.7)] hover:border-amber-400/50 hover:shadow-[0_15px_40px_rgba(245,158,11,0.2)] transition-all duration-300"
               >
-                {/* Imagen de fondo completa */}
-                <div className="relative aspect-[3/4] w-full">
-                  <img
-                    src={promo.img}
-                    alt={promo.alt}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    draggable={false}
-                  />
-
-                  {/* Overlay degradado inferior */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                  {/* Botón RECLAMAR */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)]">
-                    <div className="w-full py-3 rounded-2xl font-black text-white text-sm text-center uppercase tracking-wider bg-amber-500 group-hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/40 flex items-center justify-center gap-2">
-                      🎁 RECLAMAR
-                    </div>
-                  </div>
-                </div>
+                <img
+                  src={promo.img}
+                  alt={promo.alt}
+                  className="w-full h-auto block object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                  draggable={false}
+                />
               </motion.a>
             ))}
           </div>
 
           {/* Aviso +18 y disclaimer */}
-          <div className="text-center space-y-1.5">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-900 border border-white/10 text-xs font-bold text-white uppercase tracking-wider">
+          <div className="text-center space-y-2 pt-2">
+            <div className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-neutral-900/90 border border-amber-500/30 text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider shadow-lg shadow-amber-500/10">
               🔞 SOLO PARA NUEVOS USUARIOS BET365 — UNA RECLAMACIÓN POR HOGAR
             </div>
-            <p className="text-gray-500 text-[11px]">
+            <p className="text-gray-400 text-xs sm:text-sm font-medium">
               +18 · Juega con Responsabilidad · BeGambleAware.org · El juego puede crear adicción
             </p>
           </div>
