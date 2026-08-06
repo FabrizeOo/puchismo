@@ -14,7 +14,7 @@ export async function GET() {
   }
 
   try {
-    const metrics = getAdminMetrics();
+    const metrics = await getAdminMetrics();
     return NextResponse.json({ success: true, metrics });
   } catch (error) {
     return NextResponse.json({ error: 'Error al obtener métricas' }, { status: 500 });

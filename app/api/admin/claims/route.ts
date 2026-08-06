@@ -14,7 +14,7 @@ export async function GET() {
   }
 
   try {
-    const claims = getAllClaims();
+    const claims = await getAllClaims();
     return NextResponse.json({ success: true, claims });
   } catch (error) {
     return NextResponse.json({ error: 'Error al obtener reclamaciones' }, { status: 500 });
@@ -38,7 +38,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Estado no válido' }, { status: 400 });
     }
 
-    const result = updateClaimStatus(claimId, status, adminNotes);
+    const result = await updateClaimStatus(claimId, status, adminNotes);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });

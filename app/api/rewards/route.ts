@@ -18,7 +18,7 @@ export async function GET() {
       try {
         const user = JSON.parse(decodeURIComponent(userCookie.value));
         if (user?.username) {
-          userClaims = getUserClaims(user.username);
+          userClaims = await getUserClaims(user.username);
         }
       } catch (e) {}
     }

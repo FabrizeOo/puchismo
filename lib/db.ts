@@ -601,31 +601,113 @@ export async function createClaim(claimData: {
   };
 }
 
-export function getUserClaims(username: string): RewardClaim[] {
+export async function getUserClaims(username: string): Promise<RewardClaim[]> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('claims')
+        .select('*')
+        .ilike('username', username)
+        .order('created_at', { ascending: false });
+
+      if (data && !error) {
+        return data.map((c) => ({
+          id: c.id,
+          userId: c.user_id || c.userId,
+          username: c.username,
+          profilePic: c.profile_pic || c.profilePic || '',
+          rewardId: c.reward_id || c.rewardId,
+          rewardTitle: c.reward_title || c.rewardTitle,
+          pointsSpent: Number(c.points_spent !== undefined ? c.points_spent : c.pointsSpent || 0),
+          status: c.status,
+          contactInfo: c.contact_info || c.contactInfo || '',
+          adminNotes: c.admin_notes || c.adminNotes || '',
+          createdAt: c.created_at || c.createdAt,
+          updatedAt: c.updated_at || c.updatedAt,
+        }));
+      }
+    } catch (e) {
+      console.error('Supabase getUserClaims error:', e);
+    }
+  }
+
   const db = readDb();
-  return db.claims.filter((c) => c.username.toLowerCase() === username.toLowerCase());
+  return (db.claims || []).filter((c) => c.username.toLowerCase() === username.toLowerCase());
 }
 
-export function getAllClaims(): RewardClaim[] {
+export async function getAllClaims(): Promise<RewardClaim[]> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('claims')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (data && !error) {
+        return data.map((c) => ({
+          id: c.id,
+          userId: c.user_id || c.userId,
+          username: c.username,
+          profilePic: c.profile_pic || c.profilePic || '',
+          rewardId: c.reward_id || c.rewardId,
+          rewardTitle: c.reward_title || c.rewardTitle,
+          pointsSpent: Number(c.points_spent !== undefined ? c.points_spent : c.pointsSpent || 0),
+          status: c.status,
+          contactInfo: c.contact_info || c.contactInfo || '',
+          adminNotes: c.admin_notes || c.adminNotes || '',
+          createdAt: c.created_at || c.createdAt,
+          updatedAt: c.updated_at || c.updatedAt,
+        }));
+      }
+    } catch (e) {
+      console.error('Supabase getAllClaims error:', e);
+    }
+  }
+
   const db = readDb();
-  return db.claims;
+  return db.claims || [];
 }
 
-export function updateClaimStatus(
+export async function updateClaimStatus(
   claimId: string,
   status: 'PENDING' | 'COMPLETED' | 'CANCELLED',
   adminNotes?: string
-): { success: boolean; claim?: RewardClaim; error?: string } {
+): Promise<{ success: boolean; claim?: RewardClaim; error?: string }> {
   const db = readDb();
-  const claimIndex = db.claims.findIndex((c) => c.id === claimId);
+  if (!db.claims) db.claims = [];
 
-  if (claimIndex === -1) {
+  let claimIndex = db.claims.findIndex((c) => c.id === claimId);
+  let claim: RewardClaim | null = claimIndex !== -1 ? db.claims[claimIndex] : null;
+
+  if (!claim && isSupabaseConfigured && supabase) {
+    try {
+      const { data } = await supabase.from('claims').select('*').eq('id', claimId).maybeSingle();
+      if (data) {
+        claim = {
+          id: data.id,
+          userId: data.user_id || data.userId,
+          username: data.username,
+          profilePic: data.profile_pic || data.profilePic || '',
+          rewardId: data.reward_id || data.rewardId,
+          rewardTitle: data.reward_title || data.rewardTitle,
+          pointsSpent: Number(data.points_spent !== undefined ? data.points_spent : data.pointsSpent || 0),
+          status: data.status,
+          contactInfo: data.contact_info || data.contactInfo || '',
+          adminNotes: data.admin_notes || data.adminNotes || '',
+          createdAt: data.created_at || data.createdAt,
+          updatedAt: data.updated_at || data.updatedAt,
+        };
+        db.claims.unshift(claim);
+        claimIndex = 0;
+      }
+    } catch (e) {}
+  }
+
+  if (!claim) {
     return { success: false, error: 'Reclamación no encontrada.' };
   }
 
-  const claim = db.claims[claimIndex];
   const oldStatus = claim.status;
-
   claim.status = status;
   if (adminNotes !== undefined) {
     claim.adminNotes = adminNotes;
@@ -633,24 +715,28 @@ export function updateClaimStatus(
   claim.updatedAt = new Date().toISOString();
 
   if (status === 'CANCELLED' && oldStatus !== 'CANCELLED') {
-    const userKey = claim.username.toLowerCase();
-    if (db.users[userKey]) {
-      db.users[userKey].points = Number((db.users[userKey].points + claim.pointsSpent).toFixed(2));
-      db.users[userKey].lastUpdated = new Date().toISOString();
+    const user = await getUser(claim.username);
+    if (user) {
+      await updateUserPoints(claim.username, user.points + claim.pointsSpent);
     }
   }
 
+  if (claimIndex !== -1) {
+    db.claims[claimIndex] = claim;
+  } else {
+    db.claims.unshift(claim);
+  }
   writeDb(db);
 
   if (isSupabaseConfigured && supabase) {
-    (async () => {
-      try {
-        await supabase
-          .from('claims')
-          .update({ status: claim.status, admin_notes: claim.adminNotes, updated_at: claim.updatedAt })
-          .eq('id', claimId);
-      } catch (e) {}
-    })();
+    try {
+      await supabase
+        .from('claims')
+        .update({ status: claim.status, admin_notes: claim.adminNotes, updated_at: claim.updatedAt })
+        .eq('id', claimId);
+    } catch (e) {
+      console.error('Supabase updateClaimStatus error:', e);
+    }
   }
 
   return { success: true, claim };
@@ -826,14 +912,15 @@ export async function updateProofStatus(
   return { success: true, proof };
 }
 
-export function getAdminMetrics() {
-  const db = readDb();
-  const usersList = Object.values(db.users);
-  const totalUsers = usersList.length;
-  const totalPointsInCirculation = usersList.reduce((acc, u) => acc + (u.points || 0), 0);
-  const totalClaims = db.claims.length;
-  const pendingClaims = db.claims.filter((c) => c.status === 'PENDING').length;
-  const completedClaims = db.claims.filter((c) => c.status === 'COMPLETED').length;
+export async function getAdminMetrics() {
+  const users = await getLeaderboard();
+  const claims = await getAllClaims();
+
+  const totalUsers = users.length;
+  const totalPointsInCirculation = users.reduce((acc, u) => acc + (u.points || 0), 0);
+  const totalClaims = claims.length;
+  const pendingClaims = claims.filter((c) => c.status === 'PENDING').length;
+  const completedClaims = claims.filter((c) => c.status === 'COMPLETED').length;
 
   return {
     totalUsers,
