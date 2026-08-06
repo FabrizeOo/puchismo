@@ -45,10 +45,10 @@ export async function POST(req: Request) {
 
     let updatedUser = null;
     if (action === 'watch') {
-      // Award points for 1 minute of watch time (+1 point)
+      // Award points for 1 minute of watch time (+0.4 points)
       updatedUser = await addWatchTime(username, 1);
     } else if (action === 'chat') {
-      // Award points for 1 chat message (+0.5 point)
+      // Award points for 1 chat message (+0.2 points)
       updatedUser = await addChatMessage(username);
     } else {
       return NextResponse.json({ error: 'Acción no soportada' }, { status: 400 });

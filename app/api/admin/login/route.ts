@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
   try {
     const { password } = await req.json();
-    const adminPassword = process.env.ADMIN_PASSWORD || 'PuchismoAdmin2026Secure';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'PuchismoAdmin2026$SecureK9!';
 
     if (password !== adminPassword) {
       return NextResponse.json({ error: 'Contraseña de administrador incorrecta.' }, { status: 401 });

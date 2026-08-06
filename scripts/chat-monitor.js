@@ -60,12 +60,12 @@ function addChatMessage(username) {
 
   user.chatMessagesCount = (user.chatMessagesCount || 0) + 1;
 
-  // Anti-spam cooldown (5 segundos entre mensajes para sumar puntos)
-  if (now - lastMsg >= 5000) {
-    // 0.1 Puntos por mensaje
-    user.points = Number(((user.points || 0) + 0.1).toFixed(2));
+  // Anti-spam cooldown (2 segundos entre mensajes para sumar puntos)
+  if (now - lastMsg >= 2000) {
+    // 0.2 Puntos por mensaje
+    user.points = Number(((user.points || 0) + 0.2).toFixed(2));
     user.lastMessageTime = now;
-    console.log(`[+0.1 pt] Chat Anti-Spam: @${username} → ${user.points} pts total (${user.chatMessagesCount} msgs)`);
+    console.log(`[+0.2 pt] Chat Anti-Spam: @${username} → ${user.points} pts total (${user.chatMessagesCount} msgs)`);
   } else {
     console.log(`[Anti-Spam] Mensaje de @${username} ignorado para puntos por cooldown (<5s).`);
   }
@@ -82,8 +82,8 @@ function addWatchTime(username, minutes = 1) {
 
   const user = db.users[key];
   user.watchTimeMinutes = (user.watchTimeMinutes || 0) + minutes;
-  // 10 puntos por hora => 10/60 pts por minuto
-  const ptsEarned = minutes * (10 / 60);
+  // +0.4 pts por minuto (reducido de 1.0)
+  const ptsEarned = minutes * 0.4;
   user.points = Number(((user.points || 0) + ptsEarned).toFixed(2));
   user.lastUpdated = new Date().toISOString();
   writeDb(db);
@@ -113,7 +113,7 @@ function startWatchTimeTicker() {
       }
     }
     if (count > 0) {
-      console.log(`[+0.17 pts/min (10 pts/hora)] Watch time aplicado a ${count} usuario(s) activo(s)`);
+      console.log(`[+0.4 pts/min] Watch time aplicado a ${count} usuario(s) activo(s)`);
     }
   }, WATCH_TICK_INTERVAL_MS);
 }

@@ -324,8 +324,8 @@ export async function addWatchTime(username: string, minutes: number = 1): Promi
 
   if (userRecord) {
     userRecord.watchTimeMinutes += minutes;
-    // +1 pt per minute
-    const pointsEarned = minutes * 1;
+    // +0.4 pts per minute (reducido de 1.0)
+    const pointsEarned = minutes * 0.4;
     userRecord.points = Number((userRecord.points + pointsEarned).toFixed(2));
     userRecord.lastUpdated = new Date().toISOString();
 
@@ -368,9 +368,9 @@ export async function addChatMessage(username: string): Promise<UserRecord | nul
 
     userRecord.chatMessagesCount += 1;
 
-    // +0.5 pts per chat message (cooldown 2 seconds)
+    // +0.2 pts per chat message (reducido de 0.5, cooldown 2 segundos)
     if (now - lastMsg >= 2000) {
-      userRecord.points = Number((userRecord.points + 0.5).toFixed(2));
+      userRecord.points = Number((userRecord.points + 0.2).toFixed(2));
       userRecord.lastMessageTime = now;
     }
 
