@@ -368,8 +368,8 @@ export async function addChatMessage(username: string): Promise<UserRecord | nul
 
     userRecord.chatMessagesCount += 1;
 
-    // +0.2 pts per chat message (reducido de 0.5, cooldown 2 segundos)
-    if (now - lastMsg >= 2000) {
+    // +0.2 pts per chat message (cooldown 10 segundos para evitar spam)
+    if (now - lastMsg >= 10000) {
       userRecord.points = Number((userRecord.points + 0.2).toFixed(2));
       userRecord.lastMessageTime = now;
     }

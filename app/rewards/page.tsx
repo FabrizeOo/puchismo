@@ -77,7 +77,7 @@ const WAYS_TO_EARN = [
     title: 'Participar en Chat',
     subtitle: '0.2 puntos por mensaje',
     points: '+0.2 pt / msg',
-    description: 'Sé parte del chat en vivo de Bepucho. Cuenta con protección Anti-Spam (2 segundos de cooldown entre mensajes).',
+    description: 'Sé parte del chat en vivo de Bepucho. Cuenta con protección Anti-Spam (10 segundos de cooldown entre mensajes).',
     color: '#7fff00',
     glow: 'rgba(127,255,0,0.4)',
     link: '/stream',

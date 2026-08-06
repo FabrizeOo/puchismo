@@ -60,14 +60,14 @@ function addChatMessage(username) {
 
   user.chatMessagesCount = (user.chatMessagesCount || 0) + 1;
 
-  // Anti-spam cooldown (2 segundos entre mensajes para sumar puntos)
-  if (now - lastMsg >= 2000) {
+  // Anti-spam cooldown (10 segundos entre mensajes para sumar puntos)
+  if (now - lastMsg >= 10000) {
     // 0.2 Puntos por mensaje
     user.points = Number(((user.points || 0) + 0.2).toFixed(2));
     user.lastMessageTime = now;
     console.log(`[+0.2 pt] Chat Anti-Spam: @${username} → ${user.points} pts total (${user.chatMessagesCount} msgs)`);
   } else {
-    console.log(`[Anti-Spam] Mensaje de @${username} ignorado para puntos por cooldown (<5s).`);
+    console.log(`[Anti-Spam] Mensaje de @${username} ignorado para puntos por cooldown (<10s).`);
   }
 
   user.lastUpdated = new Date().toISOString();
