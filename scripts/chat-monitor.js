@@ -114,11 +114,12 @@ async function checkIsStreamLive(slug = 'bepucho') {
       });
       if (res.ok) {
         const data = await res.json();
-        return !!(data?.livestream && data.livestream.is_live !== false);
+        const isOffline = data?.livestream === null || data?.livestream?.is_live === false;
+        return !isOffline;
       }
     } catch {}
   }
-  return false;
+  return true; // Fallback to true if Cloudflare blocks server request
 }
 
 // ── Watch Time Ticker ─────────────────────────────────────────────────────────

@@ -1,10 +1,17 @@
 let cachedIsLive: boolean | null = null;
 let lastCheckTime = 0;
-const CACHE_TTL_MS = 25000; // Cache stream status for 25 seconds
+const CACHE_TTL_MS = 20000; // Cache stream status for 20 seconds
 
 /**
  * Checks if a Kick channel is currently live.
- * Uses fallback user-agents and caches the result for 25 seconds to prevent rate limits.
+ * 
+ * IMPORTANT FOR DEPLOYMENT:
+ * On cloud serverless environments (like Vercel), Cloudflare anti-bot policy frequently
+ * returns 403 Forbidden to automated server requests.
+ * 
+ * - When Kick API responds 200 OK: we check if livestream is null/offline.
+ * - When Kick API is blocked by Cloudflare (403/5xx): we fall back to TRUE so that
+ *   users on Vercel deployment are NOT blocked from accumulating points.
  */
 export async function checkIsStreamLive(slug: string = 'bepucho'): Promise<boolean> {
   const now = Date.now();
@@ -28,12 +35,13 @@ export async function checkIsStreamLive(slug: string = 'bepucho'): Promise<boole
           'Cache-Control': 'no-cache',
           'Referer': `https://kick.com/${slug}`,
         },
-        next: { revalidate: 25 },
+        next: { revalidate: 20 },
       });
 
       if (res.ok) {
         const data = await res.json();
-        const live = !!(data?.livestream && data.livestream.is_live !== false);
+        const isOffline = data?.livestream === null || data?.livestream?.is_live === false;
+        const live = !isOffline;
         cachedIsLive = live;
         lastCheckTime = now;
         return live;
@@ -43,6 +51,7 @@ export async function checkIsStreamLive(slug: string = 'bepucho'): Promise<boole
     }
   }
 
-  // If all requests fail, fall back to cached value or false
-  return cachedIsLive ?? false;
+  // If Cloudflare blocked Vercel (403) or fetch failed, fall back to cached value or true
+  // to ensure points continue awarding properly in deployment.
+  return cachedIsLive ?? true;
 }
