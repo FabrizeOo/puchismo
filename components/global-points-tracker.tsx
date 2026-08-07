@@ -50,6 +50,7 @@ export function GlobalPointsTracker() {
                 points: data.points,
                 watchTimeMinutes: data.watchTimeMinutes,
                 chatMessagesCount: data.chatMessagesCount,
+                isLive: data.isLive,
               },
             })
           );
@@ -77,6 +78,7 @@ export function GlobalPointsTracker() {
                 points: data.points,
                 watchTimeMinutes: data.watchTimeMinutes,
                 chatMessagesCount: data.chatMessagesCount,
+                isLive: data.isLive,
               },
             })
           );

@@ -95,11 +95,43 @@ function getRegisteredUsernames() {
   return Object.keys(db.users || {});
 }
 
+async function checkIsStreamLive(slug = 'bepucho') {
+  const userAgents = [
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+  ];
+  for (const ua of userAgents) {
+    try {
+      const res = await fetch('https://kick.com/api/v2/channels/' + slug, {
+        headers: {
+          'User-Agent': ua,
+          'Accept': 'application/json, text/plain, */*',
+          'Accept-Language': 'es-ES,es;q=0.9,en-US;q=0.8,en;q=0.7',
+          'Cache-Control': 'no-cache',
+          'Referer': 'https://kick.com/' + slug,
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return !!(data?.livestream && data.livestream.is_live !== false);
+      }
+    } catch {}
+  }
+  return false;
+}
+
 // ── Watch Time Ticker ─────────────────────────────────────────────────────────
 const recentChatters = new Map(); // username -> timestamp del último mensaje
 
 function startWatchTimeTicker() {
-  setInterval(() => {
+  setInterval(async () => {
+    const isLive = await checkIsStreamLive(CHANNEL_SLUG);
+    if (!isLive) {
+      console.log('[Monitor] Streamer offline. No se otorgan puntos de watch time.');
+      return;
+    }
+
     const now = Date.now();
     const TEN_MINUTES = 10 * 60 * 1000;
 
@@ -173,8 +205,17 @@ function connect() {
         const isRegistered = registeredUsers.includes(msgUser.toLowerCase());
 
         if (isRegistered) {
-          recentChatters.set(msgUser.toLowerCase(), Date.now());
-          addChatMessage(msgUser);
+          // Verificar que el streamer esté en vivo antes de sumar puntos por chat
+          checkIsStreamLive(CHANNEL_SLUG).then((isLive) => {
+            if (!isLive) {
+              console.log(`[Monitor] Streamer offline. Mensaje de @${msgUser} no suma puntos.`);
+              return;
+            }
+            recentChatters.set(msgUser.toLowerCase(), Date.now());
+            addChatMessage(msgUser);
+          }).catch(() => {
+            console.log(`[Monitor] No se pudo verificar estado del stream para @${msgUser}.`);
+          });
         } else {
           console.log(`[Monitor] Mensaje de @${msgUser} (no registrado)`);
         }

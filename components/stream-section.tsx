@@ -272,6 +272,7 @@ function LiveChat({
 export function StreamSection() {
   const [mounted, setMounted] = useState(false);
   const [kickUser, setKickUser] = useState<any | null>(null);
+  const [isLive, setIsLive] = useState<boolean | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -293,6 +294,24 @@ export function StreamSection() {
     if (user) {
       setKickUser(user);
     }
+
+    // Verificar si el canal de Kick está en vivo al cargar
+    fetch('/api/kick/bepucho')
+      .then((res) => res.json())
+      .then((data) => {
+        setIsLive(!!data.isLive);
+      })
+      .catch(() => setIsLive(false));
+
+    const onUserUpdated = (evt: CustomEvent) => {
+      if (evt.detail?.isLive !== undefined) {
+        setIsLive(evt.detail.isLive);
+      }
+    };
+    window.addEventListener('kick_user_updated', onUserUpdated as EventListener);
+    return () => {
+      window.removeEventListener('kick_user_updated', onUserUpdated as EventListener);
+    };
   }, []);
 
   useEffect(() => {
@@ -312,6 +331,9 @@ export function StreamSection() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
+          if (data.isLive !== undefined) {
+            setIsLive(data.isLive);
+          }
           setKickUser((prev: any) => prev ? {
             ...prev,
             points: data.points,
@@ -339,11 +361,11 @@ export function StreamSection() {
         >
           <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-red-600/20 border border-red-500/40 text-red-400 text-xs sm:text-sm font-bold mb-3">
             <motion.span
-              className="w-2 h-2 rounded-full bg-red-500"
-              animate={{ opacity: [1, 0.3, 1] }}
+              className={`w-2 h-2 rounded-full ${isLive !== false ? 'bg-red-500' : 'bg-gray-500'}`}
+              animate={isLive !== false ? { opacity: [1, 0.3, 1] } : {}}
               transition={{ duration: 1, repeat: Infinity }}
             />
-            CANAL EN VIVO — KICK.COM/BEPUCHO
+            {isLive === false ? 'CANAL OFFLINE — KICK.COM/BEPUCHO' : 'CANAL EN VIVO — KICK.COM/BEPUCHO'}
           </div>
           <h1 className="text-3xl sm:text-5xl font-poppins font-black mb-2">
             <span className="text-white">Stream de </span>
@@ -352,15 +374,26 @@ export function StreamSection() {
           <p className="text-gray-400 text-xs sm:text-base">Fútbol en vivo (Champions, Premier, Liga 1, etc.) con la comunidad Puchismo</p>
         </motion.div>
 
-        {/* Notificación de puntos activa */}
-        {kickUser && (
+        {/* Notificación de puntos activa según estado live */}
+        {kickUser && isLive === true && (
           <motion.div 
             className="max-w-md mx-auto mb-4 p-3 rounded-xl border border-green-500/20 bg-green-500/5 text-center text-xs font-bold text-green-400 flex items-center justify-center gap-2"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
             <span className="animate-ping w-2.5 h-2.5 rounded-full bg-green-400" />
-            Rastreador de puntos activo para @{kickUser.username}. ¡Ganando +10 pts/min!
+            Stream en vivo: Acumulando +0.4 pts/min para @{kickUser.username}.
+          </motion.div>
+        )}
+
+        {kickUser && isLive === false && (
+          <motion.div 
+            className="max-w-md mx-auto mb-4 p-3 rounded-xl border border-yellow-500/20 bg-yellow-500/5 text-center text-xs font-bold text-yellow-400 flex items-center justify-center gap-2"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+            Streamer offline: Los puntos solo se acumulan cuando @Bepucho transmite en vivo.
           </motion.div>
         )}
 
@@ -383,11 +416,13 @@ export function StreamSection() {
                 <span className="text-xs sm:text-sm text-gray-400 font-mono">kick.com/bepucho</span>
                 <div className="ml-auto flex items-center gap-2">
                   <motion.div
-                    className="w-2 h-2 rounded-full bg-red-500"
-                    animate={{ opacity: [1, 0.3, 1] }}
+                    className={`w-2 h-2 rounded-full ${isLive !== false ? 'bg-red-500' : 'bg-gray-500'}`}
+                    animate={isLive !== false ? { opacity: [1, 0.3, 1] } : {}}
                     transition={{ duration: 1, repeat: Infinity }}
                   />
-                  <span className="text-[10px] sm:text-xs text-red-400 font-semibold">EN VIVO</span>
+                  <span className={`text-[10px] sm:text-xs font-semibold ${isLive !== false ? 'text-red-400' : 'text-gray-400'}`}>
+                    {isLive === false ? 'OFFLINE' : 'EN VIVO'}
+                  </span>
                 </div>
               </div>
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { addWatchTime, addChatMessage } from '@/lib/points-db';
 import { cookies } from 'next/headers';
+import { checkIsStreamLive } from '@/lib/kick';
 
 export async function POST(req: Request) {
   try {
@@ -43,6 +44,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Acción no autorizada para este usuario' }, { status: 403 });
     }
 
+    // IMPORTANTE: Verificar que el streamer se encuentre EN VIVO antes de sumar puntos
+    const isLive = await checkIsStreamLive('bepucho');
+    if (!isLive) {
+      return NextResponse.json({
+        success: true,
+        isLive: false,
+        points: storedProfile.points ?? 0,
+        watchTimeMinutes: storedProfile.watchTimeMinutes ?? 0,
+        chatMessagesCount: storedProfile.chatMessagesCount ?? 0,
+        message: 'El streamer está offline. Los puntos solo se otorgan en transmisiones en vivo.',
+      });
+    }
+
     let updatedUser = null;
     if (action === 'watch') {
       // Award points for 1 minute of watch time (+0.4 points)
@@ -61,6 +75,7 @@ export async function POST(req: Request) {
     // Return the updated points and details
     const response = NextResponse.json({
       success: true,
+      isLive: true,
       points: updatedUser.points,
       watchTimeMinutes: updatedUser.watchTimeMinutes,
       chatMessagesCount: updatedUser.chatMessagesCount,
