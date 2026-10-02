@@ -21,24 +21,22 @@ export function HeroSection() {
       {/* Fondo animado */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, #030b04 0%, rgba(3,11,4,0.85) 50%, #030b04 100%)' }} />
-        {/* Orbes de color verde neón */}
+        {/* Orbes de color verde neón optimizados con gradientes radiales y aceleración GPU */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full blur-3xl"
-          style={{ background: 'rgba(83,252,24,0.08)' }}
-          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-1/4 left-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full pointer-events-none transform-gpu will-change-transform"
+          style={{ background: 'radial-gradient(circle, rgba(83,252,24,0.12) 0%, rgba(83,252,24,0) 70%)' }}
+          animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] rounded-full blur-3xl"
-          style={{ background: 'rgba(45,171,10,0.07)' }}
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute bottom-1/4 right-1/4 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] rounded-full pointer-events-none transform-gpu will-change-transform"
+          style={{ background: 'radial-gradient(circle, rgba(45,171,10,0.10) 0%, rgba(45,171,10,0) 70%)' }}
+          animate={{ scale: [1.15, 1, 1.15], opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
         />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] rounded-full blur-3xl"
-          style={{ background: 'rgba(83,252,24,0.04)' }}
-          animate={{ rotate: [0, 360] }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] rounded-full pointer-events-none transform-gpu opacity-40"
+          style={{ background: 'radial-gradient(circle, rgba(83,252,24,0.06) 0%, rgba(83,252,24,0) 70%)' }}
         />
 
         {/* Grid de fondo */}

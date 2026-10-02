@@ -51,7 +51,7 @@ export function Navbar() {
               }}
             >
               <Image
-                src="/logo.png"
+                src="/logo.webp"
                 alt="Logo"
                 fill
                 className="object-cover"

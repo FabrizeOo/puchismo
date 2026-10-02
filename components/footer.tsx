@@ -14,7 +14,7 @@ export function Footer() {
           <div className="md:col-span-2">
             <Link href="/" className="flex items-center gap-3 mb-3">
               <div className="relative w-9 h-9 rounded-xl overflow-hidden ring-2 ring-electric/30">
-                <Image src="/logo.png" alt="Puchismo" fill className="object-cover" />
+                <Image src="/logo.webp" alt="Puchismo" fill className="object-cover" />
               </div>
               <span className="font-poppins font-black text-lg text-white">PUCHISMO</span>
             </Link>
