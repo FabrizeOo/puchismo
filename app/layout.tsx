@@ -3,6 +3,7 @@ import { Poppins, Inter } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { GlobalPointsTracker } from '@/components/global-points-tracker';
+import { TelegramAdModal } from '@/components/telegram-ad-modal';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" className="dark">
       <body className={`${poppins.variable} ${inter.variable} font-inter antialiased text-white`} style={{ backgroundColor: '#030b04' }}>
         <GlobalPointsTracker />
+        <TelegramAdModal />
         {children}
         <Script
           async
