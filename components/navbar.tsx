@@ -13,7 +13,7 @@ const navItems = [
   { label: 'Bet365 (+50 Pts)', href: '/bet365', highlight: true },
   { label: 'Rewards', href: '/rewards' },
   { label: 'Leaderboard', href: '/leaderboard' },
-  { label: 'Discord', href: 'https://discord.gg/puchismo', external: true },
+  { label: 'Discord', href: 'https://discord.gg/3DtQkGhtrn', external: true },
 ];
 
 export function Navbar() {
@@ -188,7 +188,7 @@ export function Navbar() {
                   🔴 Stream en Kick
                 </a>
                 <a
-                  href="https://discord.gg/puchismo"
+                  href="https://discord.gg/3DtQkGhtrn"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-discord flex-1 text-center text-xs py-3 rounded-xl font-bold"

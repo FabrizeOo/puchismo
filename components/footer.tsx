@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaDiscord, FaTwitch, FaInstagram, FaTwitter, FaTiktok } from 'react-icons/fa';
+import { FaDiscord, FaTelegramPlane, FaTwitch, FaInstagram, FaTwitter, FaTiktok } from 'react-icons/fa';
 
 export function Footer() {
   return (
@@ -23,7 +23,8 @@ export function Footer() {
             </p>
             <div className="flex gap-3 mt-4">
               {[
-                { icon: FaDiscord, href: 'https://discord.gg/puchismo', color: '#5865f2' },
+                { icon: FaDiscord, href: 'https://discord.gg/3DtQkGhtrn', color: '#5865f2' },
+                { icon: FaTelegramPlane, href: 'https://t.me/+jpyDeMxokzUzNDgx', color: '#229ed9' },
                 { icon: FaTwitch, href: 'https://www.twitch.tv/bepucho', color: '#9146ff' },
                 { icon: FaTiktok, href: 'https://www.tiktok.com/@bepucho', color: '#fff' },
                 { icon: FaTwitter, href: 'https://x.com/bePucho', color: '#1d9bf0' },
@@ -66,7 +67,8 @@ export function Footer() {
             <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wider">Comunidad</h4>
             <ul className="space-y-2.5">
               {[
-                { label: 'Discord Oficial', href: 'https://discord.gg/puchismo' },
+                { label: 'Discord Oficial', href: 'https://discord.gg/3DtQkGhtrn' },
+                { label: 'Canal Telegram', href: 'https://t.me/+jpyDeMxokzUzNDgx' },
                 { label: 'Kick.com/bepucho', href: 'https://kick.com/bepucho' },
                 { label: 'Twitch.tv/bepucho', href: 'https://www.twitch.tv/bepucho' },
               ].map((l) => (

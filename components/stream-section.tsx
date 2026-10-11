@@ -459,7 +459,7 @@ export function StreamSection() {
                   Abrir en Kick ↗
                 </a>
                 <a
-                  href="https://discord.gg/puchismo"
+                  href="https://discord.gg/3DtQkGhtrn"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-discord text-xs sm:text-sm py-2 px-4 flex-1 sm:flex-none text-center whitespace-nowrap"

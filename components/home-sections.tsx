@@ -3,7 +3,7 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import {
-  FaTwitch, FaInstagram, FaTwitter, FaTiktok, FaDiscord,
+  FaTwitch, FaInstagram, FaTwitter, FaTiktok, FaDiscord, FaTelegramPlane,
 } from 'react-icons/fa';
 
 /* ============================================
@@ -97,10 +97,10 @@ export function HeroSection() {
           {/* CTAs */}
           <motion.div
             variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-2"
+            className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center items-center px-2"
           >
             <motion.a
-              href="https://discord.gg/puchismo"
+              href="https://discord.gg/3DtQkGhtrn"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-discord text-sm sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 rounded-2xl"
@@ -108,7 +108,19 @@ export function HeroSection() {
               whileTap={{ scale: 0.97 }}
             >
               <FaDiscord size={20} />
-              Únete al Discord para ver los Partidos
+              Únete y mira los partidos GRATIS - sin delay
+            </motion.a>
+
+            <motion.a
+              href="https://t.me/+jpyDeMxokzUzNDgx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-telegram text-sm sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 rounded-2xl"
+              whileHover={{ scale: 1.04, boxShadow: '0 0 40px rgba(14, 165, 233, 0.7)' }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <FaTelegramPlane size={20} />
+              Unirme a Telegram
             </motion.a>
 
             <motion.a
@@ -340,7 +352,7 @@ export function DiscordSection() {
           </motion.div>
 
           <motion.a
-            href="https://discord.gg/puchismo"
+            href="https://discord.gg/3DtQkGhtrn"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 sm:gap-3 w-full sm:w-auto px-6 sm:px-10 py-4 sm:py-5 rounded-2xl bg-indigo-600 text-white font-black text-sm sm:text-lg shadow-2xl"

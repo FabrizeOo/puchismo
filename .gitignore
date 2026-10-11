@@ -34,3 +34,7 @@ tmp*.txt
 .DS_Store
 *.pem
 Thumbs.db
+
+# Agent / Tooling outputs
+graphify-out/
+.agents/
