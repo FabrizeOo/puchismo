@@ -1,11 +1,15 @@
+import type { Metadata } from 'next';
 import { Navbar } from '@/components/navbar';
 import { HeroSection, SocialSection, DiscordSection } from '@/components/home-sections';
 import { TelegramSection } from '@/components/telegram-section';
 import { Footer } from '@/components/footer';
 
-export const metadata = {
-  title: 'Puchismo',
+export const metadata: Metadata = {
+  title: 'Puchismo | Comunidad de Fútbol en Vivo',
   description: '¿Quieres ser parte de la comunidad? Únete al Discord de Puchismo para ver partidos de Champions, Premier League, Liga Española, Liga Peruana, Libertadores y más en vivo con Bepucho.',
+  alternates: {
+    canonical: '/',
+  },
 };
 
 export default function HomePage() {

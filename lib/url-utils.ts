@@ -22,5 +22,5 @@ export function getAppUrl(req?: Request): string {
   }
 
   // 4. Fallback default
-  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  return process.env.NEXT_PUBLIC_APP_URL || 'https://www.puchismo.com';
 }

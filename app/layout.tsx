@@ -19,9 +19,24 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Puchismo',
+  metadataBase: new URL('https://www.puchismo.com'),
+  title: {
+    default: 'Puchismo | Comunidad de Fútbol en Vivo',
+    template: '%s | Puchismo',
+  },
   description: 'Comunidad de fútbol en vivo. Únete al Discord de Puchismo para ver los partidos de Champions League, Premier League, Liga Española, Liga Peruana, Libertadores y más.',
   keywords: 'puchismo, bepucho, fútbol, champions league, premier league, liga1, libertadores, streaming, kick, discord',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Puchismo | Comunidad de Fútbol en Vivo',
+    description: 'Comunidad de fútbol en vivo con Bepucho. Partidos, streams, recompensas y más.',
+    url: 'https://www.puchismo.com',
+    siteName: 'Puchismo',
+    locale: 'es_ES',
+    type: 'website',
+  },
   icons: {
     icon: '/logo-pestana.png',
     shortcut: '/logo-pestana.png',
