@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClaim, getUser } from '@/lib/db';
 import { cookies } from 'next/headers';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
   try {
@@ -22,6 +23,15 @@ export async function POST(req: Request) {
     }
 
     const username = storedProfile.username;
+    const ip = getClientIp(req);
+    const rateLimit = checkRateLimit(`claim_${username || ip}`, 5, 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: 'Demasiadas solicitudes. Por favor, espera un minuto antes de reclamar otra recompensa.' },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { rewardId, contactInfo } = body;
 

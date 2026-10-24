@@ -2,9 +2,16 @@ import { NextResponse } from 'next/server';
 import { addWatchTime, addChatMessage } from '@/lib/points-db';
 import { cookies } from 'next/headers';
 import { checkIsStreamLive } from '@/lib/kick';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const rateLimit = checkRateLimit(`heartbeat_${ip}`, 30, 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json({ error: 'Demasiadas solicitudes de sincronización.' }, { status: 429 });
+    }
+
     const body = await req.json();
     const { action, username } = body;
 

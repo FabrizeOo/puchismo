@@ -1,12 +1,6 @@
 import { NextResponse } from 'next/server';
 import { readDb, saveUser } from '@/lib/db';
-import { cookies } from 'next/headers';
-
-function checkAdminAuth(): boolean {
-  const cookieStore = cookies();
-  const session = cookieStore.get('admin_session');
-  return session?.value === 'authenticated_admin_puchismo_2026' || session?.value === 'authenticated';
-}
+import { checkAdminAuth } from '@/lib/admin-auth';
 
 function maskId(id: string): string {
   if (!id || id.length <= 4) return '****';

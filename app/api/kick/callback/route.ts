@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { saveUserPoints } from '@/lib/points-db';
 import { getAppUrl } from '@/lib/url-utils';
-import path from 'path';
-import fs from 'fs';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -88,25 +86,6 @@ export async function GET(req: Request) {
     } catch (err: any) {
       console.error('Fallo al llamar api.kick.com:', err);
       debugUsersText = `FETCH ERROR: ${err?.message || err}`;
-    }
-
-    // Write debug log to /tmp or console (Vercel serverless friendly)
-    try {
-      const logContent = `
-=== KICK OAUTH DEBUG SESSION: ${new Date().toISOString()} ===
-Client ID: ${clientId}
-Redirect URI: ${redirectUri}
-Code received: ${code ? 'YES' : 'NO'}
-Access Token response: ${JSON.stringify(tokenData)}
-Users Endpoint Status: ${debugUsersStatus}
-Users Endpoint Response: ${debugUsersText}
-======================================================
-\n`;
-      console.log(logContent);
-      const tmpPath = process.env.VERCEL ? '/tmp/kick_debug.txt' : path.join(process.cwd(), 'kick_debug.txt');
-      fs.appendFileSync(tmpPath, logContent);
-    } catch (logErr) {
-      // Ignore filesystem log errors in read-only environments
     }
 
     // Extract user profile details (accounting for "data" envelope wrapping in Kick API responses)

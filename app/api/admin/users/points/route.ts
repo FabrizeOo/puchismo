@@ -1,15 +1,9 @@
 import { NextResponse } from 'next/server';
 import { updateUserPoints } from '@/lib/db';
-import { cookies } from 'next/headers';
+import { checkAdminAuth } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-function checkAdminAuth(): boolean {
-  const cookieStore = cookies();
-  const session = cookieStore.get('admin_session');
-  return session?.value === 'authenticated_admin_puchismo_2026' || session?.value === 'authenticated';
-}
 
 export async function POST(req: Request) {
   if (!checkAdminAuth()) {
