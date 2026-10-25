@@ -103,6 +103,7 @@ export function HeroSection() {
               href="https://discord.gg/3DtQkGhtrn"
               target="_blank"
               rel="noopener noreferrer"
+              data-track="hero-unirse-discord"
               className="btn-discord text-sm sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 rounded-2xl"
               whileHover={{ scale: 1.04, boxShadow: '0 0 40px rgba(99, 102, 241, 0.7)' }}
               whileTap={{ scale: 0.97 }}
@@ -115,6 +116,7 @@ export function HeroSection() {
               href="https://t.me/+jpyDeMxokzUzNDgx"
               target="_blank"
               rel="noopener noreferrer"
+              data-track="hero-unirse-telegram"
               className="btn-telegram text-sm sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 rounded-2xl"
               whileHover={{ scale: 1.04, boxShadow: '0 0 40px rgba(14, 165, 233, 0.7)' }}
               whileTap={{ scale: 0.97 }}
@@ -127,6 +129,7 @@ export function HeroSection() {
               href="https://kick.com/bepucho"
               target="_blank"
               rel="noopener noreferrer"
+              data-track="hero-ver-kick-live"
               className="btn-kick text-sm sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 rounded-2xl"
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.97 }}
@@ -152,16 +155,17 @@ export function HeroSection() {
             className="flex justify-center gap-3 sm:gap-4"
           >
             {[
-              { icon: FaTwitch, href: 'https://www.twitch.tv/bepucho', color: '#9146ff' },
-              { icon: FaTiktok, href: 'https://www.tiktok.com/@bepucho', color: '#ffffff' },
-              { icon: FaTwitter, href: 'https://x.com/bePucho', color: '#1d9bf0' },
-              { icon: FaInstagram, href: 'https://www.instagram.com/bepucho/', color: '#e1306c' },
-            ].map(({ icon: Icon, href, color }) => (
+              { icon: FaTwitch, href: 'https://www.twitch.tv/bepucho', color: '#9146ff', track: 'hero-mini-twitch' },
+              { icon: FaTiktok, href: 'https://www.tiktok.com/@bepucho', color: '#ffffff', track: 'hero-mini-tiktok' },
+              { icon: FaTwitter, href: 'https://x.com/bePucho', color: '#1d9bf0', track: 'hero-mini-twitter' },
+              { icon: FaInstagram, href: 'https://www.instagram.com/bepucho/', color: '#e1306c', track: 'hero-mini-instagram' },
+            ].map(({ icon: Icon, href, color, track }) => (
               <motion.a
                 key={href}
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-track={track}
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl glass-card flex items-center justify-center hover:border-white/40 transition-all"
                 whileHover={{ scale: 1.12, y: -3 }}
                 whileTap={{ scale: 0.9 }}
@@ -257,6 +261,7 @@ export function SocialSection() {
                 href={s.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-track={`social-card-${s.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                 className="glass-card p-5 sm:p-6 flex flex-col gap-4 group cursor-pointer relative overflow-hidden rounded-2xl"
                 initial={{ opacity: 0, y: 40 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -355,6 +360,7 @@ export function DiscordSection() {
             href="https://discord.gg/3DtQkGhtrn"
             target="_blank"
             rel="noopener noreferrer"
+            data-track="discord-section-acceder"
             className="inline-flex items-center justify-center gap-2 sm:gap-3 w-full sm:w-auto px-6 sm:px-10 py-4 sm:py-5 rounded-2xl bg-indigo-600 text-white font-black text-sm sm:text-lg shadow-2xl"
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}

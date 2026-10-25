@@ -21,6 +21,8 @@ next-env.d.ts
 proyecto_kick_database.json
 proyecto_kick_database.json.tmp
 points_database.json
+proyecto_kick_analytics.json
+proyecto_kick_analytics.json.tmp
 
 # Debug & Temporary Logs
 npm-debug.log*

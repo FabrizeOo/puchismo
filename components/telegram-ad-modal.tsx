@@ -57,6 +57,7 @@ export function TelegramAdModal() {
             {/* Botón Cerrar */}
             <button
               onClick={() => setIsOpen(false)}
+              data-track="telegram-modal-close"
               className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/75 hover:bg-black/95 text-white hover:text-red-400 border border-white/20 flex items-center justify-center transition-all shadow-lg hover:scale-110 active:scale-95"
               aria-label="Cerrar anuncio"
             >
@@ -67,6 +68,7 @@ export function TelegramAdModal() {
             <div
               className="relative group cursor-pointer"
               onClick={handleOpenTelegram}
+              data-track="telegram-modal-banner"
             >
               <div className="relative w-full aspect-[16/9] overflow-hidden bg-black/40">
                 <Image
@@ -99,6 +101,7 @@ export function TelegramAdModal() {
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   onClick={handleOpenTelegram}
+                  data-track="telegram-modal-join-btn"
                   className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-2xl bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(14,165,233,0.4)] hover:shadow-[0_0_30px_rgba(14,165,233,0.7)] transition-all transform hover:scale-105 active:scale-95"
                 >
                   <FaThumbsUp className="text-amber-300 text-base" />

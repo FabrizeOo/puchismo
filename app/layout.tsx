@@ -4,6 +4,8 @@ import Script from 'next/script';
 import './globals.css';
 import { GlobalPointsTracker } from '@/components/global-points-tracker';
 import { TelegramAdModal } from '@/components/telegram-ad-modal';
+import { AnalyticsTracker } from '@/components/analytics-tracker';
+import { CookieBanner } from '@/components/cookie-banner';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -67,8 +69,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className={`${poppins.variable} ${inter.variable} font-inter antialiased text-white`} style={{ backgroundColor: '#030b04' }}>
+        <AnalyticsTracker />
         <GlobalPointsTracker />
         <TelegramAdModal />
+        <CookieBanner />
         {children}
         <Script
           async

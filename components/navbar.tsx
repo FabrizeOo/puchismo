@@ -41,7 +41,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 sm:h-24 md:h-28">
           {/* Logo */}
-          <Link href="/" className="flex items-center group">
+          <Link href="/" data-track="navbar-logo" className="flex items-center group">
             <motion.div
               whileHover={{ scale: 1.08, rotate: -2 }}
               whileTap={{ scale: 0.95 }}
@@ -69,6 +69,7 @@ export function Navbar() {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-track={`navbar-link-${item.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                   className="px-3.5 py-2 text-xs lg:text-sm font-semibold text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
                 >
                   {item.label}
@@ -77,6 +78,7 @@ export function Navbar() {
                 <Link
                   key={item.label}
                   href={item.href}
+                  data-track={`navbar-link-${item.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                   className={`px-3.5 py-2 text-xs lg:text-sm font-semibold rounded-xl transition-all ${
                     pathname === item.href
                       ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/30'
@@ -95,6 +97,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <motion.a
               href="/rewards"
+              data-track="navbar-cta-rewards"
               className="text-xs sm:text-sm py-2 px-4 rounded-xl font-bold transition-all"
               style={{
                 background: 'rgba(83,252,24,0.1)',
@@ -114,6 +117,7 @@ export function Navbar() {
               href="https://kick.com/bepucho"
               target="_blank"
               rel="noopener noreferrer"
+              data-track="navbar-cta-ver-en-vivo"
               className="btn-kick text-xs sm:text-sm py-2 px-4"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -126,6 +130,7 @@ export function Navbar() {
           <button
             className="md:hidden text-white p-2.5 rounded-xl bg-white/5 border border-white/10"
             onClick={() => setMenuOpen(!menuOpen)}
+            data-track="navbar-mobile-toggle-menu"
             aria-label="Toggle menu"
           >
             {menuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
@@ -154,6 +159,7 @@ export function Navbar() {
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
+                    data-track={`navbar-mobile-${item.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                     className="px-4 py-3 text-sm font-bold text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
                     onClick={() => setMenuOpen(false)}
                   >
@@ -163,6 +169,7 @@ export function Navbar() {
                   <Link
                     key={item.label}
                     href={item.href}
+                    data-track={`navbar-mobile-${item.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                     className="px-4 py-3 rounded-xl font-bold text-sm transition-all"
                     style={
                       pathname === item.href
@@ -182,6 +189,7 @@ export function Navbar() {
                   href="https://kick.com/bepucho"
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-track="navbar-mobile-stream-kick"
                   className="btn-kick flex-1 text-center text-xs py-3 rounded-xl font-bold"
                   onClick={() => setMenuOpen(false)}
                 >
@@ -191,6 +199,7 @@ export function Navbar() {
                   href="https://discord.gg/3DtQkGhtrn"
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-track="navbar-mobile-discord-oficial"
                   className="btn-discord flex-1 text-center text-xs py-3 rounded-xl font-bold"
                   onClick={() => setMenuOpen(false)}
                 >

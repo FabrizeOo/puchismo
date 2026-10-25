@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
+import { AnalyticsDashboard } from '@/components/admin/analytics-dashboard';
 
 interface Metrics {
   totalUsers: number;
@@ -58,7 +59,7 @@ export default function AdminPage() {
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'claims' | 'users' | 'proofs'>('claims');
+  const [activeTab, setActiveTab] = useState<'claims' | 'users' | 'proofs' | 'analytics'>('analytics');
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [claims, setClaims] = useState<Claim[]>([]);
@@ -373,6 +374,17 @@ export default function AdminPage() {
             {/* Tabs de Navegación Admin */}
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-center mb-6">
               <div className="flex rounded-2xl p-1 bg-neutral-900 border border-white/10 w-full sm:w-auto">
+                <button
+                  onClick={() => {
+                    setActiveTab('analytics');
+                    setFilterStatus('ALL');
+                  }}
+                  className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                    activeTab === 'analytics' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  📊 Analíticas
+                </button>
                 <button
                   onClick={() => {
                     setActiveTab('claims');
@@ -733,6 +745,9 @@ export default function AdminPage() {
                 </div>
               </div>
             )}
+
+            {/* TAB 4: ANALÍTICAS */}
+            {activeTab === 'analytics' && <AnalyticsDashboard />}
           </div>
         )}
       </div>

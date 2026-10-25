@@ -454,6 +454,7 @@ export function StreamSection() {
                   href="https://kick.com/bepucho"
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-track="stream-abrir-kick"
                   className="btn-kick text-xs sm:text-sm py-2 px-4 flex-1 sm:flex-none text-center whitespace-nowrap"
                 >
                   Abrir en Kick ↗
@@ -462,6 +463,7 @@ export function StreamSection() {
                   href="https://discord.gg/3DtQkGhtrn"
                   target="_blank"
                   rel="noopener noreferrer"
+                  data-track="stream-abrir-discord"
                   className="btn-discord text-xs sm:text-sm py-2 px-4 flex-1 sm:flex-none text-center whitespace-nowrap"
                 >
                   Discord

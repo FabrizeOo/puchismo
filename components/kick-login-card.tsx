@@ -36,6 +36,7 @@ export function KickLoginCard({
 
           <motion.a
             href="/api/kick/auth"
+            data-track="auth-conectar-kick-compact"
             whileHover={{ scale: 1.05, boxShadow: '0 0 25px rgba(83,252,24,0.5)' }}
             whileTap={{ scale: 0.95 }}
             className="w-full sm:w-auto px-6 py-3.5 rounded-2xl font-black text-black text-xs uppercase tracking-wider bg-[#53fc18] hover:bg-[#45dc10] transition-all flex items-center justify-center gap-2.5 flex-shrink-0 shadow-[0_0_20px_rgba(83,252,24,0.25)]"
@@ -96,6 +97,7 @@ export function KickLoginCard({
         {/* CTA Button */}
         <motion.a
           href="/api/kick/auth"
+          data-track="auth-conectar-kick-full"
           whileHover={{ scale: 1.04, boxShadow: '0 0 35px rgba(83,252,24,0.5)' }}
           whileTap={{ scale: 0.97 }}
           className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-black text-black text-sm uppercase tracking-wider bg-[#53fc18] hover:bg-[#45dc10] transition-all shadow-[0_0_25px_rgba(83,252,24,0.3)] border border-[#53fc18]"

@@ -57,6 +57,7 @@ export function TelegramSection() {
             href={TELEGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
+            data-track="telegram-section-banner"
             className="block relative cursor-pointer"
           >
             <div className="relative w-full aspect-[16/9] overflow-hidden bg-black/40">
@@ -94,6 +95,7 @@ export function TelegramSection() {
               href={TELEGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
+              data-track="telegram-section-join-btn"
               className="inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600 text-white font-bold text-sm sm:text-base shadow-[0_0_25px_rgba(14,165,233,0.4)] hover:shadow-[0_0_35px_rgba(14,165,233,0.7)] transition-all w-full sm:w-auto"
               whileHover={{ scale: 1.04 }}
               whileTap={{ scale: 0.96 }}

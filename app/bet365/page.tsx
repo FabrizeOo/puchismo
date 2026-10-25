@@ -240,6 +240,7 @@ export default function Bet365Page() {
             <div className="relative flex items-center gap-3 w-full sm:w-auto">
               <button
                 onClick={handleLogout}
+                data-track="bet365-logout-btn"
                 className="w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 transition-all flex items-center justify-center gap-1.5"
               >
                 🚪 Cerrar Sesión
@@ -274,6 +275,7 @@ export default function Bet365Page() {
                 href="https://bit.ly/BEPUCHO"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-track={`bet365-promo-banner-${i + 1}`}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1, duration: 0.4, ease: 'easeOut' }}
@@ -385,6 +387,7 @@ export default function Bet365Page() {
               <button
                 type="submit"
                 disabled={submittingProof || !proofImageBase64}
+                data-track="bet365-submit-proof-btn"
                 className={`w-full py-4 rounded-2xl font-black text-xs transition-all ${
                   submittingProof || !proofImageBase64
                     ? 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'

@@ -336,6 +336,7 @@ export default function RewardsPage() {
           <div className="inline-flex p-1.5 rounded-2xl bg-neutral-950 border border-white/10 flex-wrap justify-center gap-1">
             <button
               onClick={() => setActiveTab('store')}
+              data-track="rewards-tab-store"
               className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${
                 activeTab === 'store' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-gray-400 hover:text-white'
               }`}
@@ -344,6 +345,7 @@ export default function RewardsPage() {
             </button>
             <button
               onClick={() => setActiveTab('my-claims')}
+              data-track="rewards-tab-my-claims"
               className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${
                 activeTab === 'my-claims' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-gray-400 hover:text-white'
               }`}
@@ -352,6 +354,7 @@ export default function RewardsPage() {
             </button>
             <button
               onClick={() => setActiveTab('tiers')}
+              data-track="rewards-tab-tiers"
               className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${
                 activeTab === 'tiers' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-gray-400 hover:text-white'
               }`}
@@ -401,6 +404,7 @@ export default function RewardsPage() {
 
                           <button
                             disabled={!kickUser || !canAfford || outOfStock}
+                            data-track={`rewards-claim-${reward.id}`}
                             onClick={() => {
                               setSelectedReward(reward);
                               setClaimMessage(null);
@@ -452,6 +456,7 @@ export default function RewardsPage() {
 
                   <Link
                     href={way.link}
+                    data-track={`rewards-mission-${way.id}`}
                     className="w-full py-3 rounded-xl font-bold text-xs text-center bg-white/5 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all block"
                   >
                     Ir a Misión →
@@ -607,6 +612,7 @@ export default function RewardsPage() {
                   <button
                     type="submit"
                     disabled={claiming}
+                    data-track="rewards-confirm-claim-modal"
                     className="flex-1 py-3.5 rounded-xl font-black text-xs text-black bg-emerald-400 hover:bg-emerald-300 transition-all"
                   >
                     {claiming ? 'Procesando...' : 'Confirmar Canje'}
