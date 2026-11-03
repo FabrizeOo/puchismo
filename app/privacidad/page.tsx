@@ -1,15 +1,14 @@
 import type { Metadata } from 'next';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
+import { constructMetadata } from '@/lib/seo';
 import Link from 'next/link';
 
-export const metadata: Metadata = {
-  title: 'Política de Privacidad y Cookies | Puchismo',
-  description: 'Conoce cómo protegemos tu privacidad en Puchismo. Sistema de analíticas propias, anónimo y respetuoso con tu información personal.',
-  alternates: {
-    canonical: '/privacidad',
-  },
-};
+export const metadata: Metadata = constructMetadata({
+  title: 'Política de Privacidad y Gestión de Cookies',
+  description: 'Conoce cómo tratamos tus datos en Puchismo: analíticas propias, Google AdSense, cookies de afiliación, login seguro con Kick y ejercicio de tus derechos.',
+  path: '/privacidad',
+});
 
 export default function PrivacidadPage() {
   return (
@@ -20,93 +19,143 @@ export default function PrivacidadPage() {
         {/* Encabezado */}
         <div className="space-y-3 text-center sm:text-left">
           <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-            🛡️ Transparencia & Privacidad
+            Transparencia & Privacidad
           </span>
           <h1 className="text-3xl sm:text-5xl font-black text-white">Política de Privacidad y Cookies</h1>
           <p className="text-gray-400 text-sm sm:text-base">
-            Última actualización: Octubre 2026. En Puchismo creemos en el fútbol en vivo y en la privacidad de nuestra comunidad.
+            Última actualización: Octubre 2026. En Puchismo protegemos la privacidad de nuestra comunidad informando de manera clara y transparente sobre cada tecnología que utilizamos.
           </p>
         </div>
 
         {/* Contenido en tarjetas limpias */}
         <div className="space-y-6 text-gray-300 text-sm leading-relaxed">
+          {/* 1. Responsable del Tratamiento */}
           <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-white/10 space-y-3">
             <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <span>1.</span> Analíticas Propias de Primera Parte (First-Party)
+              <span>1.</span> Responsable del Tratamiento de los Datos
             </h2>
             <p>
-              En <strong className="text-white">Puchismo (https://www.puchismo.com)</strong> utilizamos un sistema de analíticas desarrollado por nosotros mismos alojado en nuestra propia infraestructura. No vendemos, cedemos ni compartimos datos con redes publicitarias de terceros para rastreo entre sitios.
-            </p>
-            <p>
-              El propósito exclusivo de nuestras métricas es saber qué transmisiones de partidos tienen mayor interés, cuáles son los botones más utilizados (como el canal de Telegram o Discord) y optimizar el rendimiento técnico de la plataforma.
+              El responsable del tratamiento de los datos recabados en <strong className="text-white">https://www.puchismo.com</strong> es <strong className="text-white">Andres C.</strong> (en adelante &quot;Puchismo&quot; o &quot;Bepucho&quot;), con domicilio de contacto en <strong className="text-white">Lima, Perú</strong> y correo electrónico de contacto <strong className="text-emerald-400">contactopucho@gmail.com</strong>.
             </p>
           </section>
 
+          {/* 2. Publicidad de Terceros - Google AdSense */}
           <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-emerald-500/20 space-y-3">
             <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <span>2.</span> Datos que Registramos y lo que NO Registramos
+              <span>2.</span> Publicidad de Terceros (Google AdSense y Redes Asociadas)
             </h2>
+            <p>
+              Este sitio web utiliza servicios publicitarios de <strong className="text-white">Google AdSense</strong> (Google LLC) para financiar el mantenimiento de los servidores y el soporte a la comunidad.
+            </p>
+            <p>
+              Google y sus socios publicitarios utilizan cookies para publicar anuncios en nuestro sitio basados en visitas anteriores de los usuarios a esta u otras páginas web en Internet:
+            </p>
+            <ul className="list-disc list-inside space-y-1.5 pl-2 text-xs sm:text-sm">
+              <li>
+                Las cookies de publicidad permiten a Google y a sus proveedores mostrar anuncios orientados o contextuales según el consentimiento otorgado.
+              </li>
+              <li>
+                Puedes inhabilitar la publicidad personalizada a través del panel de configuración de anuncios de Google en{' '}
+                <a
+                  href="https://adssettings.google.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-400 underline font-semibold"
+                >
+                  adssettings.google.com ↗
+                </a>{' '}
+                o mediante el portal{' '}
+                <a
+                  href="https://www.aboutads.info/choices/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-400 underline font-semibold"
+                >
+                  aboutads.info/choices ↗
+                </a>.
+              </li>
+              <li>
+                En Puchismo disponemos de un <strong>Banner de Consentimiento de Cookies</strong> que bloquea la carga de cookies y scripts publicitarios hasta que expreses tu aceptación voluntaria.
+              </li>
+            </ul>
+          </section>
+
+          {/* 3. Enlaces de Afiliación y Terceros */}
+          <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-white/10 space-y-3">
+            <h2 className="text-xl font-black text-white flex items-center gap-2">
+              <span>3.</span> Enlaces de Afiliación Comercial (Bet365 y Otros)
+            </h2>
+            <p>
+              Participamos en programas de afiliados. Cuando haces clic en un enlace de patrocinio (por ejemplo, enlaces a Bet365), la plataforma de destino puede almacenar cookies en tu navegador para identificar que la visita provino de Puchismo y registrar la atribución correspondiente.
+            </p>
+            <p>
+              Estas cookies son gestionadas directamente por el operador externo según sus propias políticas de privacidad. Te recomendamos revisar sus condiciones antes de interactuar. Para más detalles, consulta nuestra{' '}
+              <Link href="/afiliados" className="text-emerald-400 underline font-semibold">
+                Declaración de Afiliados
+              </Link>.
+            </p>
+          </section>
+
+          {/* 4. Login OAuth con Kick */}
+          <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-emerald-500/20 space-y-3">
+            <h2 className="text-xl font-black text-white flex items-center gap-2">
+              <span>4.</span> Inicio de Sesión con Kick (OAuth 2.0)
+            </h2>
+            <p>
+              Para participar en el sistema de recompensas, tienda comunitaria y quinielas, ofrecemos la opción de iniciar sesión mediante la API oficial de Kick (Kick.com).
+            </p>
             <div className="space-y-2">
-              <h3 className="font-bold text-emerald-400">Lo que sí medimos de forma anónima:</h3>
-              <ul className="list-disc list-inside space-y-1 text-gray-300 pl-2">
-                <li>Rutas y páginas visitadas (ej. inicio, transmisiones, recompensas).</li>
-                <li>Origen o fuente de tráfico (ej. búsqueda de Google, enlaces de Telegram o Discord).</li>
-                <li>Clics en enlaces y botones interactivos (como el botón de unirse a Telegram o Discord).</li>
-                <li>Información técnica básica del navegador, sistema operativo y tipo de dispositivo (escritorio, móvil o tablet).</li>
-                <li>País geográfico aproximado detectado por las cabeceras de red, sin almacenar ubicaciones exactas.</li>
+              <h3 className="font-bold text-white text-xs sm:text-sm">¿Qué datos recibimos de Kick?</h3>
+              <ul className="list-disc list-inside space-y-1 pl-2 text-xs sm:text-sm">
+                <li><strong className="text-white">ID único de usuario de Kick</strong> y nombre de usuario público.</li>
+                <li><strong className="text-white">Slug de canal y foto de perfil pública</strong> (avatar).</li>
               </ul>
             </div>
-
-            <div className="space-y-2 pt-2 border-t border-white/10">
-              <h3 className="font-bold text-red-400">Lo que NUNCA registramos ni almacenamos:</h3>
-              <ul className="list-disc list-inside space-y-1 text-gray-300 pl-2">
-                <li><strong className="text-white">NO guardamos direcciones IP completas</strong>. Las IPs son descartadas inmediatamente tras procesar la petición y la tasa de peticiones anti-abuso.</li>
-                <li><strong className="text-white">NO almacenamos datos personales identificables</strong> a través del script de analíticas (ni nombres reales, correos, documentos de identidad ni contraseñas).</li>
-              </ul>
+            <div className="space-y-2 pt-2">
+              <h3 className="font-bold text-white text-xs sm:text-sm">¿Para qué usamos estos datos?</h3>
+              <p className="text-xs sm:text-sm">
+                Únicamente para asociar de forma segura tus horas de visualización en directo, participaciones en el chat, predicciones de la quiniela y saldo de puntos en la tienda de recompensas. <strong>Nunca solicitamos ni tenemos acceso a tu contraseña, correo privado de Kick, métodos de pago ni datos sensibles</strong>.
+              </p>
             </div>
           </section>
 
+          {/* 5. Analíticas Propias de Primera Parte */}
           <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-white/10 space-y-3">
             <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <span>3.</span> Identificadores Anónimos y Sesiones
+              <span>5.</span> Analíticas Propias de Primera Parte (First-Party)
             </h2>
             <p>
-              Para distinguir entre una visita repetida y un visitante único, nuestro script genera un identificador anónimo aleatorio (como un código alfanumérico generado al azar) que se guarda en el almacenamiento local del navegador (<code className="text-emerald-400 font-mono">localStorage</code>).
+              En Puchismo medimos el rendimiento técnico de la web mediante un sistema propio alojado en nuestra infraestructura:
             </p>
-            <p>
-              Las sesiones de navegación caducan automáticamente tras 30 minutos de inactividad, tras lo cual se renueva el identificador de sesión sin vincularlo a tu identidad personal.
-            </p>
+            <ul className="list-disc list-inside space-y-1 pl-2 text-xs sm:text-sm">
+              <li>Páginas visitadas, origen de tráfico y clics en elementos de la interfaz.</li>
+              <li>Tipo de dispositivo, navegador y país aproximado (sin geolocalización exacta ni IPs almacenadas completas).</li>
+              <li>Respeto estricto a las señales del navegador <strong>Do Not Track (DNT)</strong> y <strong>Global Privacy Control (GPC)</strong>: si están activadas, nuestro sistema no registra ningún evento.</li>
+            </ul>
           </section>
 
+          {/* 6. Ejercicio de Derechos */}
           <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-white/10 space-y-3">
             <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <span>4.</span> Respeto a &quot;Do Not Track&quot; (DNT) y Global Privacy Control
+              <span>6.</span> Ejercicio de Derechos (Acceso, Rectificación y Cancelación)
             </h2>
             <p>
-              Respetamos tu decisión de no ser medido. Si tu navegador tiene activada la señal de cabecera <strong className="text-white">Do Not Track (DNT: 1)</strong> o <strong className="text-white">Global Privacy Control (Sec-GPC)</strong>, nuestro script de analíticas se desactiva de forma automática y no enviará ningún evento ni registro de visita.
+              En concordancia con el Reglamento General de Protección de Datos (GDPR) y la legislación de protección de datos personales de Perú (Ley N° 29733), tienes derecho a:
             </p>
-          </section>
-
-          <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-white/10 space-y-3">
-            <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <span>5.</span> Política de Retención y Depuración
-            </h2>
-            <p>
-              Los eventos crudos de navegación se consolidan periódicamente en resúmenes estadísticos diarios agregados. Contamos con una política estricta de depuración automática que purga los registros crudos de más de 90 días, garantizando que la base de datos se mantenga optimizada y sin acumulación innecesaria de registros históricos.
+            <ul className="list-disc list-inside space-y-1.5 pl-2 text-xs sm:text-sm">
+              <li>Conocer qué datos tenemos asociados a tu cuenta de Kick o puntos de recompensas.</li>
+              <li>Solicitar la rectificación o actualización de cualquier dato erróneo.</li>
+              <li>Solicitar la <strong>eliminación total de tu perfil, historial de puntos y reclamos</strong> en cualquier momento.</li>
+              <li>Revocar el consentimiento otorgado para cookies en cualquier momento borrando el almacenamiento local del navegador o mediante nuestro banner de configuración.</li>
+            </ul>
+            <p className="pt-2 text-xs sm:text-sm">
+              Para ejercer cualquiera de estos derechos, envía una solicitud formal indicando tu usuario de Kick a:{' '}
+              <strong className="text-emerald-400 font-mono">contactopucho@gmail.com</strong>. Atenderemos tu petición en un plazo máximo de 10 días hábiles.
             </p>
-          </section>
-
-          <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-white/10 space-y-3">
-            <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <span>6.</span> Contacto
-            </h2>
-            <p>
-              Si tienes preguntas sobre nuestra política de privacidad o deseas más información sobre cómo manejamos la comunidad futbolera, puedes contactarnos a través de nuestro Discord oficial o en los canales de transmisión en vivo de Bepucho.
-            </p>
-            <div className="pt-2">
+            <div className="pt-3">
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-xs hover:bg-emerald-400 transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-xs hover:bg-emerald-400 transition-all shadow-md"
               >
                 ← Volver al Inicio
               </Link>

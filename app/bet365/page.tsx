@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
@@ -169,6 +170,23 @@ export default function Bet365Page() {
       <Navbar />
 
       <div className="pt-24 pb-16 px-4 max-w-5xl mx-auto space-y-8">
+        {/* Divulgación de Afiliación Visible Arriba */}
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-center space-y-1">
+          <p className="text-amber-300 text-xs sm:text-sm font-semibold">
+            <strong>Divulgación de Afiliación Comercial:</strong> Este sitio web recibe comisiones económicas por los registros completados a través de los enlaces patrocinados de Bet365 aquí presentes.
+          </p>
+          <p className="text-gray-400 text-[11px] sm:text-xs">
+            Solo para mayores de 18 años (+18). El juego puede generar adicción. Juega con responsabilidad. Consulta nuestra{' '}
+            <Link href="/afiliados" className="text-amber-400 underline font-bold">
+              Declaración de Afiliados
+            </Link>{' '}
+            y nuestra guía de{' '}
+            <Link href="/juego-responsable" className="text-amber-400 underline font-bold">
+              Juego Responsable
+            </Link>.
+          </p>
+        </div>
+
         {/* Header Hero */}
         <div className="text-center space-y-4">
           <motion.div
@@ -176,7 +194,7 @@ export default function Bet365Page() {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider"
           >
-            <span>🎲 Misión Especial — Bet365</span>
+            <span>Misión Especial — Bet365</span>
           </motion.div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-white">
@@ -243,7 +261,7 @@ export default function Bet365Page() {
                 data-track="bet365-logout-btn"
                 className="w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 transition-all flex items-center justify-center gap-1.5"
               >
-                🚪 Cerrar Sesión
+                Cerrar Sesión
               </button>
             </div>
           </div>
@@ -274,7 +292,7 @@ export default function Bet365Page() {
                 key={i}
                 href="https://bit.ly/BEPUCHO"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="sponsored noopener noreferrer"
                 data-track={`bet365-promo-banner-${i + 1}`}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -296,10 +314,13 @@ export default function Bet365Page() {
           {/* Aviso +18 y disclaimer */}
           <div className="text-center space-y-2 pt-2">
             <div className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-neutral-900/90 border border-amber-500/30 text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider shadow-lg shadow-amber-500/10">
-              🔞 SOLO PARA NUEVOS USUARIOS BET365 — UNA RECLAMACIÓN POR HOGAR
+              SOLO PARA NUEVOS USUARIOS BET365 (+18) — UNA RECLAMACIÓN POR HOGAR
             </div>
             <p className="text-gray-400 text-xs sm:text-sm font-medium">
-              +18 · Juega con Responsabilidad · BeGambleAware.org · El juego puede crear adicción
+              +18 · Juega con Responsabilidad · BeGambleAware.org · El juego puede crear adicción ·{' '}
+              <Link href="/juego-responsable" className="text-amber-400 underline font-semibold">
+                Guía de Ayuda y Juego Responsable
+              </Link>
             </p>
           </div>
         </div>
@@ -324,7 +345,7 @@ export default function Bet365Page() {
                   : 'bg-red-950 border-red-500 text-red-400'
               }`}
             >
-              <span>{proofMessage.type === 'success' ? '✅' : '❌'}</span>
+              <span className={`w-2 h-2 rounded-full inline-block ${proofMessage.type === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`} />
               <span>{proofMessage.text}</span>
             </div>
           )}
@@ -394,7 +415,7 @@ export default function Bet365Page() {
                     : 'bg-amber-400 text-black hover:bg-amber-300 cursor-pointer shadow-lg shadow-amber-500/20'
                 }`}
               >
-                {submittingProof ? 'Enviando comprobante...' : '📤 ENVIAR COMPROBANTE (+50 PTS)'}
+                {submittingProof ? 'Enviando comprobante...' : 'ENVIAR COMPROBANTE (+50 PTS)'}
               </button>
             </form>
           )}
@@ -424,7 +445,7 @@ export default function Bet365Page() {
                         : 'bg-red-500/10 text-red-400 border border-red-500/30'
                     }`}
                   >
-                    {p.status === 'PENDING' ? '⏳ En Revisión' : p.status === 'APPROVED' ? '✅ Aprobado (+50 pts)' : '❌ Rechazado'}
+                    {p.status === 'PENDING' ? 'En Revisión' : p.status === 'APPROVED' ? 'Aprobado (+50 pts)' : 'Rechazado'}
                   </span>
                 </div>
               ))}

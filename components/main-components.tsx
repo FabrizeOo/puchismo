@@ -190,12 +190,12 @@ export function HeroSection() {
           {/* Título principal */}
           <motion.div variants={itemVariants} className="space-y-4">
             <h1 className="text-5xl md:text-7xl font-poppins font-bold">
-              <span className="text-white">TRANSMISIONES EN VIVO</span>
+              <span className="text-white">LA COMUNIDAD EN VIVO</span>
               <br />
               <span className="text-gradient">DEL MUNDIAL 2026</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-              Únete a nuestra comunidad para ver los mejores partidos del Mundial.
+              Únete a nuestra comunidad para comentar y reaccionar a los mejores partidos del Mundial.
               Chat en vivo, análisis en tiempo real y mucho más.
             </p>
           </motion.div>

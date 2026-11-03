@@ -3,13 +3,13 @@ import { Navbar } from '@/components/navbar';
 import { StreamSection } from '@/components/stream-section';
 import { Footer } from '@/components/footer';
 
-export const metadata: Metadata = {
-  title: 'Stream en Vivo',
-  description: 'Ve el stream en vivo de Bepucho en Kick.com. Transmisiones y fútbol en directo con la comunidad Puchismo.',
-  alternates: {
-    canonical: '/stream',
-  },
-};
+import { constructMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = constructMetadata({
+  title: 'Stream en Vivo y Chat Comunitario con Bepucho',
+  description: 'Conéctate al stream en vivo de Bepucho en Kick.com: chatea en tiempo real, acumula puntos para la tienda y comparte reacciones futboleras.',
+  path: '/stream',
+});
 
 export default function StreamPage() {
   return (

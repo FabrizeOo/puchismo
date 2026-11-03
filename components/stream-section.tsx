@@ -446,7 +446,7 @@ export function StreamSection() {
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-white">Bepucho</h2>
                 <p className="text-xs sm:text-sm text-gray-400">
-                  Transmisiones en vivo de partidos 🏆 Comunidad Puchismo
+                  Streams en vivo, reacciones y comunidad 🏆 Puchismo con Bepucho
                 </p>
               </div>
               <div className="flex gap-2.5 w-full sm:w-auto">

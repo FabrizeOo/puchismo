@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import Link from 'next/link';
+import { FaDice, FaTv, FaCommentAlt } from 'react-icons/fa';
 import { Navbar } from '@/components/navbar';
 import { Footer } from '@/components/footer';
 import { KickLoginCard } from '@/components/kick-login-card';
@@ -41,17 +42,17 @@ interface RewardClaim {
 
 // ─── CONSTANTES ──────────────────────────────────────────────────────────────
 const TIERS = [
-  { name: 'Rookie', min: 0, max: 499, color: '#9ca3af', emoji: '🌱', perks: ['Acceso al chat', 'Emotes básicos'] },
-  { name: 'Fan', min: 500, max: 1499, color: '#53fc18', emoji: '⚽', perks: ['Rol especial Discord', 'Emotes exclusivos'] },
-  { name: 'MVP', min: 1500, max: 3999, color: '#fbbf24', emoji: '🏆', perks: ['Rol MVP Discord', 'Acceso a sorteos'] },
-  { name: 'Legend', min: 4000, max: 9999, color: '#f97316', emoji: '👑', perks: ['Rol Legend', 'Sorteos VIP', 'Shoutout en stream'] },
-  { name: 'GOAT', min: 10000, max: Infinity, color: '#ec4899', emoji: '🐐', perks: ['Todos los beneficios', 'Acceso anticipado', 'Co-stream con Bepucho'] },
+  { name: 'Rookie', min: 0, max: 499, color: '#9ca3af', level: 'LVL 1', perks: ['Acceso al chat', 'Emotes básicos'] },
+  { name: 'Fan', min: 500, max: 1499, color: '#53fc18', level: 'LVL 2', perks: ['Rol especial Discord', 'Emotes exclusivos'] },
+  { name: 'MVP', min: 1500, max: 3999, color: '#fbbf24', level: 'LVL 3', perks: ['Rol MVP Discord', 'Acceso a sorteos'] },
+  { name: 'Legend', min: 4000, max: 9999, color: '#f97316', level: 'LVL 4', perks: ['Rol Legend', 'Sorteos VIP', 'Shoutout en stream'] },
+  { name: 'GOAT', min: 10000, max: Infinity, color: '#ec4899', level: 'LVL 5', perks: ['Todos los beneficios', 'Acceso anticipado', 'Co-stream con Bepucho'] },
 ];
 
 const WAYS_TO_EARN = [
   {
     id: 'bet365',
-    icon: '🎲',
+    icon: FaDice,
     title: 'Registro en Bet365',
     subtitle: '50 puntos de regalo',
     points: '+50 pts',
@@ -62,7 +63,7 @@ const WAYS_TO_EARN = [
   },
   {
     id: 'watch',
-    icon: '📺',
+    icon: FaTv,
     title: 'Ver el Stream',
     subtitle: '0.4 puntos por minuto',
     points: '+0.4 pts / min',
@@ -73,7 +74,7 @@ const WAYS_TO_EARN = [
   },
   {
     id: 'chat',
-    icon: '💬',
+    icon: FaCommentAlt,
     title: 'Participar en Chat',
     subtitle: '0.2 puntos por mensaje',
     points: '+0.2 pt / msg',
@@ -252,7 +253,7 @@ export default function RewardsPage() {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-4"
           >
-            <span>🎁 Tienda & Recompensas Puchismo</span>
+            <span>Tienda & Recompensas Puchismo</span>
           </motion.div>
 
           <motion.h1
@@ -297,11 +298,11 @@ export default function RewardsPage() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-black text-white text-base tracking-tight">@{kickUser.username}</span>
                       <span className="text-[10px] px-2 py-0.5 rounded-full font-black bg-[#53fc18]/15 text-[#53fc18] border border-[#53fc18]/30 uppercase tracking-wider">
-                        {userTier.emoji} {userTier.name}
+                        {userTier.level} · {userTier.name}
                       </span>
                     </div>
                     <span className="text-xs text-gray-400">
-                      ⏱️ {kickUser.watchTimeMinutes} min | 💬 {kickUser.chatMessagesCount} msgs
+                      {kickUser.watchTimeMinutes} min en vivo | {kickUser.chatMessagesCount} msgs
                     </span>
                   </div>
                 </div>
@@ -317,7 +318,7 @@ export default function RewardsPage() {
                     onClick={handleLogout}
                     className="text-[11px] font-bold text-red-400 hover:text-red-300 hover:underline flex items-center gap-1 transition-all"
                   >
-                    🚪 Cerrar Sesión
+                    Cerrar Sesión
                   </button>
                 </div>
               </div>
@@ -341,7 +342,7 @@ export default function RewardsPage() {
                 activeTab === 'store' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-gray-400 hover:text-white'
               }`}
             >
-              🏬 Catálogo de Premios
+              Catálogo de Premios
             </button>
             <button
               onClick={() => setActiveTab('my-claims')}
@@ -350,7 +351,7 @@ export default function RewardsPage() {
                 activeTab === 'my-claims' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-gray-400 hover:text-white'
               }`}
             >
-              📋 Mis Canjes ({userClaims.length})
+              Mis Canjes ({userClaims.length})
             </button>
             <button
               onClick={() => setActiveTab('tiers')}
@@ -359,7 +360,7 @@ export default function RewardsPage() {
                 activeTab === 'tiers' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-gray-400 hover:text-white'
               }`}
             >
-              🏆 Nivel & Rangos
+              Niveles & Rangos
             </button>
           </div>
         </div>
@@ -422,7 +423,7 @@ export default function RewardsPage() {
                               : outOfStock
                               ? 'Agotado temporalmente'
                               : canAfford
-                              ? '🎁 CANJEAR AHORA'
+                              ? 'CANJEAR AHORA'
                               : `FALTAN ${Math.ceil(reward.pointsCost - currentPoints)} PTS`}
                           </button>
                         </div>
@@ -444,7 +445,9 @@ export default function RewardsPage() {
                 >
                   <div>
                     <div className="flex items-start justify-between mb-3">
-                      <span className="text-4xl">{way.icon}</span>
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                        <way.icon size={20} />
+                      </div>
                       <span className="font-black text-emerald-400 text-xs px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
                         {way.points}
                       </span>
@@ -496,10 +499,10 @@ export default function RewardsPage() {
                       }`}
                     >
                       {claim.status === 'PENDING'
-                        ? '⏳ Pendiente de entrega'
+                        ? 'Pendiente de entrega'
                         : claim.status === 'COMPLETED'
-                        ? '✅ Entregado'
-                        : '❌ Cancelado y reembolsado'}
+                        ? 'Entregado'
+                        : 'Cancelado y reembolsado'}
                     </span>
                   </div>
                 ))
@@ -515,7 +518,9 @@ export default function RewardsPage() {
                   key={tier.name}
                   className="p-5 rounded-2xl bg-neutral-900 border border-white/5 flex items-center gap-4"
                 >
-                  <div className="text-3xl">{tier.emoji}</div>
+                  <div className="w-12 h-12 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center font-mono font-black text-xs text-emerald-400">
+                    {tier.level}
+                  </div>
                   <div className="flex-1">
                     <div className="flex justify-between mb-1">
                       <span className="font-black text-white text-base">{tier.name}</span>

@@ -84,13 +84,16 @@ export function KickLoginCard({
         {/* Perks pill list */}
         <div className="flex flex-wrap justify-center gap-2 text-xs">
           <span className="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-gray-300 flex items-center gap-1.5 font-semibold">
-            ⚡ <span>Puntos Automáticos</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+            <span>Puntos Automáticos</span>
           </span>
           <span className="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-gray-300 flex items-center gap-1.5 font-semibold">
-            🔒 <span>OAuth 2.0 Oficial</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+            <span>OAuth 2.0 Oficial</span>
           </span>
           <span className="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-gray-300 flex items-center gap-1.5 font-semibold">
-            🎁 <span>Premios Exclusivos</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+            <span>Premios Exclusivos</span>
           </span>
         </div>
 

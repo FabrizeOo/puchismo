@@ -4,13 +4,13 @@ import { HeroSection, SocialSection, DiscordSection } from '@/components/home-se
 import { TelegramSection } from '@/components/telegram-section';
 import { Footer } from '@/components/footer';
 
-export const metadata: Metadata = {
-  title: 'Puchismo | Comunidad de Fútbol en Vivo',
-  description: '¿Quieres ser parte de la comunidad? Únete al Discord de Puchismo para ver partidos de Champions, Premier League, Liga Española, Liga Peruana, Libertadores y más en vivo con Bepucho.',
-  alternates: {
-    canonical: '/',
-  },
-};
+import { constructMetadata } from '@/lib/seo';
+
+export const metadata: Metadata = constructMetadata({
+  title: 'Puchismo | Comunidad de Fútbol en Vivo, Reacciones y Stream',
+  description: 'Comunidad futbolera con Bepucho: únete a nuestro Discord y streams en Kick para comentar partidos en vivo, análisis, predicciones y ganar recompensas.',
+  path: '/',
+});
 
 export default function HomePage() {
   const jsonLd = {
@@ -30,10 +30,14 @@ export default function HomePage() {
           width: 192,
           height: 192,
         },
-        image: 'https://www.puchismo.com/favicon-192x192.png',
+        image: 'https://www.puchismo.com/og-image.jpg',
         sameAs: [
           'https://discord.gg/3DtQkGhtrn',
           'https://kick.com/bepucho',
+          'https://t.me/+jpyDeMxokzUzNDgx',
+          'https://x.com/bePucho',
+          'https://www.instagram.com/bepucho/',
+          'https://www.twitch.tv/bepucho',
         ],
       },
       {
@@ -41,11 +45,11 @@ export default function HomePage() {
         '@id': 'https://www.puchismo.com/#website',
         url: 'https://www.puchismo.com',
         name: 'Puchismo',
-        description: 'Comunidad de fútbol en vivo con Bepucho.',
+        description: 'Comunidad de fútbol en vivo, reacciones, pronósticos y streams con Bepucho.',
         publisher: {
           '@id': 'https://www.puchismo.com/#organization',
         },
-        inLanguage: 'es-ES',
+        inLanguage: 'es-PE',
       },
     ],
   };

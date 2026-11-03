@@ -27,11 +27,11 @@ interface KickUser {
 }
 
 const TIERS = [
-  { name: 'Rookie', min: 0, max: 499, color: '#9ca3af', emoji: '🌱' },
-  { name: 'Fan', min: 500, max: 1499, color: '#53fc18', emoji: '⚽' },
-  { name: 'MVP', min: 1500, max: 3999, color: '#fbbf24', emoji: '🏆' },
-  { name: 'Legend', min: 4000, max: 9999, color: '#f97316', emoji: '👑' },
-  { name: 'GOAT', min: 10000, max: Infinity, color: '#ec4899', emoji: '🐐' },
+  { name: 'Rookie', min: 0, max: 499, color: '#9ca3af', level: 'LVL 1' },
+  { name: 'Fan', min: 500, max: 1499, color: '#53fc18', level: 'LVL 2' },
+  { name: 'MVP', min: 1500, max: 3999, color: '#fbbf24', level: 'LVL 3' },
+  { name: 'Legend', min: 4000, max: 9999, color: '#f97316', level: 'LVL 4' },
+  { name: 'GOAT', min: 10000, max: Infinity, color: '#ec4899', level: 'LVL 5' },
 ];
 
 function getTier(points: number) {
@@ -158,7 +158,7 @@ export default function LeaderboardPage() {
               className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold mb-4"
               style={{ border: '1px solid rgba(83,252,24,0.4)', background: 'rgba(83,252,24,0.1)', color: '#53fc18' }}
             >
-              🏆 RANKING DE LA COMUNIDAD
+              RANKING DE LA COMUNIDAD
             </span>
           </motion.div>
 
@@ -208,7 +208,7 @@ export default function LeaderboardPage() {
                         </div>
                       )}
                     </div>
-                    <span className="absolute -top-3 -right-2 text-xl sm:text-2xl">🥈</span>
+                    <span className="absolute -top-3 -right-2 px-2 py-0.5 rounded-full bg-slate-300 text-black font-mono font-black text-xs">#2</span>
                   </div>
                   <span className="font-black text-xs sm:text-sm text-slate-200 truncate max-w-[90px] sm:max-w-[140px] text-center">
                     @{second.username}
@@ -244,7 +244,7 @@ export default function LeaderboardPage() {
                         </div>
                       )}
                     </div>
-                    <span className="absolute -top-4 -right-2 text-2xl sm:text-3xl">👑</span>
+                    <span className="absolute -top-4 -right-2 px-2.5 py-0.5 rounded-full bg-amber-400 text-black font-mono font-black text-xs shadow-lg shadow-amber-400/40">#1</span>
                   </div>
                   <span className="font-black text-sm sm:text-base text-amber-300 truncate max-w-[100px] sm:max-w-[160px] text-center">
                     @{first.username}
@@ -279,7 +279,7 @@ export default function LeaderboardPage() {
                         </div>
                       )}
                     </div>
-                    <span className="absolute -top-3 -right-2 text-xl sm:text-2xl">🥉</span>
+                    <span className="absolute -top-3 -right-2 px-2 py-0.5 rounded-full bg-amber-700 text-white font-mono font-black text-xs">#3</span>
                   </div>
                   <span className="font-black text-xs sm:text-sm text-amber-600 truncate max-w-[90px] sm:max-w-[140px] text-center">
                     @{third.username}
@@ -337,7 +337,7 @@ export default function LeaderboardPage() {
                   href="/rewards"
                   className="px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold hover:bg-emerald-500/20 transition-all"
                 >
-                  🎁 Ir a Tienda
+                  Ir a Tienda
                 </Link>
               </div>
             </div>
@@ -353,7 +353,7 @@ export default function LeaderboardPage() {
             <div className="relative w-full sm:w-72">
               <input
                 type="text"
-                placeholder="🔍 Buscar por usuario..."
+                placeholder="Buscar por usuario..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl bg-neutral-900 border border-white/10 text-white text-xs placeholder-gray-500 focus:outline-none focus:border-emerald-500"
@@ -370,9 +370,9 @@ export default function LeaderboardPage() {
 
             <div className="flex gap-1 bg-neutral-900 p-1 rounded-xl border border-white/10 w-full sm:w-auto">
               {([
-                { id: 'points', label: '🏆 Puntos' },
-                { id: 'watchTime', label: '⏱️ Horas Vistas' },
-                { id: 'chat', label: '💬 Mensajes' },
+                { id: 'points', label: 'Puntos' },
+                { id: 'watchTime', label: 'Horas Vistas' },
+                { id: 'chat', label: 'Mensajes' },
               ] as const).map((tab) => (
                 <button
                   key={tab.id}
@@ -423,8 +423,8 @@ export default function LeaderboardPage() {
                     }`}
                   >
                     <div className="flex items-center gap-3 sm:gap-4">
-                      <span className="font-mono text-xs sm:text-sm font-black w-6 text-center text-gray-400">
-                        {isTop1 ? '🥇' : isTop2 ? '🥈' : isTop3 ? '🥉' : `#${index + 1}`}
+                      <span className="font-mono text-xs sm:text-sm font-black w-7 text-center text-gray-400">
+                        {`#${index + 1}`}
                       </span>
 
                       <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl overflow-hidden border border-white/10 bg-neutral-950 flex-shrink-0">
@@ -441,12 +441,12 @@ export default function LeaderboardPage() {
                         <div className="flex items-center gap-2">
                           <span className="font-black text-white text-xs sm:text-base">@{user.username}</span>
                           <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-white/5 border border-white/10 text-gray-400">
-                            {userTier.emoji} {userTier.name}
+                            {userTier.level} · {userTier.name}
                           </span>
                         </div>
                         <div className="flex gap-3 text-[10px] sm:text-xs text-gray-400 mt-0.5">
-                          <span>⏱️ {user.watchTimeMinutes || 0} min</span>
-                          <span>💬 {user.chatMessagesCount || 0} msgs</span>
+                          <span>{user.watchTimeMinutes || 0} min en vivo</span>
+                          <span>{user.chatMessagesCount || 0} msgs</span>
                         </div>
                       </div>
                     </div>

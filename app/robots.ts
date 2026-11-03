@@ -5,35 +5,21 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: [
-          '/',
-          '/favicon.ico',
-          '/favicon-*.png',
-          '/apple-touch-icon.png',
-          '/favicon.svg',
-          '/site.webmanifest',
-          '/logo.png',
-          '/logo.webp',
-        ],
-        disallow: ['/api/'],
+        allow: '/',
+        disallow: ['/api/', '/admin/'],
       },
       {
-        userAgent: 'Googlebot-Image',
-        allow: [
-          '/',
-          '/favicon.ico',
-          '/favicon-*.png',
-          '/apple-touch-icon.png',
-          '/favicon.svg',
-          '/site.webmanifest',
-          '/logo.png',
-          '/logo.webp',
-          '/icon.png',
-        ],
+        userAgent: 'Mediapartners-Google',
+        allow: '/',
         disallow: ['/api/'],
       },
       {
         userAgent: 'Googlebot',
+        allow: '/',
+        disallow: ['/api/', '/admin/'],
+      },
+      {
+        userAgent: 'Googlebot-Image',
         allow: '/',
         disallow: ['/api/'],
       },
@@ -41,4 +27,3 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: 'https://www.puchismo.com/sitemap.xml',
   };
 }
-

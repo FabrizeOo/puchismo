@@ -53,22 +53,52 @@ interface Proof {
   updatedAt: string;
 }
 
+interface AdminBet {
+  id: string;
+  userId: string;
+  username: string;
+  profilePic?: string;
+  matchId: number;
+  matchDate: string;
+  homeTeam: string;
+  awayTeam: string;
+  competition: string;
+  betType: '1X2' | 'SCORE';
+  selection: string;
+  odds: number;
+  pointsBet: number;
+  potentialPayout: number;
+  status: 'PENDING' | 'WON' | 'LOST' | 'CANCELLED';
+  actualHomeScore?: number | null;
+  actualAwayScore?: number | null;
+  pointsAwarded: number;
+  createdAt: string;
+  evaluatedAt?: string;
+}
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'claims' | 'users' | 'proofs' | 'analytics'>('analytics');
+  const [activeTab, setActiveTab] = useState<'claims' | 'users' | 'proofs' | 'analytics' | 'bets'>('analytics');
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [claims, setClaims] = useState<Claim[]>([]);
   const [proofs, setProofs] = useState<Proof[]>([]);
+  const [bets, setBets] = useState<AdminBet[]>([]);
   const [loadingData, setLoadingData] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<'ALL' | 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'APPROVED' | 'REJECTED'>('ALL');
+  const [filterStatus, setFilterStatus] = useState<'ALL' | 'PENDING' | 'COMPLETED' | 'CANCELLED' | 'APPROVED' | 'REJECTED' | 'WON' | 'LOST'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Estados para evaluación de apuestas por partido
+  const [evalMatchId, setEvalMatchId] = useState('');
+  const [evalHomeScore, setEvalHomeScore] = useState('');
+  const [evalAwayScore, setEvalAwayScore] = useState('');
+  const [evalLoading, setEvalLoading] = useState(false);
 
   // Modal para ver imagen completa de prueba
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -80,11 +110,12 @@ export default function AdminPage() {
   const fetchAdminData = async () => {
     setLoadingData(true);
     try {
-      const [statsRes, usersRes, claimsRes, proofsRes] = await Promise.all([
+      const [statsRes, usersRes, claimsRes, proofsRes, betsRes] = await Promise.all([
         fetch('/api/admin/stats', { cache: 'no-store' }),
         fetch('/api/admin/users', { cache: 'no-store' }),
         fetch('/api/admin/claims', { cache: 'no-store' }),
         fetch('/api/admin/proofs', { cache: 'no-store' }),
+        fetch('/api/admin/quiniela', { cache: 'no-store' }),
       ]);
 
       if (statsRes.status === 401 || usersRes.status === 401) {
@@ -99,11 +130,13 @@ export default function AdminPage() {
       const usersData = await usersRes.json();
       const claimsData = await claimsRes.json();
       const proofsData = await proofsRes.json();
+      const betsData = betsRes.ok ? await betsRes.json() : null;
 
       if (statsData.success) setMetrics(statsData.metrics);
       if (usersData.success) setUsers(usersData.users);
       if (claimsData.success) setClaims(claimsData.claims);
       if (proofsData.success) setProofs(proofsData.proofs);
+      if (betsData && betsData.success) setBets(betsData.bets || []);
     } catch (err) {
       console.error('Error cargando panel de admin:', err);
     } finally {
@@ -249,6 +282,51 @@ export default function AdminPage() {
   });
 
   const pendingProofsCount = proofs.filter((p) => p.status === 'PENDING').length;
+
+  const handleEvaluateMatch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!evalMatchId || evalHomeScore === '' || evalAwayScore === '') {
+      setNotification({ type: 'error', message: 'Ingresa el ID del partido y los marcadores de ambos equipos' });
+      return;
+    }
+    setEvalLoading(true);
+    try {
+      const res = await fetch('/api/admin/quiniela', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          matchId: parseInt(evalMatchId, 10),
+          homeScore: parseInt(evalHomeScore, 10),
+          awayScore: parseInt(evalAwayScore, 10),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setNotification({ type: 'success', message: data.message });
+        setEvalMatchId('');
+        setEvalHomeScore('');
+        setEvalAwayScore('');
+        fetchAdminData();
+      } else {
+        setNotification({ type: 'error', message: data.error || 'Error al evaluar apuestas' });
+      }
+    } catch {
+      setNotification({ type: 'error', message: 'Error de red al liquidar apuestas' });
+    } finally {
+      setEvalLoading(false);
+      setTimeout(() => setNotification(null), 6000);
+    }
+  };
+
+  const filteredBets = bets.filter((b) => {
+    const matchesStatus = filterStatus === 'ALL' || b.status === filterStatus;
+    const matchesSearch =
+      b.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.homeTeam.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.awayTeam.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      b.competition.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   return (
     <main className="min-h-screen text-white overflow-x-hidden" style={{ background: '#030b04' }}>
@@ -422,6 +500,17 @@ export default function AdminPage() {
                   }`}
                 >
                   👥 Usuarios & CRUD Puntos ({users.length})
+                </button>
+                <button
+                  onClick={() => {
+                    setActiveTab('bets');
+                    setFilterStatus('ALL');
+                  }}
+                  className={`px-4 py-2.5 rounded-xl font-bold text-xs transition-all ${
+                    activeTab === 'bets' ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  🎲 Quiniela & Apuestas ({bets.length})
                 </button>
               </div>
 
@@ -748,6 +837,167 @@ export default function AdminPage() {
 
             {/* TAB 4: ANALÍTICAS */}
             {activeTab === 'analytics' && <AnalyticsDashboard />}
+
+            {/* TAB 5: APUESTAS Y LIQUIDACIÓN QUINIELA */}
+            {activeTab === 'bets' && (
+              <div className="space-y-6">
+                {/* Formulario de Liquidación de Partido */}
+                <div className="p-5 rounded-2xl bg-neutral-900/90 border border-amber-500/30 space-y-4">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                      <span className="text-amber-400 font-bold text-xs uppercase tracking-wider block">
+                        ⚡ Liquidación Rápida de Partidos
+                      </span>
+                      <h3 className="text-lg font-black text-white">Evaluar Resultados y Pagar Puntos</h3>
+                    </div>
+                    <span className="text-xs text-gray-400">
+                      Calcula ganadores automáticamente y acredita los puntos en Supabase
+                    </span>
+                  </div>
+
+                  <form onSubmit={handleEvaluateMatch} className="flex flex-wrap items-end gap-3 text-xs">
+                    <div>
+                      <label className="text-gray-400 block mb-1 font-semibold">ID del Partido:</label>
+                      <input
+                        type="number"
+                        placeholder="Ej: 521482"
+                        value={evalMatchId}
+                        onChange={(e) => setEvalMatchId(e.target.value)}
+                        required
+                        className="w-32 px-3 py-2 rounded-xl bg-black border border-white/20 text-white font-mono outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-gray-400 block mb-1 font-semibold">Goles Local:</label>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                        value={evalHomeScore}
+                        onChange={(e) => setEvalHomeScore(e.target.value)}
+                        required
+                        className="w-20 px-3 py-2 rounded-xl bg-black border border-white/20 text-white font-mono text-center outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-gray-400 block mb-1 font-semibold">Goles Visita:</label>
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                        value={evalAwayScore}
+                        onChange={(e) => setEvalAwayScore(e.target.value)}
+                        required
+                        className="w-20 px-3 py-2 rounded-xl bg-black border border-white/20 text-white font-mono text-center outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={evalLoading}
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black font-black text-xs transition-all disabled:opacity-50 shadow-md"
+                    >
+                      {evalLoading ? 'Procesando Pagos...' : '⚡ Evaluar y Acreditar Puntos'}
+                    </button>
+                  </form>
+                </div>
+
+                {/* Filtros de Apuestas */}
+                <div className="flex gap-2">
+                  {(['ALL', 'PENDING', 'WON', 'LOST'] as const).map((st) => (
+                    <button
+                      key={st}
+                      onClick={() => setFilterStatus(st)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        filterStatus === st
+                          ? 'bg-amber-950 border border-amber-500 text-amber-300'
+                          : 'bg-black/40 text-gray-400 border border-white/5'
+                      }`}
+                    >
+                      {st === 'ALL' ? 'Todas' : st === 'PENDING' ? '⏳ Pendientes' : st === 'WON' ? '🏆 Ganadas' : '❌ Perdidas'}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Tabla de Apuestas de la Comunidad */}
+                <div className="bg-neutral-900/90 rounded-2xl border border-white/10 overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-black/60 text-gray-400 text-xs uppercase tracking-wider">
+                        <tr>
+                          <th className="py-3 px-4">Usuario</th>
+                          <th className="py-3 px-4">Partido / Liga</th>
+                          <th className="py-3 px-4">Jugada</th>
+                          <th className="py-3 px-4">Cuota</th>
+                          <th className="py-3 px-4">Puntos Apostados</th>
+                          <th className="py-3 px-4">Ganancia Potencial</th>
+                          <th className="py-3 px-4 text-right">Estado</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 font-mono text-xs">
+                        {filteredBets.length === 0 ? (
+                          <tr>
+                            <td colSpan={7} className="py-8 text-center text-gray-500 font-sans">
+                              No hay apuestas registradas para el filtro seleccionado.
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredBets.map((b) => (
+                            <tr key={b.id} className="hover:bg-white/[0.02]">
+                              <td className="py-3 px-4 font-sans font-bold">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-8 h-8 rounded-lg overflow-hidden border border-white/10 bg-neutral-800 flex-shrink-0">
+                                    {b.profilePic ? (
+                                      <img src={b.profilePic} alt={b.username} className="w-full h-full object-cover" />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center font-black text-xs text-amber-400 bg-black">
+                                        {b.username.substring(0, 2).toUpperCase()}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <span>@{b.username}</span>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 font-sans">
+                                <div className="font-bold text-white">{b.homeTeam} vs {b.awayTeam}</div>
+                                <div className="text-[10px] text-gray-400">ID #{b.matchId} · {b.competition}</div>
+                              </td>
+                              <td className="py-3 px-4">
+                                <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-white font-bold">
+                                  {b.selection === 'HOME' ? '1 (Local)' : b.selection === 'DRAW' ? 'X (Empate)' : b.selection === 'AWAY' ? '2 (Visita)' : b.selection}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 font-bold text-amber-400">x{b.odds}</td>
+                              <td className="py-3 px-4 text-gray-200">{b.pointsBet} pts</td>
+                              <td className="py-3 px-4 font-bold text-emerald-400">+{b.potentialPayout} pts</td>
+                              <td className="py-3 px-4 text-right font-sans">
+                                {b.status === 'PENDING' && (
+                                  <span className="px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-[10px] font-bold">
+                                    ⏳ Pendiente
+                                  </span>
+                                )}
+                                {b.status === 'WON' && (
+                                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-bold">
+                                    🏆 Ganada (+{b.pointsAwarded})
+                                  </span>
+                                )}
+                                {b.status === 'LOST' && (
+                                  <span className="px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] font-bold">
+                                    ❌ No Acertada
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

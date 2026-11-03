@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { Poppins, Inter } from 'next/font/google';
-import Script from 'next/script';
 import './globals.css';
 import { GlobalPointsTracker } from '@/components/global-points-tracker';
 import { TelegramAdModal } from '@/components/telegram-ad-modal';
 import { AnalyticsTracker } from '@/components/analytics-tracker';
 import { CookieBanner } from '@/components/cookie-banner';
+import { AdSenseLoader } from '@/components/adsense-loader';
+import { NavigationProgress } from '@/components/navigation-progress';
+import { Bet365BottomBanner } from '@/components/bet365-bottom-banner';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -23,21 +25,35 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.puchismo.com'),
   title: {
-    default: 'Puchismo | Comunidad de Fútbol en Vivo',
+    default: 'Puchismo | Comunidad de Fútbol en Vivo, Reacciones y Stream',
     template: '%s | Puchismo',
   },
-  description: 'Comunidad de fútbol en vivo. Únete al Discord de Puchismo para ver los partidos de Champions League, Premier League, Liga Española, Liga Peruana, Libertadores y más.',
-  keywords: 'puchismo, bepucho, fútbol, champions league, premier league, liga1, libertadores, streaming, kick, discord',
+  description: 'Comunidad futbolera con Bepucho. Únete al chat en vivo, análisis, debates, pronósticos, streams en Kick y premios para la comunidad.',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Puchismo | Comunidad de Fútbol en Vivo',
-    description: 'Comunidad de fútbol en vivo con Bepucho. Partidos, streams, recompensas y más.',
+    title: 'Puchismo | Comunidad de Fútbol en Vivo, Reacciones y Stream',
+    description: 'Comunidad futbolera con Bepucho. Únete al chat en vivo, análisis, debates, pronósticos, streams en Kick y premios para la comunidad.',
     url: 'https://www.puchismo.com',
     siteName: 'Puchismo',
-    locale: 'es_ES',
+    locale: 'es_PE',
     type: 'website',
+    images: [
+      {
+        url: 'https://www.puchismo.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Puchismo - Comunidad de Fútbol en Vivo',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Puchismo | Comunidad de Fútbol en Vivo, Reacciones y Stream',
+    description: 'Comunidad futbolera con Bepucho. Únete al chat en vivo, análisis, debates, pronósticos, streams en Kick y premios para la comunidad.',
+    images: ['https://www.puchismo.com/og-image.jpg'],
+    creator: '@bePucho',
   },
   icons: {
     icon: [
@@ -69,17 +85,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className={`${poppins.variable} ${inter.variable} font-inter antialiased text-white`} style={{ backgroundColor: '#030b04' }}>
+        <NavigationProgress />
         <AnalyticsTracker />
         <GlobalPointsTracker />
         <TelegramAdModal />
+        <Bet365BottomBanner />
         <CookieBanner />
         {children}
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5107361201305664"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+        <AdSenseLoader />
       </body>
     </html>
   );

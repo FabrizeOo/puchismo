@@ -30,9 +30,15 @@ export async function GET(req: Request) {
     storedVerifier = storedVerifier || getCookie('kick_oauth_verifier');
   }
 
-  // Log CSRF state warning if mismatch, but proceed with PKCE token exchange validation
-  if (state && storedState && state !== storedState) {
-    console.warn(`Kick Auth Warning: State mismatch (received ${state}, stored ${storedState}). Proceeding with PKCE verification.`);
+  // Estricta validación CSRF del parámetro state para seguridad OAuth
+  if (storedState && state !== storedState) {
+    console.error(`Kick Auth Security Error: State mismatch (received ${state}, expected ${storedState})`);
+    return NextResponse.redirect(new URL('/rewards?error=csrf_state_mismatch', appUrl));
+  }
+
+  if (!storedVerifier) {
+    console.error('Kick Auth Security Error: PKCE code_verifier is missing from cookies');
+    return NextResponse.redirect(new URL('/rewards?error=pkce_verifier_missing', appUrl));
   }
 
   const clientId = process.env.KICK_CLIENT_ID || '01KTM0Z2YWRQC5TTW3B398FDTF';

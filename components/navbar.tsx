@@ -7,13 +7,22 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes } from 'react-icons/fa';
 
-const navItems = [
+interface NavItem {
+  label: string;
+  href: string;
+  highlight?: boolean;
+  external?: boolean;
+}
+
+const navItems: NavItem[] = [
   { label: 'Inicio', href: '/' },
+  { label: 'Partidos', href: '/partidos/hoy' },
+  { label: 'Tablas', href: '/tabla/premier-league' },
+  { label: 'Quiniela', href: '/quiniela', highlight: true },
   { label: 'Stream', href: '/stream' },
-  { label: 'Bet365 (+50 Pts)', href: '/bet365', highlight: true },
+  { label: 'Bet365 (+50 Pts)', href: '/bet365' },
   { label: 'Rewards', href: '/rewards' },
   { label: 'Leaderboard', href: '/leaderboard' },
-  { label: 'Discord', href: 'https://discord.gg/3DtQkGhtrn', external: true },
 ];
 
 export function Navbar() {
@@ -78,6 +87,7 @@ export function Navbar() {
                 <Link
                   key={item.label}
                   href={item.href}
+                  prefetch={true}
                   data-track={`navbar-link-${item.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                   className={`px-3.5 py-2 text-xs lg:text-sm font-semibold rounded-xl transition-all ${
                     pathname === item.href
@@ -87,43 +97,10 @@ export function Navbar() {
                       : 'text-gray-300 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  {item.label === 'Rewards' ? `🎁 ${item.label}` : item.label}
+                  {item.label}
                 </Link>
               )
             )}
-          </div>
-
-          {/* CTA Buttons */}
-          <div className="hidden md:flex items-center gap-3">
-            <motion.a
-              href="/rewards"
-              data-track="navbar-cta-rewards"
-              className="text-xs sm:text-sm py-2 px-4 rounded-xl font-bold transition-all"
-              style={{
-                background: 'rgba(83,252,24,0.1)',
-                border: '1px solid rgba(83,252,24,0.3)',
-                color: '#53fc18',
-              }}
-              whileHover={{
-                scale: 1.05,
-                background: 'rgba(83,252,24,0.2)',
-                boxShadow: '0 0 20px rgba(83,252,24,0.4)',
-              }}
-              whileTap={{ scale: 0.95 }}
-            >
-              🎁 Rewards
-            </motion.a>
-            <motion.a
-              href="https://kick.com/bepucho"
-              target="_blank"
-              rel="noopener noreferrer"
-              data-track="navbar-cta-ver-en-vivo"
-              className="btn-kick text-xs sm:text-sm py-2 px-4"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              🔴 Ver en Vivo
-            </motion.a>
           </div>
 
           {/* Mobile burger */}
@@ -169,6 +146,7 @@ export function Navbar() {
                   <Link
                     key={item.label}
                     href={item.href}
+                    prefetch={true}
                     data-track={`navbar-mobile-${item.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                     className="px-4 py-3 rounded-xl font-bold text-sm transition-all"
                     style={
@@ -180,7 +158,7 @@ export function Navbar() {
                     }
                     onClick={() => setMenuOpen(false)}
                   >
-                    {item.label === 'Rewards' ? `🎁 ${item.label}` : item.label}
+                    {item.label}
                   </Link>
                 )
               )}
@@ -193,7 +171,7 @@ export function Navbar() {
                   className="btn-kick flex-1 text-center text-xs py-3 rounded-xl font-bold"
                   onClick={() => setMenuOpen(false)}
                 >
-                  🔴 Stream en Kick
+                  Stream en Kick
                 </a>
                 <a
                   href="https://discord.gg/3DtQkGhtrn"

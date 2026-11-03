@@ -315,13 +315,13 @@ export function getMatchStatusBadgeColor(
 
 export function getMatchStatusText(status: string): string {
   const statusMap: Record<string, string> = {
-    'LIVE': '🔴 EN VIVO',
-    'IN_PLAY': '🔴 EN VIVO',
-    'FINISHED': '✅ Finalizado',
-    'SCHEDULED': '⏰ Programado',
-    'POSTPONED': '⏸️ Aplazado',
-    'SUSPENDED': '⏸️ Suspendido',
-    'CANCELLED': '❌ Cancelado',
+    'LIVE': 'EN VIVO',
+    'IN_PLAY': 'EN VIVO',
+    'FINISHED': 'Finalizado',
+    'SCHEDULED': 'Programado',
+    'POSTPONED': 'Aplazado',
+    'SUSPENDED': 'Suspendido',
+    'CANCELLED': 'Cancelado',
   };
   return statusMap[status] || status;
 }

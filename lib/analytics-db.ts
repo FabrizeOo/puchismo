@@ -160,7 +160,7 @@ export async function recordPageView(pv: Omit<PageViewRecord, 'id' | 'createdAt'
   // 2. Sincronizar en Supabase si está disponible
   if (isSupabaseConfigured && supabase) {
     try {
-      await supabase.from('analytics_pageviews').insert({
+      const { error } = await supabase.from('analytics_pageviews').insert({
         id: record.id,
         visitor_id: record.visitorId,
         session_id: record.sessionId,
@@ -178,8 +178,11 @@ export async function recordPageView(pv: Omit<PageViewRecord, 'id' | 'createdAt'
         country: record.country || 'Desconocido',
         created_at: record.createdAt,
       });
-    } catch (e) {
-      // No frenar la app si la tabla aún no fue creada en Supabase
+      if (error) {
+        console.warn('[Analytics Supabase] Error insertando pageview (ejecuta supabase_migration_full.sql si la tabla no existe):', error.message);
+      }
+    } catch (e: any) {
+      console.warn('[Analytics Supabase] Excepción insertando pageview:', e?.message);
     }
   }
 
@@ -210,7 +213,7 @@ export async function recordEvent(ev: Omit<EventRecord, 'id' | 'createdAt'>): Pr
   // 2. Sincronizar en Supabase si está disponible
   if (isSupabaseConfigured && supabase) {
     try {
-      await supabase.from('analytics_events').insert({
+      const { error } = await supabase.from('analytics_events').insert({
         id: record.id,
         event_name: record.eventName || 'click',
         button_name: record.buttonName,
@@ -221,8 +224,11 @@ export async function recordEvent(ev: Omit<EventRecord, 'id' | 'createdAt'>): Pr
         device: record.device || 'desktop',
         created_at: record.createdAt,
       });
-    } catch (e) {
-      // Ignorar silenciosamente si tabla aún no existe
+      if (error) {
+        console.warn('[Analytics Supabase] Error insertando click event (ejecuta supabase_migration_full.sql si la tabla no existe):', error.message);
+      }
+    } catch (e: any) {
+      console.warn('[Analytics Supabase] Excepción insertando click event:', e?.message);
     }
   }
 

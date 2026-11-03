@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useRef } from 'react';
+import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import {
   FaTwitch, FaInstagram, FaTwitter, FaTiktok, FaDiscord, FaTelegramPlane,
+  FaFutbol, FaCalendarAlt, FaTrophy, FaCrosshairs, FaCrown, FaShieldAlt
 } from 'react-icons/fa';
 
 /* ============================================
@@ -16,100 +18,72 @@ export function HeroSection() {
   return (
     <section
       ref={ref}
-      className="relative min-h-screen pt-28 sm:pt-32 pb-16 flex items-center justify-center overflow-hidden"
+      className="relative min-h-[92vh] pt-28 sm:pt-36 pb-16 flex flex-col justify-center overflow-hidden"
     >
-      {/* Fondo animado */}
+      {/* Fondo ambiental */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, #030b04 0%, rgba(3,11,4,0.85) 50%, #030b04 100%)' }} />
-        {/* Orbes de color verde neón optimizados con gradientes radiales y aceleración GPU */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, #030b04 0%, rgba(3,11,4,0.92) 50%, #030b04 100%)' }} />
         <motion.div
-          className="absolute top-1/4 left-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] rounded-full pointer-events-none transform-gpu will-change-transform"
-          style={{ background: 'radial-gradient(circle, rgba(83,252,24,0.12) 0%, rgba(83,252,24,0) 70%)' }}
-          animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-1/4 left-1/4 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] rounded-full pointer-events-none transform-gpu"
+          style={{ background: 'radial-gradient(circle, rgba(83,252,24,0.14) 0%, rgba(83,252,24,0) 70%)' }}
+          animate={{ scale: [1, 1.12, 1], opacity: [0.35, 0.65, 0.35] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] rounded-full pointer-events-none transform-gpu will-change-transform"
-          style={{ background: 'radial-gradient(circle, rgba(45,171,10,0.10) 0%, rgba(45,171,10,0) 70%)' }}
-          animate={{ scale: [1.15, 1, 1.15], opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute bottom-1/4 right-1/4 w-[350px] sm:w-[500px] h-[350px] sm:h-[500px] rounded-full pointer-events-none transform-gpu"
+          style={{ background: 'radial-gradient(circle, rgba(14,165,233,0.12) 0%, rgba(14,165,233,0) 70%)' }}
+          animate={{ scale: [1.12, 1, 1.12], opacity: [0.25, 0.5, 0.25] }}
+          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
         />
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] rounded-full pointer-events-none transform-gpu opacity-40"
-          style={{ background: 'radial-gradient(circle, rgba(83,252,24,0.06) 0%, rgba(83,252,24,0) 70%)' }}
-        />
-
-        {/* Grid de fondo */}
-        <div
-          className="absolute inset-0 opacity-[0.04]"
+          className="absolute inset-0 opacity-[0.05]"
           style={{
             backgroundImage:
               'linear-gradient(rgba(83,252,24,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(83,252,24,0.8) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
+            backgroundSize: '50px 50px',
           }}
         />
       </div>
 
-      {/* Contenido */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: { transition: { staggerChildren: 0.15 } },
-          }}
-          className="space-y-6 sm:space-y-8"
-        >
-          {/* Tag animado */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        {/* Hero Principal Centrado y de Gran Impacto */}
+        <div className="max-w-4xl mx-auto space-y-7 text-center">
           <motion.div
-            variants={{ hidden: { opacity: 0, y: -20 }, visible: { opacity: 1, y: 0 } }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
           >
-            <span
-              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold backdrop-blur"
-              style={{ border: '1px solid rgba(83,252,24,0.4)', background: 'rgba(83,252,24,0.1)', color: '#53fc18' }}
-            >
-              <motion.span
-                className="w-2 h-2 rounded-full"
-                style={{ background: '#53fc18' }}
-                animate={{ scale: [1, 1.5, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-              ⚽ PUCHISMO — FÚTBOL EN VIVO
-            </span>
-          </motion.div>
-
-          {/* Título principal */}
-          <motion.div
-            variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
-            className="space-y-3"
-          >
-            <h1 className="text-3xl sm:text-6xl md:text-7xl xl:text-8xl font-poppins font-black leading-tight tracking-tight">
-              <span className="text-white">¿QUIERES SER PARTE</span>
-              <br />
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-poppins font-black leading-tight tracking-tight text-white">
+              ¿QUIERES SER PARTE <br />
               <span className="text-gradient">DE LA COMUNIDAD?</span>
             </h1>
-            <p className="text-sm sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed mt-4 px-2">
-              ¡Accede a nuestro Discord oficial para ver partidos en vivo de la <strong className="text-emerald-400">Champions League, Premier League, Liga Española, Liga Peruana, Libertadores y más</strong>!
+            <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+              ¡Accede a nuestro Discord oficial para comentar y vivir juntos cada fecha de la{' '}
+              <strong className="text-emerald-400 font-bold">
+                Champions League, Premier League, Liga Española, Liga Peruana, Libertadores y más
+              </strong>!
             </p>
           </motion.div>
 
-          {/* CTAs */}
+          {/* Acciones principales (CTAs) */}
           <motion.div
-            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-            className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center items-center px-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center items-center"
           >
             <motion.a
               href="https://discord.gg/3DtQkGhtrn"
               target="_blank"
               rel="noopener noreferrer"
               data-track="hero-unirse-discord"
-              className="btn-discord text-sm sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 rounded-2xl"
-              whileHover={{ scale: 1.04, boxShadow: '0 0 40px rgba(99, 102, 241, 0.7)' }}
-              whileTap={{ scale: 0.97 }}
+              className="btn-discord text-sm sm:text-base px-7 py-4 rounded-2xl flex items-center justify-center gap-2.5 font-bold shadow-xl shadow-indigo-600/30"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <FaDiscord size={20} />
-              Únete y mira los partidos GRATIS - sin delay
+              <FaDiscord size={22} />
+              Únete al Discord y vive el fútbol
             </motion.a>
 
             <motion.a
@@ -117,11 +91,11 @@ export function HeroSection() {
               target="_blank"
               rel="noopener noreferrer"
               data-track="hero-unirse-telegram"
-              className="btn-telegram text-sm sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 rounded-2xl"
-              whileHover={{ scale: 1.04, boxShadow: '0 0 40px rgba(14, 165, 233, 0.7)' }}
-              whileTap={{ scale: 0.97 }}
+              className="btn-telegram text-sm sm:text-base px-7 py-4 rounded-2xl flex items-center justify-center gap-2.5 font-bold shadow-xl shadow-sky-600/25"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <FaTelegramPlane size={20} />
+              <FaTelegramPlane size={22} />
               Unirme a Telegram
             </motion.a>
 
@@ -130,62 +104,115 @@ export function HeroSection() {
               target="_blank"
               rel="noopener noreferrer"
               data-track="hero-ver-kick-live"
-              className="btn-kick text-sm sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 w-full sm:w-auto flex items-center justify-center gap-2 sm:gap-3 rounded-2xl"
+              className="btn-kick text-sm sm:text-base px-7 py-4 rounded-2xl flex items-center justify-center gap-2.5 font-bold shadow-xl shadow-emerald-500/20"
               whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <span className="text-lg">🔴</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse inline-block" />
               Verme en Vivo en Kick
             </motion.a>
           </motion.div>
 
-          {/* Separador */}
+          {/* Redes sociales secundarias */}
           <motion.div
-            variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}
-            className="flex items-center gap-4 max-w-xs mx-auto pt-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="pt-2 flex items-center justify-center gap-3"
           >
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-gray-500 text-xs sm:text-sm">o sígueme en</span>
-            <div className="flex-1 h-px bg-white/10" />
+            <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Sígueme en:</span>
+            <div className="flex gap-2.5">
+              {[
+                { icon: FaTwitch, href: 'https://www.twitch.tv/bepucho', color: '#9146ff', track: 'hero-mini-twitch' },
+                { icon: FaTiktok, href: 'https://www.tiktok.com/@bepucho', color: '#ffffff', track: 'hero-mini-tiktok' },
+                { icon: FaTwitter, href: 'https://x.com/bePucho', color: '#1d9bf0', track: 'hero-mini-twitter' },
+                { icon: FaInstagram, href: 'https://www.instagram.com/bepucho/', color: '#e1306c', track: 'hero-mini-instagram' },
+              ].map(({ icon: Icon, href, color, track }) => (
+                <motion.a
+                  key={href}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-track={track}
+                  className="w-10 h-10 rounded-xl bg-neutral-900/90 border border-white/10 flex items-center justify-center hover:border-white/30 transition-all"
+                  whileHover={{ scale: 1.12, y: -2 }}
+                  whileTap={{ scale: 0.92 }}
+                >
+                  <Icon size={18} style={{ color }} />
+                </motion.a>
+              ))}
+            </div>
           </motion.div>
+        </div>
 
-          {/* Social mini-icons */}
-          <motion.div
-            variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
-            className="flex justify-center gap-3 sm:gap-4"
+        {/* Grilla Gestalt de 4 Tarjetas de Acceso Maestro (Aprovechamiento total del espacio) */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.35 }}
+          className="pt-14 sm:pt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        >
+          <Link
+            href="/partidos/hoy"
+            prefetch={true}
+            className="p-5 rounded-2xl bg-neutral-900/70 border border-white/10 hover:border-emerald-500/50 hover:bg-neutral-900/90 transition-all group relative overflow-hidden"
           >
-            {[
-              { icon: FaTwitch, href: 'https://www.twitch.tv/bepucho', color: '#9146ff', track: 'hero-mini-twitch' },
-              { icon: FaTiktok, href: 'https://www.tiktok.com/@bepucho', color: '#ffffff', track: 'hero-mini-tiktok' },
-              { icon: FaTwitter, href: 'https://x.com/bePucho', color: '#1d9bf0', track: 'hero-mini-twitter' },
-              { icon: FaInstagram, href: 'https://www.instagram.com/bepucho/', color: '#e1306c', track: 'hero-mini-instagram' },
-            ].map(({ icon: Icon, href, color, track }) => (
-              <motion.a
-                key={href}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-track={track}
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl glass-card flex items-center justify-center hover:border-white/40 transition-all"
-                whileHover={{ scale: 1.12, y: -3 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <Icon size={18} style={{ color }} />
-              </motion.a>
-            ))}
-          </motion.div>
+            <div className="flex items-center justify-between pb-2">
+              <span className="text-emerald-400 text-xl"><FaFutbol /></span>
+              <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                En Vivo
+              </span>
+            </div>
+            <h4 className="text-base font-bold text-white group-hover:text-emerald-400 transition-colors">Partidos de Hoy</h4>
+            <p className="text-xs text-gray-400 mt-1">Horarios oficiales de Lima (UTC-5), marcadores y previas.</p>
+          </Link>
+
+          <Link
+            href="/partidos/manana"
+            prefetch={true}
+            className="p-5 rounded-2xl bg-neutral-900/70 border border-white/10 hover:border-emerald-500/50 hover:bg-neutral-900/90 transition-all group relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between pb-2">
+              <span className="text-sky-400 text-xl"><FaCalendarAlt /></span>
+              <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded-md border border-sky-500/20">
+                Fixture
+              </span>
+            </div>
+            <h4 className="text-base font-bold text-white group-hover:text-sky-400 transition-colors">Partidos de Mañana</h4>
+            <p className="text-xs text-gray-400 mt-1">Agenda de las mejores ligas del mundo con hora local.</p>
+          </Link>
+
+          <Link
+            href="/quiniela"
+            prefetch={true}
+            className="p-5 rounded-2xl bg-neutral-900/70 border border-amber-500/30 hover:border-amber-400 hover:bg-neutral-900/90 transition-all group relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between pb-2">
+              <span className="text-amber-400 text-xl"><FaCrosshairs /></span>
+              <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+                Gana Puntos
+              </span>
+            </div>
+            <h4 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors">Casa de Apuestas</h4>
+            <p className="text-xs text-gray-400 mt-1">Apuesta con tus puntos de Kick: cuotas 1X2 al doble y triple.</p>
+          </Link>
+
+          <Link
+            href="/rewards"
+            prefetch={true}
+            className="p-5 rounded-2xl bg-neutral-900/70 border border-white/10 hover:border-purple-500/50 hover:bg-neutral-900/90 transition-all group relative overflow-hidden"
+          >
+            <div className="flex items-center justify-between pb-2">
+              <span className="text-purple-400 text-xl"><FaCrown /></span>
+              <span className="text-[10px] uppercase font-mono tracking-wider font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+                Tienda
+              </span>
+            </div>
+            <h4 className="text-base font-bold text-white group-hover:text-purple-400 transition-colors">Canje de Premios</h4>
+            <p className="text-xs text-gray-400 mt-1">Reclama dinero en efectivo, camisetas, cosplay y comidas.</p>
+          </Link>
         </motion.div>
       </div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 hidden sm:flex"
-        animate={{ opacity: [0.5, 1, 0.5], y: [0, 8, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <span className="text-gray-500 text-xs uppercase tracking-widest">Scroll</span>
-        <div className="w-px h-8 sm:h-10 bg-gradient-to-b from-electric/50 to-transparent" />
-      </motion.div>
     </section>
   );
 }
@@ -325,7 +352,7 @@ export function DiscordSection() {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.2 }}
           >
-            ¡Transmisiones en <span className="text-gradient">Discord</span>!
+            ¡La Casa de la Comunidad en <span className="text-gradient">Discord</span>!
           </motion.h2>
 
           <motion.p
@@ -334,7 +361,7 @@ export function DiscordSection() {
             animate={inView ? { opacity: 1 } : {}}
             transition={{ delay: 0.3 }}
           >
-            Únete a nuestra comunidad en Discord para disfrutar de todos los partidos en vivo de la <strong className="text-emerald-400">Champions League, Premier League, Liga Española, Liga Peruana, Libertadores y más</strong>.
+            Únete a nuestra comunidad en Discord para comentar en vivo, reaccionar y debatir cada fecha de la <strong className="text-emerald-400">Champions League, Premier League, Liga Española, Liga Peruana, Libertadores y más</strong>.
           </motion.p>
 
           <motion.div
@@ -344,16 +371,19 @@ export function DiscordSection() {
             transition={{ delay: 0.4 }}
           >
             {[
-              { emoji: '🏆', text: 'Champions League' },
-              { emoji: '🦁', text: 'Premier League' },
-              { emoji: '🇪🇸', text: 'Liga Española' },
-              { emoji: '🇵🇪', text: 'Liga Peruana & Libs' },
-            ].map((b) => (
-              <div key={b.text} className="bg-indigo-600/10 border border-indigo-500/20 rounded-xl p-2.5 sm:p-3">
-                <div className="text-xl sm:text-2xl mb-1">{b.emoji}</div>
-                <div className="text-[10px] sm:text-xs font-semibold text-gray-300">{b.text}</div>
-              </div>
-            ))}
+              { icon: FaTrophy, text: 'Champions League', color: '#fbbf24' },
+              { icon: FaCrown, text: 'Premier League', color: '#a78bfa' },
+              { icon: FaFutbol, text: 'LaLiga EA Sports', color: '#f87171' },
+              { icon: FaShieldAlt, text: 'Liga 1 & Libs', color: '#34d399' },
+            ].map((b) => {
+              const Icon = b.icon;
+              return (
+                <div key={b.text} className="bg-indigo-600/10 border border-indigo-500/20 rounded-xl p-2.5 sm:p-3 flex flex-col items-center">
+                  <Icon className="text-xl sm:text-2xl mb-1.5" style={{ color: b.color }} />
+                  <div className="text-[10px] sm:text-xs font-semibold text-gray-300">{b.text}</div>
+                </div>
+              );
+            })}
           </motion.div>
 
           <motion.a

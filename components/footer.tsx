@@ -9,17 +9,17 @@ export function Footer() {
   return (
     <footer className="border-t border-white/10 bg-gradient-to-t from-dark-950 to-transparent py-14">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-10">
           {/* Logo + descripción */}
-          <div className="md:col-span-2">
+          <div className="sm:col-span-2 lg:col-span-2">
             <Link href="/" data-track="footer-logo" className="flex items-center gap-3 mb-3">
               <div className="relative w-9 h-9 rounded-xl overflow-hidden ring-2 ring-electric/30">
                 <Image src="/logo.webp" alt="Puchismo" fill className="object-cover" />
               </div>
               <span className="font-poppins font-black text-lg text-white">PUCHISMO</span>
             </Link>
-            <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-              La comunidad futbolera de Bepucho. Accede al Discord para ver partidos de Champions League, Premier League, Liga Española, Liga Peruana, Libertadores y más en vivo.
+            <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
+              La comunidad futbolera de Bepucho. Únete a nuestro Discord y streams en Kick para comentar partidos, compartir pronósticos, ganar puntos y vivir el fútbol en comunidad.
             </p>
             <div className="flex gap-3 mt-4">
               {[
@@ -37,6 +37,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   data-track={track}
                   className="w-9 h-9 rounded-lg glass-card flex items-center justify-center hover:scale-110 transition-all"
+                  aria-label={track}
                 >
                   <Icon size={16} style={{ color }} />
                 </a>
@@ -44,19 +45,21 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Navegación */}
+          {/* Fútbol & Dinámicas */}
           <div>
-            <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wider">Páginas</h4>
+            <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wider">Fútbol & Agenda</h4>
             <ul className="space-y-2.5">
               {[
-                { label: 'Inicio', href: '/', track: 'footer-nav-inicio' },
-                { label: 'Stream en Vivo', href: '/stream', track: 'footer-nav-stream' },
-                { label: 'Recompensas', href: '/rewards', track: 'footer-nav-rewards' },
-                { label: 'Leaderboard', href: '/leaderboard', track: 'footer-nav-leaderboard' },
-                { label: 'Privacidad & Cookies', href: '/privacidad', track: 'footer-nav-privacidad' },
+                { label: 'Partidos de Hoy', href: '/partidos/hoy' },
+                { label: 'Partidos de Mañana', href: '/partidos/manana' },
+                { label: 'Quiniela (Prode)', href: '/quiniela' },
+                { label: 'Tabla Champions League', href: '/tabla/champions-league' },
+                { label: 'Tabla Premier League', href: '/tabla/premier-league' },
+                { label: 'Tabla LaLiga EA Sports', href: '/tabla/la-liga' },
+                { label: 'Stream en Vivo', href: '/stream' },
               ].map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} data-track={l.track} className="text-gray-400 hover:text-electric transition-colors text-sm">
+                  <Link href={l.href} className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
                     {l.label}
                   </Link>
                 </li>
@@ -64,20 +67,48 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Comunidad */}
+          {/* Recompensas */}
           <div>
             <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wider">Comunidad</h4>
             <ul className="space-y-2.5">
               {[
-                { label: 'Discord Oficial', href: 'https://discord.gg/3DtQkGhtrn', track: 'footer-community-discord' },
-                { label: 'Canal Telegram', href: 'https://t.me/+jpyDeMxokzUzNDgx', track: 'footer-community-telegram' },
-                { label: 'Kick.com/bepucho', href: 'https://kick.com/bepucho', track: 'footer-community-kick' },
-                { label: 'Twitch.tv/bepucho', href: 'https://www.twitch.tv/bepucho', track: 'footer-community-twitch' },
+                { label: 'Tienda de Recompensas', href: '/rewards' },
+                { label: 'Leaderboard de Puntos', href: '/leaderboard' },
+                { label: 'Promo Bet365 (+50 Pts)', href: '/bet365' },
+                { label: 'Reglas de Recompensas', href: '/reglas-recompensas' },
+                { label: 'Discord Oficial', href: 'https://discord.gg/3DtQkGhtrn', external: true },
+                { label: 'Canal de Telegram', href: 'https://t.me/+jpyDeMxokzUzNDgx', external: true },
+              ].map((l) => (
+                <li key={l.label}>
+                  {l.external ? (
+                    <a href={l.href} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
+                      {l.label}
+                    </a>
+                  ) : (
+                    <Link href={l.href} className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
+                      {l.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Legal y Confianza */}
+          <div>
+            <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wider">Legal & Confianza</h4>
+            <ul className="space-y-2.5">
+              {[
+                { label: 'Términos y Condiciones', href: '/terminos' },
+                { label: 'Política de Privacidad', href: '/privacidad' },
+                { label: 'Juego Responsable (+18)', href: '/juego-responsable' },
+                { label: 'Declaración de Afiliados', href: '/afiliados' },
+                { label: 'Contacto y Soporte', href: '/contacto' },
               ].map((l) => (
                 <li key={l.href}>
-                  <a href={l.href} target="_blank" rel="noopener noreferrer" data-track={l.track} className="text-gray-400 hover:text-electric transition-colors text-sm">
-                    {l.label} ↗
-                  </a>
+                  <Link href={l.href} className="text-gray-400 hover:text-emerald-400 transition-colors text-sm">
+                    {l.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -85,17 +116,24 @@ export function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-gray-600 text-sm">
-            © 2026 Puchismo — Hecho con ❤️ para la comunidad de Bepucho
-          </p>
-          <div className="flex items-center gap-4 text-gray-600 text-xs">
-            <Link href="/privacidad" data-track="footer-bottom-privacidad" className="hover:text-electric transition-colors">
-              Política de Privacidad
+          <div className="text-gray-500 text-xs text-center md:text-left space-y-1">
+            <p>© 2026 Puchismo — Comunidad futbolera de Bepucho. Todos los derechos reservados.</p>
+            <p className="text-[11px] text-gray-600">
+              Aviso legal: Puchismo es una plataforma comunitaria y de entretenimiento deportivo. No retransmite partidos de fútbol ni opera juegos de azar.
+            </p>
+          </div>
+          <div className="flex items-center gap-4 text-gray-500 text-xs">
+            <Link href="/privacidad" className="hover:text-emerald-400 transition-colors">
+              Privacidad
+            </Link>
+            <span>·</span>
+            <Link href="/terminos" className="hover:text-emerald-400 transition-colors">
+              Términos
             </Link>
             <span>·</span>
             <span>
-              Datos deportivos por{' '}
-              <a href="https://www.football-data.org/" target="_blank" rel="noopener noreferrer" data-track="footer-football-data" className="hover:text-electric transition-colors">
+              Datos provistos por{' '}
+              <a href="https://www.football-data.org/" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors underline">
                 football-data.org
               </a>
             </span>

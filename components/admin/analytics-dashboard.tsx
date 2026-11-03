@@ -100,6 +100,7 @@ export function AnalyticsDashboard() {
   const [hoveredTimelineIndex, setHoveredTimelineIndex] = useState<number | null>(null);
   const [maintenanceLoading, setMaintenanceLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [autoRefreshInterval, setAutoRefreshInterval] = useState<number>(10);
 
   const fetchAnalytics = async () => {
     setLoading(true);
@@ -126,15 +127,14 @@ export function AnalyticsDashboard() {
     fetchAnalytics();
   }, [range]);
 
-  // Actualizar automáticamente tiempo real cada 30 segundos
+  // Actualizar automáticamente según intervalo 24/7
   useEffect(() => {
+    if (autoRefreshInterval <= 0) return;
     const timer = setInterval(() => {
-      if (range === 'today' || range === '7d') {
-        fetchAnalytics();
-      }
-    }, 30000);
+      fetchAnalytics();
+    }, autoRefreshInterval * 1000);
     return () => clearInterval(timer);
-  }, [range]);
+  }, [range, autoRefreshInterval]);
 
   const handleApplyCustomRange = (e: React.FormEvent) => {
     e.preventDefault();
@@ -239,7 +239,30 @@ export function AnalyticsDashboard() {
   const maxHourlyViews = Math.max(1, ...(data?.peakHours.map((h) => h.views) || [1]));
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Banner Informativo y Control de Monitoreo 24/7 */}
+      <div className="p-4 rounded-2xl bg-neutral-900/90 border border-emerald-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-xl">
+        <div className="flex items-center gap-2.5 text-gray-200">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+          <span>
+            <strong className="text-white">Métricas en Vivo 24/7:</strong> Registra las visitas y clics de todos los usuarios directamente en Supabase.
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-gray-400 font-semibold">Auto-refresco:</span>
+          <select
+            value={autoRefreshInterval}
+            onChange={(e) => setAutoRefreshInterval(Number(e.target.value))}
+            className="px-2.5 py-1 rounded-lg bg-black border border-white/20 text-emerald-400 font-mono font-bold text-xs outline-none"
+          >
+            <option value={10}>Cada 10 seg (Ultra Vivo)</option>
+            <option value={30}>Cada 30 seg</option>
+            <option value={60}>Cada 1 min</option>
+            <option value={0}>Pausado</option>
+          </select>
+        </div>
+      </div>
+
       {/* Toast de Notificación */}
       <AnimatePresence>
         {toastMessage && (
