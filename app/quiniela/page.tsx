@@ -34,7 +34,7 @@ export default async function QuinielaPage() {
         <div className="space-y-4 text-center sm:text-left">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider">
             <FaDice size={13} className="text-amber-400" />
-            <span>Casa de Apuestas Comunitaria — 100% Con Puntos de la Comunidad</span>
+            <span>Casa de Apuestas Comunitaria: 100% Con Puntos de la Comunidad</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-white">
             Casa de Apuestas & Quiniela <span className="text-gradient">Puchismo</span>

@@ -117,7 +117,7 @@ export function Footer() {
 
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-gray-500 text-xs text-center md:text-left space-y-1">
-            <p>© 2026 Puchismo — Comunidad futbolera de Bepucho. Todos los derechos reservados.</p>
+            <p>© 2026 Puchismo | Comunidad futbolera de Bepucho. Todos los derechos reservados.</p>
             <p className="text-[11px] text-gray-600">
               Aviso legal: Puchismo es una plataforma comunitaria y de entretenimiento deportivo. No retransmite partidos de fútbol ni opera juegos de azar.
             </p>

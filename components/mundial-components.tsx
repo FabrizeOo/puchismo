@@ -8,7 +8,7 @@ import { motion, useInView } from 'framer-motion';
    ============================================ */
 
 function formatLocalTime(utcDateStr: string): string {
-  // Usa la timezone del navegador directamente — sin manipulación manual
+  // Usa la timezone del navegador directamente (sin manipulación manual)
   const date = new Date(utcDateStr);
   const now = new Date();
 
@@ -37,13 +37,13 @@ function formatLocalTime(utcDateStr: string): string {
   } else {
     return date.toLocaleDateString('es-PE', {
       day: 'numeric', month: 'short',
-    }) + ` — ${timeStr}`;
+    }) + ` · ${timeStr}`;
   }
 }
 
 function getStatusLabel(status: string, minute?: number | null): string {
   if (status === 'LIVE' || status === 'IN_PLAY') {
-    return minute ? `🔴 EN VIVO — ${minute}'` : '🔴 EN VIVO';
+    return minute ? `🔴 EN VIVO (${minute}')` : '🔴 EN VIVO';
   }
   if (status === 'PAUSED') return '⏸️ Descanso (HT)';
   if (status === 'FINISHED') return '✅ Finalizado';
@@ -109,7 +109,7 @@ export function GroupsTable() {
           <h2 className="section-title text-white">
             Tabla de <span className="text-gradient">Grupos</span>
           </h2>
-          <p className="section-subtitle">Mundial 2026 — Actualización en tiempo real</p>
+          <p className="section-subtitle">Mundial 2026 | Actualización en tiempo real</p>
         </motion.div>
 
         {loading ? (
@@ -203,7 +203,7 @@ function GroupCard({ group }: { group: GroupStanding }) {
               <span className="w-6 text-center text-gray-400">{entry.won}</span>
               <span className="w-6 text-center text-gray-400">{entry.draw}</span>
               <span className="w-6 text-center text-gray-400">{entry.lost}</span>
-              {/* PUNTOS — grande y destacado */}
+              {/* PUNTOS: grande y destacado */}
               <span className={`w-10 text-center font-black text-lg leading-none ${
                 idx === 0
                   ? 'text-electric'

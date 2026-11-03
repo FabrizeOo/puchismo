@@ -10,7 +10,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Paleta principal — Oscuro estilo Kick
+        // Paleta principal: Oscuro estilo Kick
         dark: {
           50: '#f0fdf4',
           100: '#dcfce7',
@@ -79,7 +79,7 @@ module.exports = {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
         
-        // Gradientes personalizados — Verde neón
+        // Gradientes personalizados: Verde neón
         'gradient-electric': 'linear-gradient(135deg, #53fc18, #2dab0a)',
         'gradient-footer': 'linear-gradient(180deg, transparent, rgba(6, 14, 7, 0.95))',
         'gradient-card': 'linear-gradient(135deg, rgba(83, 252, 24, 0.08), rgba(45, 171, 10, 0.05))',

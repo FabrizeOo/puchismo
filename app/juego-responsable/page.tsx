@@ -95,7 +95,7 @@ export default function JuegoResponsablePage() {
                 <span>Atención en Lima, Perú</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white">
-                Jugadores Anónimos — Grupo &ldquo;Los Pioneros&rdquo; (Lima)
+                Jugadores Anónimos: Grupo &ldquo;Los Pioneros&rdquo; (Lima)
               </h2>
               <p className="text-xs sm:text-sm text-gray-300">
                 En Lima, Perú, los grupos de <strong>Jugadores Anónimos (JA)</strong> y de apoyo para familiares cuentan con atención presencial y virtual en el Grupo &ldquo;Los Pioneros&rdquo;.
@@ -110,7 +110,7 @@ export default function JuegoResponsablePage() {
               <div className="space-y-1">
                 <h3 className="font-bold text-white text-sm">Dirección Presencial</h3>
                 <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
-                  Parroquia Santa María Reina, Av. Conquistadores 1293 (Óvalo Gutiérrez, San Isidro — entrada al área pastoral por la Av. Santa Cruz, 2do piso).
+                  Parroquia Santa María Reina, Av. Conquistadores 1293 (Óvalo Gutiérrez, San Isidro, entrada al área pastoral por la Av. Santa Cruz, 2do piso).
                 </p>
               </div>
             </div>

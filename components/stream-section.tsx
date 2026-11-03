@@ -365,7 +365,7 @@ export function StreamSection() {
               animate={isLive !== false ? { opacity: [1, 0.3, 1] } : {}}
               transition={{ duration: 1, repeat: Infinity }}
             />
-            {isLive === false ? 'CANAL OFFLINE — KICK.COM/BEPUCHO' : 'CANAL EN VIVO — KICK.COM/BEPUCHO'}
+            {isLive === false ? 'CANAL OFFLINE | KICK.COM/BEPUCHO' : 'CANAL EN VIVO | KICK.COM/BEPUCHO'}
           </div>
           <h1 className="text-3xl sm:text-5xl font-poppins font-black mb-2">
             <span className="text-white">Stream de </span>

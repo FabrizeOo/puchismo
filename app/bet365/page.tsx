@@ -194,7 +194,7 @@ export default function Bet365Page() {
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-wider"
           >
-            <span>Misión Especial — Bet365</span>
+            <span>Misión Especial: Bet365</span>
           </motion.div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-white">
@@ -314,7 +314,7 @@ export default function Bet365Page() {
           {/* Aviso +18 y disclaimer */}
           <div className="text-center space-y-2 pt-2">
             <div className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-neutral-900/90 border border-amber-500/30 text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider shadow-lg shadow-amber-500/10">
-              SOLO PARA NUEVOS USUARIOS BET365 (+18) — UNA RECLAMACIÓN POR HOGAR
+              SOLO PARA NUEVOS USUARIOS BET365 (+18) | UNA RECLAMACIÓN POR HOGAR
             </div>
             <p className="text-gray-400 text-xs sm:text-sm font-medium">
               +18 · Juega con Responsabilidad · BeGambleAware.org · El juego puede crear adicción ·{' '}
