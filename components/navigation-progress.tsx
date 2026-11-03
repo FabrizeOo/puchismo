@@ -1,15 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import React, { Suspense, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
-export function NavigationProgress() {
+function NavigationProgressInner() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // Cuando cambia la ruta o query params, finalizamos la barra
+  // Cuando cambia la ruta, finalizamos la barra
   useEffect(() => {
     setProgress(100);
     const timer = setTimeout(() => {
@@ -17,7 +16,7 @@ export function NavigationProgress() {
       setProgress(0);
     }, 200);
     return () => clearTimeout(timer);
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   // Interceptar clicks en enlaces internos para iniciar la barra inmediatamente
   useEffect(() => {
@@ -68,4 +67,13 @@ export function NavigationProgress() {
     </div>
   );
 }
+
+export function NavigationProgress() {
+  return (
+    <Suspense fallback={null}>
+      <NavigationProgressInner />
+    </Suspense>
+  );
+}
+
 
