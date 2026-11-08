@@ -1,7 +1,8 @@
 'use client';
 
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { getCookieConsent, onConsentChange } from '@/lib/consent';
 
 const TRACK_ENDPOINT = '/api/e';
 const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutos de inactividad
@@ -35,14 +36,51 @@ function setStored(key: string, val: string) {
   } catch {}
 }
 
+function removeStored(key: string) {
+  try {
+    localStorage.removeItem(key);
+  } catch {}
+}
+
+function clearTrackingStorage() {
+  removeStored('p_vid');
+  removeStored('p_sid');
+  removeStored('p_last_active');
+}
+
 function TrackerInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const lastPathRef = useRef<string | null>(null);
+  const [hasConsent, setHasConsent] = useState(false);
+
+  // Escuchar y verificar consentimiento explícito de analíticas
+  useEffect(() => {
+    const consent = getCookieConsent();
+    if (consent && consent.analytics) {
+      setHasConsent(true);
+    } else {
+      setHasConsent(false);
+      clearTrackingStorage();
+    }
+
+    const unsubscribe = onConsentChange((prefs) => {
+      if (prefs.analytics) {
+        setHasConsent(true);
+      } else {
+        setHasConsent(false);
+        clearTrackingStorage();
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
-    // 1. Respetar Do Not Track si está habilitado por el usuario
+    // 1. Respetar Do Not Track si está habilitado por el usuario o si no hay consentimiento explícito
+    if (!hasConsent) return;
     if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || (navigator as any).globalPrivacyControl)) {
+      clearTrackingStorage();
       return;
     }
 
@@ -125,19 +163,30 @@ function TrackerInner() {
     return () => {
       document.removeEventListener('click', handleClick, { capture: true });
     };
-  }, []);
+  }, [hasConsent]);
 
-  // Trackeo de cambio de ruta / visita a página
+  // Trackeo de cambio de ruta / visita a página solo con consentimiento
   useEffect(() => {
+    if (!hasConsent) return;
     if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || (navigator as any).globalPrivacyControl)) {
       return;
     }
 
-    const fullPath = searchParams && searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
+    // Extraer solo parámetros UTM de forma sanitizada (evita filtrar tokens o query params sensibles)
+    const utm: Record<string, string> = {};
+    if (searchParams) {
+      ['source', 'medium', 'campaign', 'term', 'content'].forEach((key) => {
+        const val = searchParams.get(`utm_${key}`);
+        if (val) utm[key] = val;
+      });
+    }
+
+    const utmQuery = new URLSearchParams(utm).toString();
+    const cleanPath = utmQuery ? `${pathname}?${utmQuery}` : pathname;
 
     // Evitar disparar visitas idénticas consecutivas de render
-    if (lastPathRef.current === fullPath) return;
-    lastPathRef.current = fullPath;
+    if (lastPathRef.current === cleanPath) return;
+    lastPathRef.current = cleanPath;
 
     let vid = getStored('p_vid');
     if (!vid) {
@@ -155,18 +204,9 @@ function TrackerInner() {
     }
     setStored('p_last_active', now.toString());
 
-    // Extraer parámetros UTM
-    const utm: Record<string, string> = {};
-    if (searchParams) {
-      ['source', 'medium', 'campaign', 'term', 'content'].forEach((key) => {
-        const val = searchParams.get(`utm_${key}`);
-        if (val) utm[key] = val;
-      });
-    }
-
     const payload = {
       type: 'pageview',
-      path: fullPath,
+      path: cleanPath,
       vid,
       sid,
       ref: document.referrer || '',
@@ -185,7 +225,7 @@ function TrackerInner() {
       body: dataStr,
       keepalive: true,
     }).catch(() => {});
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, hasConsent]);
 
   return null;
 }

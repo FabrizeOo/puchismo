@@ -4,9 +4,9 @@
 const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.google-analytics.com https://*.analytics.google.com https://player.kick.com https://kick.com;
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  style-src 'self' 'unsafe-inline';
   img-src 'self' data: blob: https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://flagcdn.com https://crests.football-data.org https://media.api-sports.io https://*.cloudinary.com https://upload.wikimedia.org https://*.kick.com https://kick.com https://*.supabase.co;
-  font-src 'self' data: https://fonts.gstatic.com;
+  font-src 'self' data:;
   connect-src 'self' https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.google-analytics.com https://*.analytics.google.com https://*.pusher.com wss://*.pusher.com https://id.kick.com https://api.kick.com https://*.kick.com https://*.supabase.co wss://*.supabase.co https://api.football-data.org;
   frame-src 'self' https://player.kick.com https://kick.com https://googleads.g.doubleclick.net https://*.googlesyndication.com https://*.google.com https://*.doubleclick.net;
   frame-ancestors 'none';

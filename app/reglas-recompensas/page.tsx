@@ -83,10 +83,10 @@ export default function ReglasRecompensasPage() {
             </h2>
             <ul className="list-disc list-inside space-y-2 text-xs sm:text-sm text-gray-300">
               <li>
-                <strong>Límite Diario:</strong> Para mantener una economía justa y balanceada, existe un tope máximo de acumulación pasiva diaria por usuario de <strong className="text-white">[COMPLETAR: ej. 250 puntos por día]</strong>.
+                <strong>Límite Diario:</strong> Para mantener una economía justa y balanceada, existe un tope máximo de acumulación pasiva diaria por usuario de <strong className="text-white">250 puntos por día</strong>.
               </li>
               <li>
-                <strong>Revisión de Canjes:</strong> Cada solicitud de canje ingresa a una cola de moderación. El equipo de Bepucho verifica la legitimidad de los puntos y procesa el premio en un plazo habitual de <strong className="text-white">[COMPLETAR: 24 a 72 horas hábiles]</strong>.
+                <strong>Revisión de Canjes:</strong> Cada solicitud de canje ingresa a una cola de moderación. El equipo de Bepucho verifica la legitimidad de los puntos y procesa el premio en un plazo habitual de <strong className="text-white">24 a 72 horas hábiles</strong>.
               </li>
               <li>
                 <strong>Contacto de Entrega:</strong> Al realizar un canje en la tienda, es obligatorio ingresar un medio de contacto válido (usuario de Discord o Telegram) para coordinar la entrega.

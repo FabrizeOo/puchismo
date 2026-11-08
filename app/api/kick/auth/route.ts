@@ -11,6 +11,15 @@ function base64url(buffer: Buffer) {
 }
 
 export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const ageVerified = searchParams.get('age_verified');
+
+  // Validación de Protección de Menores (COPPA / Términos de Servicio)
+  if (ageVerified !== '1') {
+    const appUrlFallback = getAppUrl(req);
+    return NextResponse.redirect(new URL('/rewards?error=age_verification_required', appUrlFallback));
+  }
+
   const clientId = process.env.KICK_CLIENT_ID || '01KTM0Z2YWRQC5TTW3B398FDTF';
   const appUrl = getAppUrl(req);
   const redirectUri = `${appUrl}/api/kick/callback`;

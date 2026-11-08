@@ -50,7 +50,7 @@ export default function ContactoPage() {
               <FaEnvelope className="text-emerald-400" /> Correo Electrónico
             </h2>
             <p className="text-gray-300 text-sm leading-relaxed">
-              Para consultas de soporte, reclamos de recompensas, temas de privacidad de datos o contacto de negocios:
+              Para consultas de soporte, reclamos de recompensas, temas de privacidad de datos, notificaciones DMCA / takedown o contacto de negocios:
             </p>
             <a
               href="mailto:contactopucho@gmail.com"

@@ -366,19 +366,23 @@ export default function Bet365Page() {
                   className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl font-black text-xs text-black bg-[#53fc18] hover:bg-[#45dc10] transition-all shadow-[0_0_20px_rgba(83,252,24,0.3)] uppercase tracking-wider"
                 >
                   <KickLogo className="w-4 h-4" color="#000" />
-                  <span>CONECTAR KICK</span>
+                  <span>CONECTAR KICK (+18)</span>
                 </motion.a>
               </div>
             </div>
           ) : (
             <form onSubmit={handleSubmitProof} className="space-y-5">
+              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
+                ⚠️ <strong>Aviso de Privacidad y PCI DSS:</strong> La captura solo debe mostrar tu pantalla de bienvenida o nombre de usuario en Bet365. <strong>Nunca subas fotos donde aparezcan números de tarjeta, cuentas bancarias, contraseñas ni documentos de identidad (DNI/Pasaporte).</strong>
+              </div>
+
               <div>
                 <label className="text-xs font-bold text-gray-300 block mb-2">
-                  1. Selecciona tu captura de pantalla (JPG o PNG):
+                  1. Selecciona tu captura de pantalla (JPG, PNG o WEBP - Máx 8MB):
                 </label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/webp"
                   onChange={handleFileChange}
                   className="block w-full text-xs text-gray-400 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-amber-400 file:text-black hover:file:bg-amber-300 cursor-pointer"
                 />

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllProofs, updateProofStatus } from '@/lib/db';
+import { getAllProofs, updateProofStatus, deleteProof } from '@/lib/db';
 import { checkAdminAuth } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
@@ -43,5 +43,29 @@ export async function PATCH(req: Request) {
     }
   } catch (error) {
     return NextResponse.json({ error: 'Error del servidor al actualizar estado' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  if (!checkAdminAuth()) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const proofId = searchParams.get('id');
+
+    if (!proofId) {
+      return NextResponse.json({ error: 'Falta ID de la prueba' }, { status: 400 });
+    }
+
+    const result = await deleteProof(proofId);
+    if (result.success) {
+      return NextResponse.json({ success: true, message: 'Prueba eliminada definitivamente (Takedown completado).' });
+    } else {
+      return NextResponse.json({ error: result.error || 'Error al eliminar prueba' }, { status: 400 });
+    }
+  } catch (error) {
+    return NextResponse.json({ error: 'Error del servidor al eliminar prueba' }, { status: 500 });
   }
 }

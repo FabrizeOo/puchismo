@@ -60,16 +60,31 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { imageUrl, notes } = body;
 
-    if (!imageUrl) {
+    if (!imageUrl || typeof imageUrl !== 'string') {
       return NextResponse.json({ error: 'Se requiere adjuntar la captura de pantalla.' }, { status: 400 });
     }
+
+    // Validación estricta de formato MIME y tamaño (Base64 máximo 10MB)
+    const validMimeMatch = imageUrl.match(/^data:image\/(png|jpeg|jpg|webp);base64,/i);
+    if (!validMimeMatch) {
+      return NextResponse.json(
+        { error: 'Formato no permitido. Solo se aceptan imágenes PNG, JPEG o WEBP.' },
+        { status: 400 }
+      );
+    }
+
+    if (imageUrl.length > 12 * 1024 * 1024) {
+      return NextResponse.json({ error: 'La imagen excede el límite de tamaño permitido (8MB).' }, { status: 413 });
+    }
+
+    const sanitizedNotes = typeof notes === 'string' ? notes.slice(0, 250).trim() : '';
 
     const result = await createProof({
       userId: user.id || user.username.toLowerCase(),
       username: user.username,
       profilePic: user.profilePic || '',
       imageUrl,
-      notes: notes || '',
+      notes: sanitizedNotes,
     });
 
     if (result.success) {

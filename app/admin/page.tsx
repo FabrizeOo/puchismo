@@ -227,6 +227,30 @@ export default function AdminPage() {
     }
   };
 
+  const handleDeleteProof = async (proofId: string) => {
+    if (!confirm('¿Seguro que deseas eliminar definitivamente esta captura? Esta acción cumple con la baja DMCA/derechos.')) {
+      return;
+    }
+    setActionLoading('del-' + proofId);
+    try {
+      const res = await fetch(`/api/admin/proofs?id=${proofId}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setNotification({ type: 'success', message: data.message });
+        fetchAdminData();
+      } else {
+        setNotification({ type: 'error', message: data.error || 'Error al eliminar la prueba' });
+      }
+    } catch {
+      setNotification({ type: 'error', message: 'Error de red al eliminar captura' });
+    } finally {
+      setActionLoading(null);
+      setTimeout(() => setNotification(null), 4000);
+    }
+  };
+
   const handleSaveUserPoints = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingUser) return;
@@ -731,7 +755,7 @@ export default function AdminPage() {
                                 </span>
                               </td>
                               <td className="py-3 px-4 text-right font-sans">
-                                <div className="flex justify-end gap-2">
+                                <div className="flex justify-end gap-2 flex-wrap">
                                   {proof.status !== 'APPROVED' && (
                                     <button
                                       disabled={actionLoading === proof.id}
@@ -750,6 +774,14 @@ export default function AdminPage() {
                                       ✕ Rechazar
                                     </button>
                                   )}
+                                  <button
+                                    disabled={actionLoading === 'del-' + proof.id}
+                                    onClick={() => handleDeleteProof(proof.id)}
+                                    title="Eliminar archivo / Cumplimiento DMCA"
+                                    className="px-2.5 py-1.5 rounded-lg bg-neutral-800 text-gray-400 hover:text-red-400 hover:bg-red-950/60 border border-white/10 text-[11px] font-bold transition-all"
+                                  >
+                                    🗑️ Borrar
+                                  </button>
                                 </div>
                               </td>
                             </tr>

@@ -99,20 +99,52 @@ export default function TerminosPage() {
             </p>
           </section>
 
-          {/* 5. Propiedad Intelectual */}
+          {/* 5. Propiedad Intelectual y Procedimiento de Notificación DMCA */}
           <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-white/10 space-y-3">
             <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <span>5.</span> Propiedad Intelectual
+              <span>5.</span> Propiedad Intelectual y Procedimiento de Notificación DMCA / Takedown
             </h2>
             <p>
               La marca Puchismo, logotipos, diseño gráfico, código fuente y contenido original son propiedad exclusiva de Bepucho. Los escudos, marcas comerciales y nombres de equipos o competiciones deportivas pertenecen a sus respectivos titulares y se utilizan únicamente con fines informativos y de referencia periodística/estadística.
             </p>
+            <div className="p-4 rounded-2xl bg-black/60 border border-white/10 space-y-2 text-xs sm:text-sm">
+              <h3 className="font-bold text-white text-xs uppercase tracking-wider text-emerald-400">
+                Aviso de Derechos de Autor (DMCA / Retiro de Contenido)
+              </h3>
+              <p>
+                Si consideras que algún archivo, imagen o comprobante subido por usuarios infringe tus derechos de autor o propiedad intelectual, puedes enviar una notificación formal de retiro a nuestro buzón designado:
+              </p>
+              <p className="font-mono text-emerald-400 font-bold">
+                contactopucho@gmail.com (Asunto: &ldquo;Notificación DMCA / Takedown - Puchismo&rdquo;)
+              </p>
+              <p className="text-[11px] text-gray-400">
+                Tu solicitud debe detallar: (a) identificación de la obra protegida, (b) URL o descripción del contenido infractor, (c) datos de contacto del titular o representante legal, y (d) declaración de buena fe. Al recibirla, procederemos a la baja inmediata del contenido tras la verificación técnica.
+              </p>
+            </div>
           </section>
 
-          {/* 6. Jurisdicción */}
+          {/* 6. Protección de Menores y Requisito de Edad */}
+          <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-emerald-500/20 space-y-3">
+            <h2 className="text-xl font-black text-white flex items-center gap-2">
+              <span>6.</span> Protección de Menores (COPPA y Restricción +18)
+            </h2>
+            <p>
+              Puchismo promueve un entorno digital seguro y responsable:
+            </p>
+            <ul className="list-disc list-inside space-y-1.5 pl-2 text-gray-300 text-xs sm:text-sm">
+              <li>
+                <strong>Cumplimiento COPPA (EE. UU.):</strong> No dirigimos nuestros servicios ni recopilamos deliberadamente información personal de niños menores de 13 años. Si detectamos una cuenta perteneciente a un menor de 13 años, eliminaremos sus registros de inmediato.
+              </li>
+              <li>
+                <strong>Mayoría de edad (+18):</strong> El acceso a programas de canjes, quinielas comunitarias y promociones con operadores de apuestas (como Bet365) está <strong>estrictamente reservado a mayores de 18 años (+18)</strong>. Al iniciar sesión o interactuar con dichas áreas, el usuario declara bajo juramento cumplir con la edad legal requerida en su jurisdicción.
+              </li>
+            </ul>
+          </section>
+
+          {/* 7. Jurisdicción */}
           <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-white/10 space-y-3">
             <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <span>6.</span> Legislación Aplicable y Jurisdicción
+              <span>7.</span> Legislación Aplicable y Jurisdicción
             </h2>
             <p>
               Estos términos se rigen por las leyes de la <strong className="text-white">República del Perú</strong>. Cualquier controversia se someterá a los tribunales competentes de la ciudad de <strong className="text-white">Lima, Perú</strong>.

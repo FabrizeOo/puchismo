@@ -959,6 +959,27 @@ export async function updateProofStatus(
   return { success: true, proof };
 }
 
+export async function deleteProof(proofId: string): Promise<{ success: boolean; error?: string }> {
+  const db = readDb();
+  if (!db.proofs) db.proofs = [];
+
+  const index = db.proofs.findIndex((p) => p.id === proofId);
+  if (index !== -1) {
+    db.proofs.splice(index, 1);
+    writeDb(db);
+  }
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      await supabase.from('proofs').delete().eq('id', proofId);
+    } catch (e) {
+      console.error('Supabase deleteProof error:', e);
+    }
+  }
+
+  return { success: true };
+}
+
 export async function getAdminMetrics() {
   const users = await getLeaderboard();
   const claims = await getAllClaims();

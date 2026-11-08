@@ -98,6 +98,9 @@ export function Bet365BottomBanner() {
                   <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-black uppercase tracking-wider">
                     Regalo de la Comunidad
                   </span>
+                  <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 text-[9px] font-black uppercase tracking-wider">
+                    +18 Solamente
+                  </span>
                   <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-[#53fc18] border border-emerald-500/40 text-[9px] font-black uppercase tracking-wider flex items-center gap-1">
                     <FaCoins size={9} /> +50 Pts Kick
                   </span>

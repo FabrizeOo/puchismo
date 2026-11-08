@@ -134,10 +134,20 @@ export default function PrivacidadPage() {
             </ul>
           </section>
 
-          {/* 6. Ejercicio de Derechos */}
+          {/* 6. Privacidad de Menores (COPPA) */}
+          <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-emerald-500/20 space-y-3">
+            <h2 className="text-xl font-black text-white flex items-center gap-2">
+              <span>6.</span> Privacidad de Menores (Cumplimiento COPPA)
+            </h2>
+            <p>
+              Nuestros servicios no están dirigidos a menores de 13 años. No recopilamos conscientemente datos de niños menores de 13 años de acuerdo con la Ley de Protección de la Privacidad Infantil en Línea (COPPA de EE. UU.). Si un padre o tutor toma conocimiento de que su hijo nos ha proporcionado información personal, debe comunicarse con nosotros en <strong className="text-emerald-400">contactopucho@gmail.com</strong> y procederemos a su eliminación inmediata de nuestras bases de datos.
+            </p>
+          </section>
+
+          {/* 7. Ejercicio de Derechos */}
           <section className="p-6 sm:p-8 rounded-3xl bg-neutral-900/80 border border-white/10 space-y-3">
             <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <span>6.</span> Ejercicio de Derechos (Acceso, Rectificación y Cancelación)
+              <span>7.</span> Ejercicio de Derechos (Acceso, Rectificación y Cancelación)
             </h2>
             <p>
               En concordancia con el Reglamento General de Protección de Datos (GDPR) y la legislación de protección de datos personales de Perú (Ley N° 29733), tienes derecho a:

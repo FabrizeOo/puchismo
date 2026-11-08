@@ -14,7 +14,7 @@ import {
 export function CookieBanner() {
   const [visible, setVisible] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
-  const [allowAnalytics, setAllowAnalytics] = useState(true);
+  const [allowAnalytics, setAllowAnalytics] = useState(false);
   const [allowMarketing, setAllowMarketing] = useState(false);
 
   useEffect(() => {
