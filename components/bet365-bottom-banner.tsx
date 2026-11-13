@@ -114,18 +114,21 @@ export function Bet365BottomBanner() {
             {/* Explicación de los Bonos y Promociones */}
             <div className="space-y-2 py-1">
               <p className="text-xs text-gray-300 leading-relaxed">
-                Regístrate con el enlace oficial de <strong className="text-white">Bepucho</strong>, aprovecha los <strong className="text-emerald-400">bonos de bienvenida de Bet365</strong> para potenciar tus apuestas deportivas y llévate:
+                Regístrate con el enlace oficial de <strong className="text-white">Bepucho</strong>, aprovecha las promociones de <strong className="text-emerald-400">bet365</strong> (Duplica tu primer depósito, Super Aumento de Cuotas y Aumentos Exclusivos) y llévate:
               </p>
               <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
                 <div className="p-2 rounded-xl bg-black/50 border border-white/10 flex items-center gap-1.5 text-gray-200">
                   <FaCheckCircle className="text-emerald-400 flex-shrink-0" size={12} />
-                  <span>Bono de Depósito 100%</span>
+                  <span>Duplica tu 1er depósito</span>
                 </div>
                 <div className="p-2 rounded-xl bg-black/50 border border-white/10 flex items-center gap-1.5 text-gray-200">
                   <FaCheckCircle className="text-[#53fc18] flex-shrink-0" size={12} />
-                  <span>+50 Pts para la Quiniela</span>
+                  <span>+50 Pts en la web</span>
                 </div>
               </div>
+              <p className="text-[10px] text-gray-400 leading-snug pt-1">
+                +18 | Juega con Responsabilidad. Aplican T&C. Premio proporcionado por BEPUCHO. No afiliado, patrocinado ni organizado por bet365.
+              </p>
             </div>
 
             {/* Botones de Acción */}

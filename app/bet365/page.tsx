@@ -198,10 +198,13 @@ export default function Bet365Page() {
           </motion.div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-white">
-            Gana <span className="text-amber-400">+50 Puntos</span> Registrándote en Bet365
+            Gana <span className="text-amber-400">+50 Puntos</span> Registrándote en bet365
           </h1>
           <p className="text-gray-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-            Regístrate en Bet365 mediante el enlace oficial de Bepucho, sube tu captura comprobante y recibe 50 puntos acumulables para canjear por premios reales.
+            Regístrate en bet365 mediante el enlace oficial de Bepucho, sube tu captura comprobante y recibe 50 puntos acumulables para canjear por premios reales.
+          </p>
+          <p className="text-[11px] text-amber-300/90 font-semibold max-w-2xl mx-auto bg-amber-500/10 border border-amber-500/20 rounded-xl px-3.5 py-2">
+            +18 | Juega con Responsabilidad. Aplican T&C. Premio proporcionado por BEPUCHO. No afiliado, patrocinado ni organizado por bet365.
           </p>
 
           {/* Steps indicator */}
@@ -284,9 +287,9 @@ export default function Bet365Page() {
           {/* Cards de promo */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
             {[
-              { img: '/PROMO1.png', alt: 'Promoción Bet365 #1' },
-              { img: '/PROMO2.png', alt: 'Promoción Bet365 #2' },
-              { img: '/PROMO3.png', alt: 'Promoción Bet365 #3' },
+              { img: '/PROMO1.png', alt: 'Aumentos Exclusivos bet365' },
+              { img: '/PROMO2.png', alt: 'Super Aumento de Cuotas bet365' },
+              { img: '/PROMO3.png', alt: 'Duplica tu primer depósito bet365' },
             ].map((promo, i) => (
               <motion.a
                 key={i}
@@ -321,6 +324,9 @@ export default function Bet365Page() {
               <Link href="/juego-responsable" className="text-amber-400 underline font-semibold">
                 Guía de Ayuda y Juego Responsable
               </Link>
+            </p>
+            <p className="text-[11px] text-gray-500">
+              +18 | Juega con Responsabilidad. Aplican T&amp;C. Premio proporcionado por BEPUCHO. No afiliado, patrocinado ni organizado por bet365.
             </p>
           </div>
         </div>

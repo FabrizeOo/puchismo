@@ -53,10 +53,10 @@ const WAYS_TO_EARN = [
   {
     id: 'bet365',
     icon: FaDice,
-    title: 'Registro en Bet365',
-    subtitle: '50 puntos de regalo',
+    title: 'Registro en bet365',
+    subtitle: '50 puntos de regalo (+18)',
     points: '+50 pts',
-    description: 'Regístrate en Bet365 mediante bit.ly/BEPUCHO y sube tu comprobante en la interfaz especial.',
+    description: 'Regístrate en bet365 mediante bit.ly/BEPUCHO y sube tu comprobante. +18 | Juega con Responsabilidad. Aplican T&C. Premio proporcionado por BEPUCHO. No afiliado, patrocinado ni organizado por bet365.',
     color: '#fbbf24',
     glow: 'rgba(251,191,36,0.4)',
     link: '/bet365',
