@@ -63,14 +63,9 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // Headers globales de seguridad y control de caché para páginas dinámicas y HTML
+        // Headers globales de seguridad para páginas HTML
         source: '/:path*',
-        headers: [
-          ...securityHeaders,
-          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
-          { key: 'Pragma', value: 'no-cache' },
-          { key: 'Expires', value: '0' },
-        ],
+        headers: securityHeaders,
       },
       {
         // Assets estáticos de Next.js con hash en el nombre

@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/quiniela', changeFrequency: 'daily', priority: 0.9 },
     { path: '/partidos/hoy', changeFrequency: 'hourly', priority: 0.9 },
     { path: '/partidos/manana', changeFrequency: 'daily', priority: 0.8 },
+    { path: '/guias', changeFrequency: 'weekly', priority: 0.9 },
     { path: '/tabla/champions-league', changeFrequency: 'daily', priority: 0.8 },
     { path: '/tabla/premier-league', changeFrequency: 'daily', priority: 0.8 },
     { path: '/tabla/la-liga', changeFrequency: 'daily', priority: 0.8 },

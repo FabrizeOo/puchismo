@@ -2,12 +2,9 @@ import type { Metadata } from 'next';
 import { Poppins, Inter } from 'next/font/google';
 import './globals.css';
 import { GlobalPointsTracker } from '@/components/global-points-tracker';
-import { TelegramAdModal } from '@/components/telegram-ad-modal';
 import { AnalyticsTracker } from '@/components/analytics-tracker';
 import { CookieBanner } from '@/components/cookie-banner';
-import { AdSenseLoader } from '@/components/adsense-loader';
 import { NavigationProgress } from '@/components/navigation-progress';
-import { Bet365BottomBanner } from '@/components/bet365-bottom-banner';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -93,11 +90,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <NavigationProgress />
         <AnalyticsTracker />
         <GlobalPointsTracker />
-        <TelegramAdModal />
-        <Bet365BottomBanner />
         <CookieBanner />
         {children}
-        <AdSenseLoader />
       </body>
     </html>
   );

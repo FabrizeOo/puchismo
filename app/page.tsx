@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Navbar } from '@/components/navbar';
 import { HeroSection, SocialSection, DiscordSection } from '@/components/home-sections';
 import { TelegramSection } from '@/components/telegram-section';
+import { EditorialHomeSection } from '@/components/editorial-home-section';
 import { Footer } from '@/components/footer';
 
 import { constructMetadata } from '@/lib/seo';
@@ -62,6 +63,7 @@ export default function HomePage() {
       />
       <Navbar />
       <HeroSection />
+      <EditorialHomeSection />
       <TelegramSection />
       <SocialSection />
       <DiscordSection />

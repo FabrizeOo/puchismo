@@ -52,6 +52,7 @@ export function Footer() {
               {[
                 { label: 'Partidos de Hoy', href: '/partidos/hoy' },
                 { label: 'Partidos de Mañana', href: '/partidos/manana' },
+                { label: 'Guías y Análisis', href: '/guias' },
                 { label: 'Quiniela (Prode)', href: '/quiniela' },
                 { label: 'Tabla Champions League', href: '/tabla/champions-league' },
                 { label: 'Tabla Premier League', href: '/tabla/premier-league' },

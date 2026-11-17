@@ -19,8 +19,8 @@ const navItems: NavItem[] = [
   { label: 'Partidos', href: '/partidos/hoy' },
   { label: 'Tablas', href: '/tabla/premier-league' },
   { label: 'Quiniela', href: '/quiniela', highlight: true },
+  { label: 'Guías', href: '/guias' },
   { label: 'Stream', href: '/stream' },
-  { label: 'Bet365 (+50 Pts)', href: '/bet365' },
   { label: 'Rewards', href: '/rewards' },
   { label: 'Leaderboard', href: '/leaderboard' },
 ];
