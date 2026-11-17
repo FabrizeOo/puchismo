@@ -100,12 +100,13 @@ export class FootballDataOrgProvider implements FootballDataProvider {
   }
 
   async getMatchesToday(bypassCache: boolean = false): Promise<MatchItem[]> {
-    // Para no perder ningún partido por desfase UTC/Lima, consultamos desde hoy Lima hasta mañana Lima
+    // Consultamos una ventana de 3 días (hoy + próximos 2 días) porque dateTo en football-data.org es exclusivo en UTC
+    // (los partidos nocturnos de Sudamérica pasan a las 00:00+ UTC del día siguiente) y para mostrar los próximos partidos si hoy no hay jornada
     const todayLima = getLimaDateString(0);
-    const tomorrowLima = getLimaDateString(1);
+    const windowEndLima = getLimaDateString(3);
     try {
       const data = await this.fetchApi<{ matches: MatchItem[] }>(
-        `/matches?dateFrom=${todayLima}&dateTo=${tomorrowLima}&competitions=PL,PD,CL,BL1,SA,FL1,BSA,DED,PPL,ELC`,
+        `/matches?dateFrom=${todayLima}&dateTo=${windowEndLima}&competitions=PL,PD,CL,BL1,SA,FL1,BSA,DED,PPL,ELC`,
         60, // 60 segundos de caché para monitoreo ágil
         bypassCache
       );
@@ -121,7 +122,7 @@ export class FootballDataOrgProvider implements FootballDataProvider {
         }
       });
 
-      return filtered.length > 0 ? filtered : allMatches.slice(0, 15);
+      return filtered.length > 0 ? filtered : allMatches.slice(0, 16);
     } catch (e) {
       console.error('[FootballDataOrg] Error getMatchesToday:', e);
       return [];
@@ -130,10 +131,10 @@ export class FootballDataOrgProvider implements FootballDataProvider {
 
   async getMatchesTomorrow(bypassCache: boolean = false): Promise<MatchItem[]> {
     const tomorrowLima = getLimaDateString(1);
-    const dayAfterTomorrowLima = getLimaDateString(2);
+    const windowEndLima = getLimaDateString(4);
     try {
       const data = await this.fetchApi<{ matches: MatchItem[] }>(
-        `/matches?dateFrom=${tomorrowLima}&dateTo=${dayAfterTomorrowLima}&competitions=PL,PD,CL,BL1,SA,FL1,BSA,DED,PPL,ELC`,
+        `/matches?dateFrom=${tomorrowLima}&dateTo=${windowEndLima}&competitions=PL,PD,CL,BL1,SA,FL1,BSA,DED,PPL,ELC`,
         300, // 5 min cache
         bypassCache
       );
@@ -148,7 +149,7 @@ export class FootballDataOrgProvider implements FootballDataProvider {
         }
       });
 
-      return filtered.length > 0 ? filtered : allMatches.slice(0, 15);
+      return filtered.length > 0 ? filtered : allMatches.slice(0, 16);
     } catch (e) {
       console.error('[FootballDataOrg] Error getMatchesTomorrow:', e);
       return [];

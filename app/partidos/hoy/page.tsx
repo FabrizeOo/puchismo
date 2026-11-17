@@ -47,7 +47,7 @@ export default async function PartidosHoyPage() {
               href="/quiniela"
               className="text-xs text-amber-400 hover:text-amber-300 font-bold"
             >
-              Ir a la Casa de Apuestas de la Quiniela →
+              Ir a la Quiniela de Pronósticos →
             </Link>
           </div>
         </div>

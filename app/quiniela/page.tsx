@@ -20,10 +20,13 @@ export default async function QuinielaPage() {
     getMatchesTomorrow(false, true),
   ]);
 
-  // Filtrar partidos que aún no hayan finalizado
-  const activeMatches = [...todayMatches, ...tomorrowMatches].filter(
-    (m) => m.status !== 'FINISHED' && m.status !== 'CANCELLED'
-  );
+  // Combinar sin duplicados por ID y filtrar partidos que aún no hayan finalizado
+  const seenIds = new Set<number>();
+  const activeMatches = [...todayMatches, ...tomorrowMatches].filter((m) => {
+    if (seenIds.has(m.id)) return false;
+    seenIds.add(m.id);
+    return m.status !== 'FINISHED' && m.status !== 'CANCELLED';
+  });
 
   return (
     <main className="min-h-screen text-white overflow-x-hidden" style={{ background: '#030b04' }}>
